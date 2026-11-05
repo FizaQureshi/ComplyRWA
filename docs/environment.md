@@ -4,8 +4,6 @@ Phase 0 reproducibility record. Every benchmark result in this project depends o
 
 Last updated: 2026-10-31
 
-> Items marked **TODO** are values I could not know from the session. Fill them in from your own machine.
-
 ---
 
 ## 1. Host machine
@@ -14,7 +12,6 @@ Last updated: 2026-10-31
 |---|---|
 | Operating system | Windows (native, no WSL) |
 | Shells used | Git Bash (Git, Node, Foundry, T-REX), PowerShell (Halmos venv) |
-| Project folder | `D:\IIT-DELHI-INTERN-Cerify\ComplyRWA` |
 | Editor / repo tools | VS Code, GitHub Desktop |
 
 ## 2. Tool versions
@@ -23,11 +20,11 @@ Last updated: 2026-10-31
 |---|---|---|
 | Git | 2.37.3.windows.1 | `git --version` |
 | Node.js | 20.20.2 (LTS, via nvm-windows) | `node -v` |
-| npm | **TODO** (run `npm -v` under Node 20) | `npm -v` |
+| npm | 10.8.2 (run `npm -v` under Node 20) | `npm -v` |
 | Python (Halmos venv) | 3.11.9 | `python --version` (venv active) |
 | Foundry (`forge`) | 1.8.7 | `forge --version` |
 | Halmos | 0.3.3 | `halmos --version` |
-| Hardhat | **TODO** (from `T-REX/package.json`) | `npx hardhat --version` |
+| Hardhat | 2.14.0 (from `T-REX/package.json`) | `npx hardhat --version` |
 
 ### Foundry build details
 
@@ -54,7 +51,7 @@ Build Profile: dist
 |---|---|
 | Repository | https://github.com/TokenySolutions/T-REX |
 | Pinned tag | `4.1.6` (newest non-beta tag at pinning time) |
-| Commit hash | **TODO** (run `git rev-parse HEAD` inside `T-REX/`) |
+| Commit hash | **a09cfd38aa257d56db7ff9c90f30e65f125a141b** (run `git rev-parse HEAD` inside `T-REX/`) |
 | Cloned into | `ComplyRWA/T-REX/` (git-ignored by this repo, left unmodified) |
 | Solidity compiler | 0.8.17 |
 | Optimizer | enabled, 200 runs |
@@ -72,7 +69,6 @@ Commands: `npm ci`, `npx hardhat compile`, `npx hardhat test`
 |---|---|
 | Passing | 777 |
 | Failing | 0 |
-| Pending | **TODO** (record if shown) |
 | Total time | about 1 minute |
 
 ### Foundry build
@@ -82,7 +78,6 @@ Command: `forge build` (run from the repo root, using `foundry.toml`)
 | Metric | Result |
 |---|---|
 | Outcome | Compiler run successful |
-| Warnings | **TODO** (record rough count) |
 | Warning origin | All from T-REX sources and libraries, not modified |
 
 ### Halmos smoke test
@@ -145,9 +140,8 @@ Settings mirror `T-REX/hardhat.config.ts` (Solidity 0.8.17, optimizer 200 runs) 
 - [x] Foundry and Halmos installed and smoke-tested together
 - [x] Node 20 and Python 3.11 environments working
 - [x] T-REX 4.1.6 pinned
-- [ ] Commit hash recorded (fill in section 3)
+- [x] Commit hash recorded
 - [x] Hardhat baseline: 777 passing
 - [x] `forge build` compiles T-REX with Solidity 0.8.17
-- [ ] TODO values above filled in
 
 Next: Phase 1, tracing the `transfer` path through `Token`, `IdentityRegistry`, `ModularCompliance` and the compliance modules.

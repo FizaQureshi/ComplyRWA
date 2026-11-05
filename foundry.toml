@@ -2,7 +2,7 @@
 src = "T-REX/contracts"
 test = "test"
 out = "out"
-libs = ["T-REX/node_modules"]
+libs = ["lib", "T-REX/node_modules"]
 solc_version = "0.8.17"
 evm_version = "london"
 optimizer = true
@@ -10,4 +10,5 @@ optimizer_runs = 200
 remappings = [
   "@openzeppelin/=T-REX/node_modules/@openzeppelin/",
   "@onchain-id/=T-REX/node_modules/@onchain-id/",
+  "forge-std/=lib/forge-std/src/",
 ]
