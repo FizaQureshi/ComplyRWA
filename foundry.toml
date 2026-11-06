@@ -12,3 +12,11 @@ remappings = [
   "@onchain-id/=T-REX/node_modules/@onchain-id/",
   "forge-std/=lib/forge-std/src/",
 ]
+
+[invariant]
+runs = 64
+depth = 40
+fail_on_revert = false
+
+[fuzz]
+seed = "0x436f6d706c79"
