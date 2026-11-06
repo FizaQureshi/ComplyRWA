@@ -1,4 +1,4 @@
-# ComplyRWA: Phase 2
+# ComplyRWA: Phase 2 Policy Catalogue (Scope)
 
 **Goal of Phase 2:** fix exactly what ComplyRWA will check, so Phases 3 and 4 have a stable target.
 
@@ -13,7 +13,7 @@
 Pinned system: T-REX tag `4.1.6`, Solidity 0.8.17.
 Commit hash: `a09cfd38aa257d56db7ff9c90f30e65f125a141b` (`a09cfd3`, "Compliance modules fixes & improvements (#228)").
 
-> **How to read the examples.** Every example is a *planned* case, written from the Phase 1 notes. None of them has been run yet. They become real in Phase 3, when each one is turned into a seeded vulnerable variant and a Foundry test.
+> **How to read the examples.** Every example is a *planned* case, written from the Phase 1 notes. None of them has been run yet. They become real in Phase 3, when each one is turned into a seeded vulnerable variant and a Foundry test. Where an example depends on something not yet confirmed in the pinned version, it is marked **(verify)**.
 
 ---
 
@@ -38,6 +38,19 @@ So every example is short, they all use the same cast and settings.
 - **Policy expects** = what the issuer's rule says should happen.
 - **Broken config gives** = what actually happens in the vulnerable variant.
 - A **finding** is raised when these two differ.
+
+---
+
+## 2. Decisions that change how rules are judged
+
+Four decisions from Phase 1 still need your sign-off. The proposals are my suggestion, not final.
+
+| # | Decision | Proposal | Affects |
+|---|---|---|---|
+| D1 | Is `forcedTransfer` always exempt, or judged per module? | **Per module and per policy.** Skips `canTransfer` (read side) but still hits `transferred` (write side). MaxBalance catches it; CountryRestrict does not | J1, J4, H1 |
+| D2 | Are sender-side checks in scope (K5, sender country)? | **K5 in scope as "intentionally violated by stock config".** Sender-country listed as an issuer policy choice, not a default | K5 |
+| D3 | Same-identity move (600 held, cap 1000, move 500 between `A1` and `A2`): "rejected" or "should pass"? | **Expected = rejected** (matches stock `moduleCheck`). The auditor does not report it as a bug. Recorded as a known false-positive trap | H2 |
+| D4 | Is K4 (expired KYC) a real finding? | **Yes, in scope**, flagged as a known gap of stock T-REX rather than a code bug | K4 |
 
 ---
 
@@ -90,7 +103,7 @@ ID, Plain-English rule, Paths covered, Contracts involved, Testable form, Known 
 | **Testable form** | For each revocation route below, after revocation `isVerified(receiver) == false` and a transfer to that receiver reverts. Routes: (a) `deleteIdentity`, (b) trusted issuer removed (and no other trusted issuer holds a claim for the investor), (c) claim revoked at the ClaimIssuer. |
 | **Known exceptions** | Revocation does **not** stop the wallet from sending tokens it already holds (see K5). Removing a required topic is **not** a revocation route; see the note under K3. |
 | **How it could break** | Variant `isVerified` caches a previous "true" result. Variant ClaimIssuer ignores `revokedClaims`. Variant registry keeps the old identity after `deleteIdentity`. |
-| **Status** | Holds on stock |
+| **Status** | Holds on stock for the three routes. **One bypass found by test: S03** (investor re-adds a revoked claim with a twin signature) |
 
 **Example: revoked claim still accepted**
 
@@ -104,7 +117,7 @@ ID, Plain-English rule, Paths covered, Contracts involved, Testable form, Known 
 
 ---
 
-> **K2 candidate (untested).** A possible revocation bypass through signature malleability is described in section 5a (note after item 12). It needs a Foundry test before it counts as a finding.
+> **K2 bypass reproduced in a test (S03).** An investor can undo a revocation by re-adding the claim with a twin signature. See section 5a (note after item 12). Reproduced in a sandbox run; re-run on your machine to confirm (`test/StockGaps.t.sol`).
 
 #### K3: Required claim topics list must not be empty
 
@@ -397,7 +410,7 @@ ID, Plain-English rule, Paths covered, Contracts involved, Testable form, Known 
 | ID | Category | Rule (short) | Status on stock | Main break type |
 |---|---|---|---|---|
 | K1 | KYC | Only fully verified receivers | Holds | Wrong verification logic |
-| K2 | KYC | Revocation blocks receiving | Holds | Revocation ignored |
+| K2 | KYC | Revocation blocks receiving | Holds (bypass S03) | Revocation ignored, twin signature |
 | K3 | KYC | Topics list not empty | Config check | Empty list |
 | K4 | KYC | Expired KYC rejected | **Violated** | No on-chain expiry |
 | K5 | KYC | Revoked sender cannot send | **Violated** | Sender never checked |
@@ -409,6 +422,74 @@ ID, Plain-English rule, Paths covered, Contracts involved, Testable form, Known 
 | H2 | Holding limit | Cap per identity | Holds | Keyed by wallet |
 | H3 | Holding limit | Counters match balances | Holds | Bad preset, drift |
 | H4 | Holding limit | Cap set sensibly | Config check | 0 or max value |
+
+**Count check against clearance criteria:** 13 rules give enough room for **at least 8** executable invariants and **12-15** seeded variants (one per example above, plus extras).
+
+---
+
+## 5. Verification plan against the pinned commit
+
+Phase 1 checked some files against GitHub `main`, not against the pinned commit `a09cfd3`. That commit's message ("Compliance modules fixes & improvements") also suggests the compliance modules may differ from `main`. So the claims below must be re-checked on the exact pinned files.
+
+| # | What to confirm | Rule / decision it affects | File to read (pinned) |
+|---|---|---|---|
+| 1 | `transfer` and `transferFrom` call `isVerified` on the receiver only | K5, D2 | `T-REX/contracts/token/Token.sol` |
+| 2 | `forcedTransfer` skips `canTransfer` but still calls `transferred` | D1, J4, H1 | `T-REX/contracts/token/Token.sol` |
+| 3 | `moduleCheck` logic and the write-side limit check | D1, D3, H1 to H4 | `.../compliance/modular/modules/MaxBalanceModule.sol` |
+| 4 | Empty write hooks, receiver-only country check | D1, J1, J4 | `.../compliance/modular/modules/CountryRestrictModule.sol` |
+| 5 | `isVerified` logic (AND across topics, OR across issuers, empty topic list) | K1, K2, K3 | `T-REX/contracts/registry/implementation/IdentityRegistry.sol` |
+| 6 | Whether `isClaimValid` checks any expiry | K4, D4 | `T-REX/node_modules/@onchain-id/solidity/contracts/ClaimIssuer.sol` |
+| 7 | What `onlyComplianceCall` and `bindCompliance` really check | J3 (use `getModules()` as source of truth) | `AbstractModuleUpgradeable.sol` (and `AbstractModule.sol` if present) |
+
+Commands to find and read the files (Git Bash, from the `ComplyRWA` folder):
+
+```
+# K4: which ONCHAINID version is installed, and any expiry logic
+grep -n "@onchain-id" T-REX/package.json
+grep '"version"' T-REX/node_modules/@onchain-id/solidity/package.json
+grep -rniE "expir|validTo|validUntil|block.timestamp" T-REX/node_modules/@onchain-id/solidity/contracts T-REX/contracts/registry
+
+# onlyComplianceCall: find the abstract module files and the key lines
+find T-REX/contracts/compliance -name "AbstractModule*"
+grep -rn "onlyComplianceCall\|complianceBound\|function bindCompliance" T-REX/contracts/compliance/modular
+```
+
+Reading the source is step one. In Phase 3, each confirmed claim also becomes a small Foundry test, so the result is proven by running code and not only by reading it.
+
+---
+
+## 5a. Findings from the pinned files (7 of 7 checked)
+
+Checked against the pinned commit `a09cfd3`: `Token.sol`, `IdentityRegistry.sol`, `ModularCompliance.sol`, `MaxBalanceModule.sol`, `CountryRestrictModule.sol`, `AbstractModuleUpgradeable.sol`, and `ClaimIssuer.sol` (from the installed ONCHAINID dependency; its version number is not recorded yet).
+
+| # | Claim | Result | Evidence in the pinned code |
+|---|---|---|---|
+| 1 | `transfer` and `transferFrom` check KYC on the receiver only | **Confirmed** | Both call `isVerified(_to)`. Nothing calls it on the sender |
+| 2 | `forcedTransfer` skips `canTransfer` but still calls `transferred` | **Confirmed** | It requires only `isVerified(_to)`, then `_transfer` and `transferred` |
+| 3 | MaxBalance `moduleCheck` and write-side guard | **Confirmed** | `moduleCheck` uses `>` and ignores `_from`. `moduleTransferAction` and `moduleMintAction` revert with `MaxBalanceExceeded` if the receiver ends above the cap. Unconfigured max is 0, so every non-zero transfer is blocked |
+| 5 | `isVerified` logic | **Confirmed** | AND across topics, OR across issuers. Empty topic list returns true. No trusted issuer for a topic returns false. The `issuer` used comes from `getClaim`, not from the trusted list |
+| 4 | CountryRestrictModule hooks | **Confirmed** | `moduleTransferAction`, `moduleMintAction` and `moduleBurnAction` have empty bodies (only `onlyComplianceCall`). `moduleCheck` looks only at the receiver's country and ignores `_from` and the amount. Country is read live from the registry on every check. `canComplianceBind` and `isPlugAndPlay` both return true |
+| 6 | `ClaimIssuer` expiry | **Confirmed** | `isClaimValid` only checks that the recovered signer's key has purpose 3 and that the signature is not in `revokedClaims`. No timestamp or expiry logic anywhere in the path (registry or issuer) |
+| 7 | `onlyComplianceCall` / `bindCompliance` | **Confirmed** | `onlyComplianceCall` checks `complianceBound[msg.sender]` in the module's own storage. `bindCompliance(_compliance)` only requires `msg.sender == _compliance`, so any contract can mark itself bound. State is keyed by `msg.sender`, so this is harmless to other compliance contracts, but "bound in the module" does not prove "listed in a real ModularCompliance". Use `getModules()` and `isModuleBound` as the source of truth |
+
+**Corrections to earlier notes (from the pinned code)**
+
+1. **`mint` uses different revert messages** from `transfer`. KYC failure gives `"Identity is not verified."` and a rule failure gives `"Compliance not followed"`. The "same message for both" observation holds only for `transfer`, `transferFrom` and `forcedTransfer`. The Counterexample Explainer can read the reason string for mint.
+2. **Preset functions behave differently.** `preSetModuleState` (single) does not set the preset flag. `batchPreSetModuleState` and `presetCompleted` do. `presetCompleted` has **no** "module not yet bound" check, and it does not check that any balances were preset. This gives an easy H3 variant.
+3. **`canComplianceBind`** (MaxBalance) returns true if the preset flag is set, otherwise it reads the bound token's `totalSupply`. If no token is bound yet and no preset is set, that call should revert (inferred from the code; test it in Phase 3). Fixture rule: bind the token to the compliance before adding MaxBalanceModule.
+4. **`bindToken`** lets the token bind itself only while no token is bound. The owner can always bind.
+5. **`forcedTransfer`, `mint` and `burn` are not `whenNotPaused`.** A paused token still allows these agent paths. Not one of the 13 rules, but worth a line in the audit report.
+6. **`ModularCompliance.isModuleBound(module)` exists.** Use it with `getModules()` for the J3 test.
+7. **Same-identity moves (D3):** `moduleCheck` rejects `A1` to `A2` (600 held, move 500, cap 1000) because it adds 600 + 500. But an agent `forcedTransfer` of the same amount succeeds, because `moduleTransferAction` adds then subtracts for the same identity (net zero).
+8. **`forcedTransfer` to a restricted country (D1, J4) is confirmed.** `Token.forcedTransfer` skips `canTransfer`, and the three `CountryRestrictModule` write hooks are empty, so nothing stops it. `MaxBalanceModule` is different: its write hook reverts.
+9. **Module state survives `removeModule`.** `unbindCompliance` only flips the `complianceBound` flag. Restricted countries, `_IDBalance` and the preset flag stay stored under the compliance address. A module removed and re-added picks up the old state. Useful for H3 and J3 tests.
+10. **Modules are UUPS upgradeable and need `initialize()`.** `AbstractModuleUpgradeable` is `UUPSUpgradeable` with `_authorizeUpgrade` restricted to the module owner. Fixture rule: deploy each module behind a proxy and call `initialize()`. Check how T-REX's own Hardhat test fixtures do this before copying the pattern. An un-initialized module would let the first caller become its owner. That is a deployment-trust matter, out of scope as a finding.
+11. **`ClaimIssuer` revocation is keyed by the raw signature bytes** (`revokedClaims[sig]`). Two consequences for the tests:
+    - A revoked claim cannot simply be "re-issued" with identical data. A deterministic signer produces the same signature, which is still revoked. **C06 must re-issue with different `data`.**
+    - In Foundry, sign the exact `prefixedHash` that `isClaimValid` builds (`"\x19Ethereum Signed Message:\n32"` plus the data hash) with `vm.sign`. Do not add a second prefix.
+12. **`ClaimIssuer` is deployed directly.** Its constructor passes `isLibrary = false` to `Identity`, so a normal `new ClaimIssuer(managementKey)` works. The signer key needs purpose 3 (added with `addKey`).
+
+**Candidate finding, now reproduced in a test (S03).** Because `getRecoveredAddress` does not enforce a low-`s` signature, and `revokedClaims` is keyed by exact signature bytes, an investor who controls their own ONCHAINID might re-add the same claim with the "twin" signature (same signer, different bytes). That twin would not be in `revokedClaims`, so a revoked claim could pass `isClaimValid` again. This depends on how `Identity.addClaim` behaves, and I have not seen that file. Treat it as a hypothesis for a Phase 3 Foundry test (possible extra stock-gap case under K2), not as a finding. Reading `Identity.addClaim` (ONCHAINID 2.1.0) supports it: it only requires `isClaimValid` to return true for the new signature, and it overwrites the stored claim. A Foundry test (`test_S03_revokedClaimRevivedByTwinSignature`) revoked Bob's claim, confirmed receiving was blocked, then had Bob re-add the claim with the twin signature, and Bob could receive again. This was run in a sandbox with Foundry 1.2.3 and the pinned T-REX; it still needs to be re-run on your machine. Treat it as a stock gap of the ONCHAINID dependency, not of T-REX code.
 
 ---
 
@@ -460,12 +541,13 @@ All variant code lives in a separate `ComplyRWA/variants/` folder. The `T-REX/` 
 | V13 | H4 | G | `setMaxBalance(type(uint256).max)` | Transfer of 5000 succeeds against policy cap 1000 |
 | S01 | K4 | S | Stock config, claim with an expiry date in the past | Expired claim accepted (stock gap) |
 | S02 | K5 | S | Stock config, sender's claim revoked | Revoked sender can still send (stock gap) |
+| S03 | K2 | S | Stock config, claim revoked, then re-added by the investor with the twin signature (`s' = n - s`, flipped `v`) | Revoked investor receives again (stock gap, reproduced in test) |
 
-
+**Count:** 13 seeded variants (V01 to V13) plus 3 stock-gap cases (S01, S02, S03). Even if you drop the S cases, 13 stays inside the 12-15 target.
 
 **Which run detects what**
 - **Default audit (K1, K3, J1, H1, H3):** V01, V02, V04, V05, V07, V09, V11, V12, V13 (V13 is caught by the H1 test because a 5000 transfer exceeds the policy cap).
-- **Extended audits (K2, J2, J3, H2, K4, K5):** V03, V06, V08, V10, S01, S02.
+- **Extended audits (K2, J2, J3, H2, K4, K5):** V03, V06, V08, V10, S01, S02, S03.
 
 **Checks to do when building them:** some variants may turn out not to be reproducible (for example V06 depends on how the module reads the country). Reproducibility is judged in Phase 3. Only reproducible variants count in the 75% detection target.
 
@@ -489,15 +571,40 @@ These must **not** produce findings. They measure the false-positive rate (targe
 C07 relies on the check being `>` rather than `>=`. **Confirmed** in the pinned `MaxBalanceModule.sol`: both `moduleCheck` and `moduleTransferAction` use `>`.
 
 ---
- 
-## 9. Phase 3 selection: gold invariants and seeds
- 
-### 9.1 Gold-standard tests (hand-written Foundry tests)
- 
-17 tests covering all 13 rules. **P** = property (must hold after any sequence of calls, checked with fuzzing or invariant tests). **S** = scenario or configuration check (fixed steps).
- 
+
+## 9. Status: Phase 2 CLOSED
+
+**Decisions (all signed off by the project owner)**
+
+| Item | Outcome |
+|---|---|
+| K2 / K3 topic removal | Closed. Handled under K3 |
+| D1 `forcedTransfer` judged per module and policy | **Accepted.** Confirmed by code |
+| D2 K5 in scope as "violated by stock" | **Accepted.** Confirmed by code |
+| D3 same-identity move expected as rejected | **Accepted.** Confirmed by code |
+| D4 K4 in scope | **Accepted.** Confirmed by code |
+
+**Checklist**
+- [x] Commit hash recorded and tag `4.1.6` confirmed.
+- [x] `environment.md` updated (commit hash, ONCHAINID version).
+- [x] 13 rules written with the full template and an example each.
+- [x] Default audit input chosen (section 6).
+- [x] Variant list and clean set written (sections 7 and 8).
+- [x] All 7 pinned-code checks done (section 5a).
+- [x] D1 to D4 accepted.
+- [x] Hardhat version recorded: 2.14.0 (run `npx hardhat --version` inside `T-REX/`).
+- [x] **Addendum after closure:** the signature-malleability hypothesis was reproduced in a test and added as S03 (K2) and G14. No decision changed.
+
+---
+
+## 10. Phase 3 selection: gold invariants and seeds
+
+### 10.1 Gold-standard tests (hand-written Foundry tests)
+
+18 tests covering all 13 rules. **P** = property (must hold after any sequence of calls, checked with fuzzing or invariant tests). **S** = scenario or configuration check (fixed steps).
+
 **Default audit set: 9 tests, for rules K1, K3, J1, H1, H3** (this gives the 8 or more executable invariants the project needs)
- 
+
 | ID | Rule | What it asserts | Type |
 |---|---|---|---|
 | G01a | K1 | After any successful `transfer`, `transferFrom` or `batchTransfer`, `isVerified(receiver)` is true | P |
@@ -506,46 +613,65 @@ C07 relies on the check being `>` rather than `>=`. **Confirmed** in the pinned 
 | G02b | K3 | A registered wallet with no claim (Mallory) cannot receive | S |
 | G03a | J1 | After any successful `transfer` or `transferFrom`, the receiver's country is not restricted | P |
 | G03b | J1 | After any successful `mint`, the receiver's country is not restricted | P |
-| G04 | H1 | After `transfer`, `transferFrom`, `mint` or `forcedTransfer`, every identity's tracked balance is at most the cap | P |
+| G04 | H1 | After any action, every identity's **real** balance (summed over its wallets) is at most the **policy** cap (1000) | P |
 | G05a | H3 | After `transfer` or `transferFrom`, tracked balance equals the sum of real balances for each identity | P |
 | G05b | H3 | After `mint`, `burn`, `forcedTransfer` or `recoveryAddress`, tracked balance equals the sum of real balances | P |
- 
+
 **Extended set: 5 tests, for rules K2, J2, J3, H2, H4**
- 
+
 | ID | Rule | What it asserts | Type |
 |---|---|---|---|
 | G06 | K2 | After each revocation route (delete identity, remove trusted issuer, revoke claim), a transfer to that receiver reverts | S |
 | G07 | J2 | After `updateCountry(wallet, 408)`, a transfer to that wallet reverts | S |
 | G08 | J3 | The country module is in `getModules()` with `isModuleBound` true, and its restricted list matches the policy | S |
-| G09 | H2 | For wallets under one identity, the sum of real balances is at most the cap | P |
-| G10 | H4 | `0 < maxBalance < type(uint256).max` and equals the policy number | S |
- 
-**Special set: 3 tests, for K4, K5 and J4**
- 
+| G09 | H2 | Two wallets under one identity share one cap: Bob sending 600 to Alice's second wallet (`A1` holds 600) must revert | S |
+| G10 | H4 | The cap equals the policy number. The module has no getter, so the test probes `canTransfer`: exactly 1000 is allowed, 1001 is blocked | S |
+
+**Special set: 4 tests, for K4, K5, J4 and K2**
+
 | ID | Rule | What it asserts | Expected on stock |
 |---|---|---|---|
 | G11 | K4 | An expired claim must be rejected | **Fails** (stock gap, S01) |
 | G12 | K5 | A sender whose claim was revoked cannot send | **Fails** (stock gap, S02) |
 | G13 | J4 | `forcedTransfer` to a restricted country succeeds and is labelled "known exception" | Passes, with INFO label |
- 
-G01 to G10 must **pass** on every clean configuration. G11 and G12 are kept out of the default run, so they never disturb the false-positive measure.
- 
-### 9.2 Seeds to build, in two waves
- 
+| G14 | K2 | A revoked claim cannot be revived by the investor re-adding it with a different signature | **Fails** (stock gap, S03) |
+
+G01 to G10 must **pass** on every clean configuration. G11, G12 and G14 are kept out of the default run, so they never disturb the false-positive measure.
+
+**Refinements made while writing the tests (no rule changed)**
+- **Tests judge against the policy, not the config.** G01 to G04 use ground truth kept by the test harness (who is KYC-verified, who is in country 408, the policy cap 1000). If a test asked the registry or the module, a broken registry or module would simply agree with itself, and variants such as V01 or V13 would go unnoticed.
+- **G04 uses real balances** and the policy cap. Checking the module's own tracked balance against the module's own cap would miss V09 (module removed) and V13 (cap set to the maximum).
+- **G09 is now a scenario** and G04 is the general property. They would otherwise check the same thing.
+- **G10 probes behaviour** because `MaxBalanceModule` has no public getter for its cap.
+- **G05b** is covered by two tests: the random-action property (mint, burn, `forcedTransfer`) and a scenario for `recoveryAddress`.
+
+### 10.4 Phase 3 progress
+
+**Step 1 (fixture and clean baseline C01): done.** `test/ComplyFixture.sol`, `test/C01_Baseline.t.sol`, `test/StockGaps.t.sol`. Confirmed on the project owner's machine: 16 tests passed (including the smoke test).
+
+**Step 2 (gold tests on C01): done in sandbox, to be confirmed on the owner's machine.** Files in `test/gold/`:
+- `GoldHandler.sol` (random-action driver with ground truth), `GoldInvariants.t.sol` (7 property tests: G01a, G01b, G03a, G03b, G04, G05a, G05b), `GoldScenarios.t.sol` (11 tests: G02a, G02b, G05b recovery, G06a/b/c, G07, G08, G09, G10, G13), `GoldSpecial.t.sol` (G11, G12, G14).
+- On C01: all 18 default tests pass. The 3 special tests fail, as expected, because stock T-REX and ONCHAINID violate K4, K5 and the K2 twin-signature case.
+- Reproducibility: `foundry.toml` now fixes the fuzz seed (`0x436f6d706c79`), runs = 64, depth = 40. Repeated runs gave identical results.
+- **Mutation check (sandbox only):** five quick variants were run to see whether the gold tests have teeth. V04 (empty topics) is caught by G01a and G01b. V05 (wrong country code) is caught by G03a and G03b. V09 (no `MaxBalanceModule`) is caught by G04, G05a and G05b. V13 (cap = max) is caught by G04, G09 and G10. V07 (country module removed) is caught by G07 and G08. These are not the final variants; step 4 builds them properly.
+
+**Next:** step 3 (clean configurations C02 to C08, all gold tests must still pass), then steps 4 and 5 (variants and the variant-by-test table).
+
+### 10.2 Seeds to build, in two waves
+
 **Wave 1: configuration only (7 variants, fast).** V04, V05, V07, V08, V09, V11, V13.
 **Wave 2: code changes in copies of contracts (6 variants, slower).** V01, V02, V03, V06, V10, V12.
-**Stock gaps (no build, 2 cases).** S01, S02.
+**Stock gaps (no build, 3 cases).** S01, S02, S03.
 **Clean set (8 configurations).** C01 to C08.
- 
-All variant code goes in `ComplyRWA/variants/`, and `T-REX/` stays untouched. V06 and V12 are the riskiest (V06 needs a copied module, V12 a copied `Token.sol`). If both turn out not reproducible, 11 seeded variants plus S01 and S02 still make 13, inside the 12 to 15 target.
- 
-### 9.3 Phase 3 order of work
- 
+
+All variant code goes in `ComplyRWA/variants/`, and `T-REX/` stays untouched. V06 and V12 are the riskiest (V06 needs a copied module, V12 a copied `Token.sol`). If both turn out not reproducible, 11 seeded variants plus S01, S02 and S03 still make 14, inside the 12 to 15 target.
+
+### 10.3 Phase 3 order of work
+
 1. Build the shared fixture and the clean baseline C01 (unpause the token, bind the token before `MaxBalanceModule`, modules behind proxies with `initialize()`, claim signing with `vm.sign`).
 2. Write G01 to G10 and G13 and make them pass on C01.
 3. Build C02 to C08. All of G01 to G10 must still pass.
 4. Build the Wave 1 variants, then Wave 2.
 5. Run every gold test against every variant and record a variant-by-test table.
-
 
 **Done when:** each reproducible variant fails at least its linked gold test, every clean configuration passes G01 to G10, and any variant that fails nothing is marked "not reproducible" with a reason.
