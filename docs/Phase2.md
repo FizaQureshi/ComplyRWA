@@ -1,4 +1,4 @@
-# ComplyRWA: Phase 2
+# ComplyRWA: Phase 2 Policy Catalogue (Scope)
 
 **Goal of Phase 2:** fix exactly what ComplyRWA will check, so Phases 3 and 4 have a stable target.
 
@@ -572,6 +572,27 @@ C07 relies on the check being `>` rather than `>=`. **Confirmed** in the pinned 
 
 ---
 
+## 8a. How the clean configurations are built (Phase 3 step 3)
+
+All of them live in `test/clean/CleanConfigs.t.sol`. Each configuration is a small contract that overrides one fixture hook. It is combined with the **property suite** (G01a to G05b, run as random action sequences) and, where the starting state allows, the **scenario suite** (G02, G05b recovery, G06 to G10, G13). The scenario tests assume an empty start, so configurations that start with balances run only the property suite.
+
+| ID | What is different | Property suite | Scenario suite |
+|---|---|---|---|
+| C01 | Baseline | yes | yes |
+| C02 | Topics 1 and 2 both required. Issuers X and Y both trusted for both topics. Everyone holds topic 1 from X. Topic 2 comes from Y (Alice, Carol) or X (Bob) | yes | yes |
+| C03 | Start state: Alice holds 600 and her 500-token move between her own wallets was rejected | yes | no (same deployment as C01) |
+| C04 | Start state: an agent `forcedTransfer` put 100 tokens in Carol's wallet (country 408) | yes | no (same deployment as C01) |
+| C05 | Cap 500; countries 408 and 643 restricted. Gold tests read these numbers from the policy, not from constants | yes | yes |
+| C06 | Bob's claim revoked, then re-issued with different data | yes | yes |
+| C07 | Start state: Bob holds exactly 1000 (the cap), reached by receiving exactly 100 | yes | no (same deployment as C01) |
+| C08 | Carol holds 300 and Alice's second wallet holds 100 before `MaxBalanceModule` exists. Correct preset via `batchPreSetModuleState`, then `addModule` | yes | yes |
+
+The scenario assertions for C03, C04 and C07 are also covered by `test/C01_Baseline.t.sol` (`test_C03_...`, `test_C04_...`, `test_C07_...`).
+
+**A defect in a gold test, found by the clean set.** On C08 the test G13 failed because it assumed Carol starts with 0 tokens. This was a flaw in the test, not a finding about the contracts. G13 now compares against Carol's starting balance. This is the kind of false positive the clean set exists to catch.
+
+---
+
 ## 9. Status: Phase 2 CLOSED
 
 **Decisions (all signed off by the project owner)**
@@ -649,7 +670,7 @@ G01 to G10 must **pass** on every clean configuration. G11, G12 and G14 are kept
 
 **Step 1 (fixture and clean baseline C01): done.** `test/ComplyFixture.sol`, `test/C01_Baseline.t.sol`, `test/StockGaps.t.sol`. Confirmed on the project owner's machine: 16 tests passed (including the smoke test).
 
-**Step 2 (gold tests on C01): done in sandbox, to be confirmed on the owner's machine.** Files in `test/gold/`:
+**Step 2 (gold tests on C01): done and confirmed on the owner's machine** (28 tests passed; the invariant call table lists only the 7 action functions; committed as `abe4ce9`). Files in `test/gold/`:
 - `GoldHandler.sol` (random-action driver with ground truth), `GoldInvariants.t.sol` (7 property tests: G01a, G01b, G03a, G03b, G04, G05a, G05b), `GoldScenarios.t.sol` (11 tests: G02a, G02b, G05b recovery, G06a/b/c, G07, G08, G09, G10, G13), `GoldSpecial.t.sol` (G11, G12, G14).
 - On C01: all 18 default tests pass. The 3 special tests fail, as expected, because stock T-REX and ONCHAINID violate K4, K5 and the K2 twin-signature case.
 - **Handler fix (found from the owner's run).** The owner's call table showed the fuzzer calling the handler's setup functions `addIdentity` and `addWallet` (about 20% of calls). That could overwrite the harness's ground truth with random values and cause false findings. Fixed two ways: the setup functions now accept only the test contract, and `GoldInvariants.t.sol` excludes them from fuzzing with `excludeSelector`. After the fix the table should list only the 7 action functions. Mutation check repeated after the fix: same results.
@@ -657,7 +678,9 @@ G01 to G10 must **pass** on every clean configuration. G11, G12 and G14 are kept
 - Reproducibility: `foundry.toml` now fixes the fuzz seed (`0x436f6d706c79`), runs = 64, depth = 40. Repeated runs gave identical results.
 - **Mutation check (sandbox only):** five quick variants were run to see whether the gold tests have teeth. V04 (empty topics) is caught by G01a and G01b. V05 (wrong country code) is caught by G03a and G03b. V09 (no `MaxBalanceModule`) is caught by G04, G05a and G05b. V13 (cap = max) is caught by G04, G09 and G10. V07 (country module removed) is caught by G07 and G08. These are not the final variants; step 4 builds them properly.
 
-**Next:** step 3 (clean configurations C02 to C08, all gold tests must still pass), then steps 4 and 5 (variants and the variant-by-test table).
+**Step 3 (clean configurations C02 to C08): done in sandbox, to be confirmed on the owner's machine.** `test/clean/CleanConfigs.t.sol` (section 8a). To support it, `ComplyFixture.sol` gained hooks (`_configure`, `_afterSetUp`, `_deployModules`, `_addModules`, `_configureModules`), policy numbers became variables, and claims can be issued from a second issuer. In the sandbox all clean-configuration tests pass (126 tests counting each invariant separately, which is 79 in the owner's Foundry counting, where each invariant suite counts once). The three special tests still fail on stock, as intended, and the five quick mutants are still caught.
+
+**Next:** steps 4 and 5: build the 13 seeded variants (V01 to V13) and run every gold test against every variant to produce the variant-by-test table.
 
 ### 10.2 Seeds to build, in two waves
 

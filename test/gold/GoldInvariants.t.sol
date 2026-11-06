@@ -20,7 +20,9 @@ contract GoldInvariantsTest is ComplyFixture {
                 issuerAdmin: issuerAdmin,
                 issuer: claimIssuer,
                 topic: KYC_TOPIC,
-                cap: CAP
+                cap: CAP,
+                restrictedA: RESTRICTED,
+                restrictedB: RESTRICTED2
             })
         );
         uint256 iA = handler.addIdentity(idA, true);

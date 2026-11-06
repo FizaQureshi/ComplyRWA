@@ -22,8 +22,10 @@ contract ComplyFixture is Test {
     // ---------------------------------------------------------------- constants
     uint256 internal constant KYC_TOPIC = 1;
     uint16 internal constant INDIA = 356;
-    uint16 internal constant RESTRICTED = 408;
-    uint256 internal constant CAP = 1000;
+    // Policy numbers. Variables, not constants, so a clean configuration (C05) can change them in _configure().
+    uint16 internal RESTRICTED = 408;
+    uint16 internal RESTRICTED2 = 0; // optional second restricted country (0 = none)
+    uint256 internal CAP = 1000;
     bytes internal constant KYC_DATA = "KYC-OK";
 
     // ------------------------------------------------------------------- actors
@@ -51,11 +53,15 @@ contract ComplyFixture is Test {
     ModularCompliance internal compliance;
     Token internal token;
     ClaimIssuer internal claimIssuer;
+    ClaimIssuer internal claimIssuer2; // only used by C02
+    address internal issuer2Signer;
+    uint256 internal issuer2Key;
     CountryRestrictModule internal countryModule;
     MaxBalanceModule internal maxBalanceModule;
 
     // ------------------------------------------------------------------- set up
     function setUp() public virtual {
+        _configure();
         _makeActors();
         _deployRegistries();
         _deployClaimIssuer();
@@ -64,7 +70,14 @@ contract ComplyFixture is Test {
         _wireModules();
         vm.prank(agent);
         token.unpause(); // a fresh T-REX token starts paused
+        _afterSetUp();
     }
+
+    /// @dev Hook: change policy numbers before anything is deployed (C05).
+    function _configure() internal virtual {}
+
+    /// @dev Hook: put the system into a special starting state after the baseline is built (C03, C04, C07).
+    function _afterSetUp() internal virtual {}
 
     function _makeActors() internal virtual {
         agent = makeAddr("agent");
@@ -129,6 +142,12 @@ contract ComplyFixture is Test {
     }
 
     function _wireModules() internal virtual {
+        _deployModules();
+        _addModules();
+        _configureModules();
+    }
+
+    function _deployModules() internal virtual {
         CountryRestrictModule crImpl = new CountryRestrictModule();
         countryModule = CountryRestrictModule(
             address(new ModuleProxy(address(crImpl), abi.encodeWithSelector(CountryRestrictModule.initialize.selector)))
@@ -137,15 +156,26 @@ contract ComplyFixture is Test {
         maxBalanceModule = MaxBalanceModule(
             address(new ModuleProxy(address(mbImpl), abi.encodeWithSelector(MaxBalanceModule.initialize.selector)))
         );
+    }
 
-        // The token is already bound (Token.init does it), and no tokens exist yet,
-        // so MaxBalanceModule.canComplianceBind is true.
+    /// @dev The token is already bound (Token.init does it). With no tokens in existence (or a completed
+    /// preset), MaxBalanceModule.canComplianceBind is true.
+    function _addModules() internal virtual {
         compliance.addModule(address(countryModule));
         compliance.addModule(address(maxBalanceModule));
+    }
+
+    function _configureModules() internal virtual {
         compliance.callModuleFunction(
             abi.encodeWithSelector(CountryRestrictModule.addCountryRestriction.selector, RESTRICTED),
             address(countryModule)
         );
+        if (RESTRICTED2 != 0) {
+            compliance.callModuleFunction(
+                abi.encodeWithSelector(CountryRestrictModule.addCountryRestriction.selector, RESTRICTED2),
+                address(countryModule)
+            );
+        }
         compliance.callModuleFunction(
             abi.encodeWithSelector(MaxBalanceModule.setMaxBalance.selector, CAP),
             address(maxBalanceModule)
@@ -160,9 +190,17 @@ contract ComplyFixture is Test {
         view
         returns (uint8 v, bytes32 r, bytes32 s)
     {
+        return _rsvFor(issuerKey, id, topic, data);
+    }
+
+    function _rsvFor(uint256 key, Identity id, uint256 topic, bytes memory data)
+        internal
+        view
+        returns (uint8 v, bytes32 r, bytes32 s)
+    {
         bytes32 dataHash = keccak256(abi.encode(address(id), topic, data));
         bytes32 prefixed = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", dataHash));
-        (v, r, s) = vm.sign(issuerKey, prefixed);
+        (v, r, s) = vm.sign(key, prefixed);
     }
 
     function _issueClaim(Identity id, address wallet) internal {
@@ -170,9 +208,15 @@ contract ComplyFixture is Test {
     }
 
     function _issueClaim(Identity id, address wallet, uint256 topic, bytes memory data) internal {
-        (uint8 v, bytes32 r, bytes32 s) = _rsv(id, topic, data);
+        _issueClaimFrom(claimIssuer, issuerKey, id, wallet, topic, data);
+    }
+
+    function _issueClaimFrom(ClaimIssuer issuer, uint256 key, Identity id, address wallet, uint256 topic, bytes memory data)
+        internal
+    {
+        (uint8 v, bytes32 r, bytes32 s) = _rsvFor(key, id, topic, data);
         vm.prank(wallet); // the investor's wallet is the management key of its own identity
-        id.addClaim(topic, 1, address(claimIssuer), abi.encodePacked(r, s, v), data, "");
+        id.addClaim(topic, 1, address(issuer), abi.encodePacked(r, s, v), data, "");
     }
 
     function _revokeClaim(Identity id) internal {

@@ -78,17 +78,21 @@ contract GoldScenariosTest is ComplyFixture {
             if (mods[i] == address(countryModule)) listed = true;
         }
         assertTrue(listed, "module not in getModules()");
-        assertTrue(countryModule.isCountryRestricted(address(compliance), 408), "408 not restricted");
+        assertTrue(countryModule.isCountryRestricted(address(compliance), RESTRICTED), "policy country not restricted");
+        if (RESTRICTED2 != 0) {
+            assertTrue(countryModule.isCountryRestricted(address(compliance), RESTRICTED2), "second policy country not restricted");
+        }
         assertFalse(countryModule.isCountryRestricted(address(compliance), 356), "356 wrongly restricted");
         assertFalse(countryModule.isCountryRestricted(address(compliance), 840), "840 wrongly restricted");
     }
 
     // ---- G09 (H2): two wallets under one identity share one cap
     function test_G09_walletsOfOneIdentityShareTheCap() public {
-        _mint(a1, 600);
-        _mint(b, 600);
+        uint256 sixty = (CAP * 6) / 10;
+        _mint(a1, sixty);
+        _mint(b, sixty);
         vm.expectRevert(bytes("Transfer not possible"));
-        _transfer(b, a2, 600); // Alice's identity would hold 1200
+        _transfer(b, a2, sixty); // Alice's identity would hold 120% of the cap
     }
 
     // ---- G10 (H4): the cap equals the policy number (probed through canTransfer, no getter exists)
@@ -101,8 +105,9 @@ contract GoldScenariosTest is ComplyFixture {
     // label this "known exception: agent-only path", not "vulnerability".
     function test_G13_forcedTransferToRestrictedCountryIsKnownException() public {
         _mint(a1, 500);
+        uint256 before = token.balanceOf(c); // Carol may already hold tokens (C08)
         vm.prank(agent);
         token.forcedTransfer(a1, c, 100);
-        assertEq(token.balanceOf(c), 100);
+        assertEq(token.balanceOf(c), before + 100);
     }
 }

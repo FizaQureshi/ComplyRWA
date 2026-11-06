@@ -19,6 +19,8 @@ contract GoldHandler is Test {
         ClaimIssuer issuer;
         uint256 topic;
         uint256 cap;
+        uint16 restrictedA;
+        uint16 restrictedB; // 0 = none
     }
 
     Ctx internal x;
@@ -153,11 +155,13 @@ contract GoldHandler is Test {
         } catch {}
     }
 
-    /// @dev Moves a wallet into or out of restricted country 408.
+    /// @dev Moves a wallet into a restricted country (policy list) or back to 356.
     function setRestricted(uint256 walletSeed, bool flag) external {
         address w = _w(walletSeed);
         vm.prank(x.agent);
-        try x.ir.updateCountry(w, flag ? 408 : 356) {
+        uint16 country = 356;
+        if (flag) country = (walletSeed % 2 == 1 && x.restrictedB != 0) ? x.restrictedB : x.restrictedA;
+        try x.ir.updateCountry(w, country) {
             restricted[w] = flag;
             okCountry++;
         } catch {}
