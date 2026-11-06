@@ -32,7 +32,13 @@ contract GoldInvariantsTest is ComplyFixture {
         handler.addWallet(b, iB, false);
         handler.addWallet(c, iC, true); // Carol lives in country 408
         handler.addWallet(m, iM, false);
+        // Fuzz the handler, but NEVER its setup functions (addIdentity, addWallet): the fuzzer would
+        // overwrite the ground truth with random values.
         targetContract(address(handler));
+        bytes4[] memory setupSelectors = new bytes4[](2);
+        setupSelectors[0] = GoldHandler.addIdentity.selector;
+        setupSelectors[1] = GoldHandler.addWallet.selector;
+        excludeSelector(FuzzSelector({addr: address(handler), selectors: setupSelectors}));
     }
 
     /// G01a (K1): after any successful transfer / transferFrom, the receiver is KYC-verified.

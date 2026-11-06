@@ -1,4 +1,4 @@
-# ComplyRWA: Phase 2 Policy Catalogue (Scope)
+# ComplyRWA: Phase 2
 
 **Goal of Phase 2:** fix exactly what ComplyRWA will check, so Phases 3 and 4 have a stable target.
 
@@ -652,6 +652,8 @@ G01 to G10 must **pass** on every clean configuration. G11, G12 and G14 are kept
 **Step 2 (gold tests on C01): done in sandbox, to be confirmed on the owner's machine.** Files in `test/gold/`:
 - `GoldHandler.sol` (random-action driver with ground truth), `GoldInvariants.t.sol` (7 property tests: G01a, G01b, G03a, G03b, G04, G05a, G05b), `GoldScenarios.t.sol` (11 tests: G02a, G02b, G05b recovery, G06a/b/c, G07, G08, G09, G10, G13), `GoldSpecial.t.sol` (G11, G12, G14).
 - On C01: all 18 default tests pass. The 3 special tests fail, as expected, because stock T-REX and ONCHAINID violate K4, K5 and the K2 twin-signature case.
+- **Handler fix (found from the owner's run).** The owner's call table showed the fuzzer calling the handler's setup functions `addIdentity` and `addWallet` (about 20% of calls). That could overwrite the harness's ground truth with random values and cause false findings. Fixed two ways: the setup functions now accept only the test contract, and `GoldInvariants.t.sol` excludes them from fuzzing with `excludeSelector`. After the fix the table should list only the 7 action functions. Mutation check repeated after the fix: same results.
+- **Test counting.** Foundry 1.8.7 counts the 7 invariants as one suite entry, so a full run reports 28 tests, not 34. The tests are the same.
 - Reproducibility: `foundry.toml` now fixes the fuzz seed (`0x436f6d706c79`), runs = 64, depth = 40. Repeated runs gave identical results.
 - **Mutation check (sandbox only):** five quick variants were run to see whether the gold tests have teeth. V04 (empty topics) is caught by G01a and G01b. V05 (wrong country code) is caught by G03a and G03b. V09 (no `MaxBalanceModule`) is caught by G04, G05a and G05b. V13 (cap = max) is caught by G04, G09 and G10. V07 (country module removed) is caught by G07 and G08. These are not the final variants; step 4 builds them properly.
 

@@ -22,6 +22,7 @@ contract GoldHandler is Test {
     }
 
     Ctx internal x;
+    address internal immutable owner; // only the test contract may register identities and wallets
     address[] internal wallets;
     Identity[] internal ids;
     mapping(address => uint256) internal idIdx; // wallet -> index in ids
@@ -46,16 +47,19 @@ contract GoldHandler is Test {
 
     constructor(Ctx memory ctx) {
         x = ctx;
+        owner = msg.sender;
     }
 
     // ------------------------------------------------------------- registration
     function addIdentity(Identity id, bool kyc) external returns (uint256 idx) {
+        require(msg.sender == owner, "setup only");
         ids.push(id);
         idx = ids.length - 1;
         kycOK[idx] = kyc;
     }
 
     function addWallet(address w, uint256 idx, bool isRestricted) external {
+        require(msg.sender == owner, "setup only");
         wallets.push(w);
         idIdx[w] = idx;
         restricted[w] = isRestricted;
