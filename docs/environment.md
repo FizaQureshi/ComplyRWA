@@ -25,6 +25,7 @@ Last updated: 2026-10-31
 | Foundry (`forge`) | 1.8.7 | `forge --version` |
 | Halmos | 0.3.3 | `halmos --version` |
 | Hardhat | 2.14.0 (from `T-REX/package.json`) | `npx hardhat --version` |
+| fuzz seed | 0x436f6d706c79 | invariant runs 64 | depth 40 |
 
 ### Foundry build details
 
