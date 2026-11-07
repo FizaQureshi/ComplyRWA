@@ -109,13 +109,18 @@ contract ComplyFixture is Test {
     }
 
     function _deployClaimIssuer() internal virtual {
-        claimIssuer = new ClaimIssuer(issuerAdmin);
+        claimIssuer = _newClaimIssuer(issuerAdmin);
         vm.prank(issuerAdmin);
         claimIssuer.addKey(keccak256(abi.encode(issuerSigner)), 3, 1); // purpose 3 = claim signer
         ctr.addClaimTopic(KYC_TOPIC);
         uint256[] memory topics = new uint256[](1);
         topics[0] = KYC_TOPIC;
         tir.addTrustedIssuer(IClaimIssuer(address(claimIssuer)), topics);
+    }
+
+    /// @dev Hook: a variant can swap in a copied claim issuer.
+    function _newClaimIssuer(address admin) internal virtual returns (ClaimIssuer) {
+        return new ClaimIssuer(admin);
     }
 
     function _deployComplianceAndToken() internal virtual {
