@@ -162,10 +162,15 @@ contract ComplyFixture is Test {
         countryModule = CountryRestrictModule(
             address(new ModuleProxy(address(crImpl), abi.encodeWithSelector(CountryRestrictModule.initialize.selector)))
         );
-        MaxBalanceModule mbImpl = new MaxBalanceModule();
+        address mbImpl = _maxBalanceImpl();
         maxBalanceModule = MaxBalanceModule(
-            address(new ModuleProxy(address(mbImpl), abi.encodeWithSelector(MaxBalanceModule.initialize.selector)))
+            address(new ModuleProxy(mbImpl, abi.encodeWithSelector(MaxBalanceModule.initialize.selector)))
         );
+    }
+
+    /// @dev Hook: a variant can swap in a copied MaxBalanceModule (same functions, so the cast above works).
+    function _maxBalanceImpl() internal virtual returns (address) {
+        return address(new MaxBalanceModule());
     }
 
     /// @dev The token is already bound (Token.init does it). With no tokens in existence (or a completed

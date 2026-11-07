@@ -7,6 +7,7 @@ import "../../variants/IdentityRegistryV01.sol";
 import "../../variants/IdentityRegistryV06.sol";
 import "../../variants/ClaimIssuerV02.sol";
 import "../../variants/ClaimIssuerV03.sol";
+import "../../variants/MaxBalanceModuleV10.sol";
 
 // ---------- V01: OR instead of AND across required topics (K1)
 abstract contract CfgV01 is ComplyFixture {
@@ -95,4 +96,18 @@ contract V02_Invariants is GoldInvariantsTest, CfgV02 {
 contract V02_Scenarios is GoldScenariosTest, CfgV02 {
     function _newClaimIssuer(address admin) internal override(ComplyFixture, CfgV02) returns (ClaimIssuer) { return CfgV02._newClaimIssuer(admin); }
     function _registerInvestors() internal override(ComplyFixture, CfgV02) { CfgV02._registerInvestors(); }
+}
+
+// ---------- V10: cap keyed by wallet instead of identity (H2)
+abstract contract CfgV10 is ComplyFixture {
+    function _maxBalanceImpl() internal virtual override returns (address) {
+        return address(new MaxBalanceModuleV10());
+    }
+}
+contract V10_Invariants is GoldInvariantsTest, CfgV10 {
+    function setUp() public override(GoldInvariantsTest, ComplyFixture) { GoldInvariantsTest.setUp(); }
+    function _maxBalanceImpl() internal override(ComplyFixture, CfgV10) returns (address) { return CfgV10._maxBalanceImpl(); }
+}
+contract V10_Scenarios is GoldScenariosTest, CfgV10 {
+    function _maxBalanceImpl() internal override(ComplyFixture, CfgV10) returns (address) { return CfgV10._maxBalanceImpl(); }
 }
