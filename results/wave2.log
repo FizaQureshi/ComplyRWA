@@ -1,0 +1,177 @@
+No files changed, compilation skipped
+
+Ran 11 tests for test/variants/Wave2.t.sol:V01_Scenarios
+[PASS] test_G02a_requiredTopicsNotEmpty() (gas: 13068)
+[FAIL: next call did not revert as expected] test_G02b_registeredWalletWithoutClaimCannotReceive() (gas: 492091)
+[PASS] test_G05b_recoveryKeepsTrackedBalance() (gas: 700448)
+[PASS] test_G06a_deleteIdentityBlocksReceiving() (gas: 338644)
+[PASS] test_G06b_removeTrustedIssuerBlocksReceiving() (gas: 390359)
+[FAIL: next call did not revert as expected] test_G06c_revokedClaimBlocksReceiving() (gas: 629684)
+[PASS] test_G07_countryChangeBlocksReceiving() (gas: 446202)
+[PASS] test_G08_countryModuleBoundAndConfigured() (gas: 72941)
+[PASS] test_G09_walletsOfOneIdentityShareTheCap() (gas: 646435)
+[PASS] test_G10_capEqualsPolicyNumber() (gas: 128599)
+[PASS] test_G13_forcedTransferToRestrictedCountryIsKnownException() (gas: 494184)
+Suite result: FAILED. 9 passed; 2 failed; 0 skipped; finished in 16.45ms (17.79ms CPU time)
+
+Ran 11 tests for test/variants/Wave2.t.sol:V06_Scenarios
+[PASS] test_G02a_requiredTopicsNotEmpty() (gas: 10751)
+[PASS] test_G02b_registeredWalletWithoutClaimCannotReceive() (gas: 423966)
+[PASS] test_G05b_recoveryKeepsTrackedBalance() (gas: 697528)
+[PASS] test_G06a_deleteIdentityBlocksReceiving() (gas: 337184)
+[PASS] test_G06b_removeTrustedIssuerBlocksReceiving() (gas: 368557)
+[PASS] test_G06c_revokedClaimBlocksReceiving() (gas: 463551)
+[FAIL: next call did not revert as expected] test_G07_countryChangeBlocksReceiving() (gas: 520419)
+[PASS] test_G08_countryModuleBoundAndConfigured() (gas: 72941)
+[PASS] test_G09_walletsOfOneIdentityShareTheCap() (gas: 642055)
+[PASS] test_G10_capEqualsPolicyNumber() (gas: 128599)
+[PASS] test_G13_forcedTransferToRestrictedCountryIsKnownException() (gas: 491264)
+Suite result: FAILED. 10 passed; 1 failed; 0 skipped; finished in 16.06ms (19.30ms CPU time)
+{"timestamp":1794078665,"event":"failure","invariant":"invariant_G03a_transferReceiverNotRestricted","target":"test/variants/Wave2.t.sol:V06_Invariants","reason":"transfer reached a restricted-country receiver: 1 != 0"}
+{"timestamp":1794078665,"event":"failure","invariant":"invariant_G03b_mintReceiverNotRestricted","target":"test/variants/Wave2.t.sol:V06_Invariants","reason":"mint reached a restricted-country receiver: 1 != 0"}
+{"timestamp":1794078665,"event":"failure","invariant":"invariant_G01a_transferReceiverIsVerified","target":"test/variants/Wave2.t.sol:V01_Invariants","reason":"transfer reached a non-verified receiver: 1 != 0"}
+{"timestamp":1794078665,"event":"failure","invariant":"invariant_G01b_mintAndForcedReceiverIsVerified","target":"test/variants/Wave2.t.sol:V01_Invariants","reason":"mint or forcedTransfer reached a non-verified receiver: 1 != 0"}
+
+Ran 1 test for test/variants/Wave2.t.sol:V01_Invariants
+[FAIL: transfer reached a non-verified receiver: 1 != 0] invariant_G01a_transferReceiverIsVerified
+	[Sequence] (original: 16, shrunk: 2)
+		sender=0x1F3928Ca7f7987Df1D072cB0Ab3424A1275D9181 addr=[test/gold/GoldHandler.sol:GoldHandler]0x883816205341a6ba3C32AE8dAdCEbDD9d59BC2C4 calldata=mint(uint256,uint256) args=[7825, 500]
+		sender=0x0000000000000000000000000000000000001732 addr=[test/gold/GoldHandler.sol:GoldHandler]0x883816205341a6ba3C32AE8dAdCEbDD9d59BC2C4 calldata=transfer(uint256,uint256,uint256) args=[500, 3764, 2239]
+
+[FAIL: mint or forcedTransfer reached a non-verified receiver: 1 != 0] invariant_G01b_mintAndForcedReceiverIsVerified
+	[Sequence] (original: 2, shrunk: 1)
+		sender=0x0000000000000000000000000000000000001a06 addr=[test/gold/GoldHandler.sol:GoldHandler]0x883816205341a6ba3C32AE8dAdCEbDD9d59BC2C4 calldata=mint(uint256,uint256) args=[1291113109 [1.291e9], 15]
+
+V01_Invariants invariants: 2/7 invariants broken
+[FAIL: transfer reached a non-verified receiver: 1 != 0] invariant_G01a_transferReceiverIsVerified
+[FAIL: mint or forcedTransfer reached a non-verified receiver: 1 != 0] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+2 invariant failure(s) persisted to cache/invariant\failures\V01_Invariants — rerun to shrink
+ V01_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: FAILED. 0 passed; 1 failed; 0 skipped; finished in 5.17s (5.14s CPU time)
+
+Ran 1 test for test/variants/Wave2.t.sol:V06_Invariants
+[FAIL: transfer reached a restricted-country receiver: 1 != 0] invariant_G03a_transferReceiverNotRestricted
+	[Sequence] (original: 39, shrunk: 3)
+		sender=0x1F3928Ca7f7987Df1D072cB0Ab3424A1275D9181 addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=mint(uint256,uint256) args=[31354931781638678494316026001340845558170976982936511063842609339963588896116 [3.135e76], 500]
+		sender=0xaBdfc9AD7cB114e1287711214C97316A2E198f7b addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=setRestricted(uint256,bool) args=[12290 [1.229e4], true]
+		sender=0xe9303b5aD4a8C1e3caA4da7AE2c18A892A311e7D addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=transferFrom(uint256,uint256,uint256) args=[115792089237316195423570985008687907853269984665640564039457584007913129639932 [1.157e77], 582598531536797051287296493851966172479433870630 [5.825e47], 108650493528453814535146200219609754640280 [1.086e41]]
+
+[FAIL: mint reached a restricted-country receiver: 1 != 0] invariant_G03b_mintReceiverNotRestricted
+	[Sequence] (original: 37, shrunk: 2)
+		sender=0xaBdfc9AD7cB114e1287711214C97316A2E198f7b addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=setRestricted(uint256,bool) args=[12290 [1.229e4], true]
+		sender=0x46d03d12FCa888029FC3bDc0EBE0f998aBD3Ce05 addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=mint(uint256,uint256) args=[12230 [1.223e4], 50]
+
+V06_Invariants invariants: 2/7 invariants broken
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[FAIL: transfer reached a restricted-country receiver: 1 != 0] invariant_G03a_transferReceiverNotRestricted
+[FAIL: mint reached a restricted-country receiver: 1 != 0] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+2 invariant failure(s) persisted to cache/invariant\failures\V06_Invariants — rerun to shrink
+ V06_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: FAILED. 0 passed; 1 failed; 0 skipped; finished in 8.93s (8.91s CPU time)
+
+Ran 4 test suites in 8.94s (14.13s CPU time): 19 tests passed, 5 failed, 0 skipped (24 total tests)
+
+Failing tests:
+Encountered 1 failing test in test/variants/Wave2.t.sol:V01_Invariants
+[FAIL: transfer reached a non-verified receiver: 1 != 0] invariant_G01a_transferReceiverIsVerified
+	[Sequence] (original: 16, shrunk: 2)
+		sender=0x1F3928Ca7f7987Df1D072cB0Ab3424A1275D9181 addr=[test/gold/GoldHandler.sol:GoldHandler]0x883816205341a6ba3C32AE8dAdCEbDD9d59BC2C4 calldata=mint(uint256,uint256) args=[7825, 500]
+		sender=0x0000000000000000000000000000000000001732 addr=[test/gold/GoldHandler.sol:GoldHandler]0x883816205341a6ba3C32AE8dAdCEbDD9d59BC2C4 calldata=transfer(uint256,uint256,uint256) args=[500, 3764, 2239]
+
+[FAIL: mint or forcedTransfer reached a non-verified receiver: 1 != 0] invariant_G01b_mintAndForcedReceiverIsVerified
+	[Sequence] (original: 2, shrunk: 1)
+		sender=0x0000000000000000000000000000000000001a06 addr=[test/gold/GoldHandler.sol:GoldHandler]0x883816205341a6ba3C32AE8dAdCEbDD9d59BC2C4 calldata=mint(uint256,uint256) args=[1291113109 [1.291e9], 15]
+
+V01_Invariants invariants: 2/7 invariants broken
+[FAIL: transfer reached a non-verified receiver: 1 != 0] invariant_G01a_transferReceiverIsVerified
+[FAIL: mint or forcedTransfer reached a non-verified receiver: 1 != 0] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+2 invariant failure(s) persisted to cache/invariant\failures\V01_Invariants — rerun to shrink
+ V01_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+Encountered 2 failing tests in test/variants/Wave2.t.sol:V01_Scenarios
+[FAIL: next call did not revert as expected] test_G02b_registeredWalletWithoutClaimCannotReceive() (gas: 492091)
+[FAIL: next call did not revert as expected] test_G06c_revokedClaimBlocksReceiving() (gas: 629684)
+
+Encountered 1 failing test in test/variants/Wave2.t.sol:V06_Invariants
+[FAIL: transfer reached a restricted-country receiver: 1 != 0] invariant_G03a_transferReceiverNotRestricted
+	[Sequence] (original: 39, shrunk: 3)
+		sender=0x1F3928Ca7f7987Df1D072cB0Ab3424A1275D9181 addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=mint(uint256,uint256) args=[31354931781638678494316026001340845558170976982936511063842609339963588896116 [3.135e76], 500]
+		sender=0xaBdfc9AD7cB114e1287711214C97316A2E198f7b addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=setRestricted(uint256,bool) args=[12290 [1.229e4], true]
+		sender=0xe9303b5aD4a8C1e3caA4da7AE2c18A892A311e7D addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=transferFrom(uint256,uint256,uint256) args=[115792089237316195423570985008687907853269984665640564039457584007913129639932 [1.157e77], 582598531536797051287296493851966172479433870630 [5.825e47], 108650493528453814535146200219609754640280 [1.086e41]]
+
+[FAIL: mint reached a restricted-country receiver: 1 != 0] invariant_G03b_mintReceiverNotRestricted
+	[Sequence] (original: 37, shrunk: 2)
+		sender=0xaBdfc9AD7cB114e1287711214C97316A2E198f7b addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=setRestricted(uint256,bool) args=[12290 [1.229e4], true]
+		sender=0x46d03d12FCa888029FC3bDc0EBE0f998aBD3Ce05 addr=[test/gold/GoldHandler.sol:GoldHandler]0x94771550282853f6E0124c302F7dE1Cf50aa45CA calldata=mint(uint256,uint256) args=[12230 [1.223e4], 50]
+
+V06_Invariants invariants: 2/7 invariants broken
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[FAIL: transfer reached a restricted-country receiver: 1 != 0] invariant_G03a_transferReceiverNotRestricted
+[FAIL: mint reached a restricted-country receiver: 1 != 0] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+2 invariant failure(s) persisted to cache/invariant\failures\V06_Invariants — rerun to shrink
+ V06_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+Encountered 1 failing test in test/variants/Wave2.t.sol:V06_Scenarios
+[FAIL: next call did not revert as expected] test_G07_countryChangeBlocksReceiving() (gas: 520419)
+
+Encountered a total of 5 failing tests, 19 tests succeeded
+
+Tip: Run `forge test --rerun` to retry only the 5 failed tests
+
+Fuzz seed: 0x436f6d706c79 (use `--fuzz-seed` to reproduce)
