@@ -97,10 +97,15 @@ contract ComplyFixture is Test {
         tir.init();
         irs = new IdentityRegistryStorage();
         irs.init();
-        ir = new IdentityRegistry();
+        ir = _newIdentityRegistry();
         ir.init(address(tir), address(ctr), address(irs));
         irs.bindIdentityRegistry(address(ir));
         ir.addAgent(agent);
+    }
+
+    /// @dev Hook: a variant can swap in a copied registry.
+    function _newIdentityRegistry() internal virtual returns (IdentityRegistry) {
+        return new IdentityRegistry();
     }
 
     function _deployClaimIssuer() internal virtual {
