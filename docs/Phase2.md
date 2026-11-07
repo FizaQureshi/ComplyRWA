@@ -531,7 +531,7 @@ All variant code lives in a separate `ComplyRWA/variants/` folder. The `T-REX/` 
 | V03 | K2 | C | ClaimIssuer ignores `revokedClaims` | Revoked investor still receives |
 | V04 | K3 | G | `ClaimTopicsRegistry` has no topics | Registered wallet with no claim (Mallory) receives |
 | V05 | J1 | G | Wrong country code restricted (`410` instead of `408`) | Transfer to Carol (408) succeeds |
-| V06 | J2 | C | Module uses the country stored at registration, not the current one | After `updateCountry(B, 408)` Bob still receives |
+| V06 | J2 | C | Registry copy whose updateCountry does not write the new country | After updateCountry(B, 408) Bob still receives |
 | V07 | J3 | G | CountryRestrictModule removed with `removeModule` | Transfer to Carol succeeds |
 | V08 | J3 | G | Module bound, but no country ever restricted | Transfer to Carol succeeds |
 | V09 | H1 | G | MaxBalanceModule removed | Bob ends with 1100 against a cap of 1000 |
