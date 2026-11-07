@@ -166,20 +166,9 @@ contract ComplyFixture is Test {
     }
 
     function _configureModules() internal virtual {
-        compliance.callModuleFunction(
-            abi.encodeWithSelector(CountryRestrictModule.addCountryRestriction.selector, RESTRICTED),
-            address(countryModule)
-        );
-        if (RESTRICTED2 != 0) {
-            compliance.callModuleFunction(
-                abi.encodeWithSelector(CountryRestrictModule.addCountryRestriction.selector, RESTRICTED2),
-                address(countryModule)
-            );
-        }
-        compliance.callModuleFunction(
-            abi.encodeWithSelector(MaxBalanceModule.setMaxBalance.selector, CAP),
-            address(maxBalanceModule)
-        );
+    _restrictCountry(RESTRICTED);
+    if (RESTRICTED2 != 0) _restrictCountry(RESTRICTED2);
+    _setCap(CAP);
     }
 
     // ------------------------------------------------------------------ helpers
@@ -237,5 +226,19 @@ contract ComplyFixture is Test {
 
     function _idBalance(Identity id) internal view returns (uint256) {
         return maxBalanceModule.getIDBalance(address(compliance), address(id));
+    }
+
+    function _restrictCountry(uint16 country) internal {
+    compliance.callModuleFunction(
+        abi.encodeWithSelector(CountryRestrictModule.addCountryRestriction.selector, country),
+        address(countryModule)
+        );
+    }
+
+    function _setCap(uint256 cap) internal {
+        compliance.callModuleFunction(
+        abi.encodeWithSelector(MaxBalanceModule.setMaxBalance.selector, cap),
+        address(maxBalanceModule)
+        );
     }
 }
