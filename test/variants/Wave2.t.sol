@@ -8,6 +8,7 @@ import "../../variants/IdentityRegistryV06.sol";
 import "../../variants/ClaimIssuerV02.sol";
 import "../../variants/ClaimIssuerV03.sol";
 import "../../variants/MaxBalanceModuleV10.sol";
+import "../../variants/TokenV12.sol";
 
 // ---------- V01: OR instead of AND across required topics (K1)
 abstract contract CfgV01 is ComplyFixture {
@@ -110,4 +111,19 @@ contract V10_Invariants is GoldInvariantsTest, CfgV10 {
 }
 contract V10_Scenarios is GoldScenariosTest, CfgV10 {
     function _maxBalanceImpl() internal override(ComplyFixture, CfgV10) returns (address) { return CfgV10._maxBalanceImpl(); }
+}
+
+
+// ---------- V12: forcedTransfer does not notify compliance (H3)
+abstract contract CfgV12 is ComplyFixture {
+    function _newToken() internal virtual override returns (Token) {
+        return Token(address(new TokenV12()));
+    }
+}
+contract V12_Invariants is GoldInvariantsTest, CfgV12 {
+    function setUp() public override(GoldInvariantsTest, ComplyFixture) { GoldInvariantsTest.setUp(); }
+    function _newToken() internal override(ComplyFixture, CfgV12) returns (Token) { return CfgV12._newToken(); }
+}
+contract V12_Scenarios is GoldScenariosTest, CfgV12 {
+    function _newToken() internal override(ComplyFixture, CfgV12) returns (Token) { return CfgV12._newToken(); }
 }

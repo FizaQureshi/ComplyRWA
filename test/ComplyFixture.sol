@@ -126,10 +126,15 @@ contract ComplyFixture is Test {
     function _deployComplianceAndToken() internal virtual {
         compliance = new ModularCompliance();
         compliance.init();
-        token = new Token();
+        token = _newToken();
         token.init(address(ir), address(compliance), "ComplyToken", "CPLY", 0, address(0));
         token.addAgent(agent);
         ir.addAgent(address(token)); // needed by recoveryAddress
+    }
+
+    /// @dev Hook: a variant can swap in a copied Token.
+    function _newToken() internal virtual returns (Token) {
+        return new Token();
     }
 
     function _registerInvestors() internal virtual {
