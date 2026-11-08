@@ -1,0 +1,20 @@
+No files changed, compilation skipped
+
+Ran 3 tests for test/gold/GoldSpecial.t.sol:GoldSpecialTest
+[FAIL: next call did not revert as expected] test_G11_expiredClaimIsRejected() (gas: 3105104)
+[FAIL: next call did not revert as expected] test_G12_revokedSenderCannotSend() (gas: 582020)
+[FAIL: next call did not revert as expected] test_G14_revokedClaimCannotBeRevived() (gas: 679722)
+Suite result: FAILED. 0 passed; 3 failed; 0 skipped; finished in 14.02ms (10.98ms CPU time)
+
+Ran 1 test suite in 19.22ms (14.02ms CPU time): 0 tests passed, 3 failed, 0 skipped (3 total tests)
+
+Failing tests:
+Encountered 3 failing tests in test/gold/GoldSpecial.t.sol:GoldSpecialTest
+[FAIL: next call did not revert as expected] test_G11_expiredClaimIsRejected() (gas: 3105104)
+[FAIL: next call did not revert as expected] test_G12_revokedSenderCannotSend() (gas: 582020)
+[FAIL: next call did not revert as expected] test_G14_revokedClaimCannotBeRevived() (gas: 679722)
+
+Encountered a total of 3 failing tests, 0 tests succeeded
+
+Tip: Run `forge test --rerun` to retry only the 3 failed tests
+Tip: Run `forge test --debug --match-test <TEST_NAME>` to inspect one failing test in the debugger

@@ -1,0 +1,354 @@
+No files changed, compilation skipped
+
+Ran 11 tests for test/clean/CleanConfigs.t.sol:C06_Scenarios
+[PASS] test_G02a_requiredTopicsNotEmpty() (gas: 10751)
+[PASS] test_G02b_registeredWalletWithoutClaimCannotReceive() (gas: 423966)
+[PASS] test_G05b_recoveryKeepsTrackedBalance() (gas: 697528)
+[PASS] test_G06a_deleteIdentityBlocksReceiving() (gas: 337184)
+[PASS] test_G06b_removeTrustedIssuerBlocksReceiving() (gas: 368557)
+[PASS] test_G06c_revokedClaimBlocksReceiving() (gas: 463551)
+[PASS] test_G07_countryChangeBlocksReceiving() (gas: 443282)
+[PASS] test_G08_countryModuleBoundAndConfigured() (gas: 72941)
+[PASS] test_G09_walletsOfOneIdentityShareTheCap() (gas: 642055)
+[PASS] test_G10_capEqualsPolicyNumber() (gas: 128599)
+[PASS] test_G13_forcedTransferToRestrictedCountryIsKnownException() (gas: 491264)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 33.77ms (15.97ms CPU time)
+
+Ran 11 tests for test/clean/CleanConfigs.t.sol:C05_Scenarios
+[PASS] test_G02a_requiredTopicsNotEmpty() (gas: 10751)
+[PASS] test_G02b_registeredWalletWithoutClaimCannotReceive() (gas: 423966)
+[PASS] test_G05b_recoveryKeepsTrackedBalance() (gas: 697528)
+[PASS] test_G06a_deleteIdentityBlocksReceiving() (gas: 337184)
+[PASS] test_G06b_removeTrustedIssuerBlocksReceiving() (gas: 368557)
+[PASS] test_G06c_revokedClaimBlocksReceiving() (gas: 463551)
+[PASS] test_G07_countryChangeBlocksReceiving() (gas: 443282)
+[PASS] test_G08_countryModuleBoundAndConfigured() (gas: 87958)
+[PASS] test_G09_walletsOfOneIdentityShareTheCap() (gas: 642055)
+[PASS] test_G10_capEqualsPolicyNumber() (gas: 128599)
+[PASS] test_G13_forcedTransferToRestrictedCountryIsKnownException() (gas: 491264)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 36.05ms (17.60ms CPU time)
+
+Ran 11 tests for test/C01_Baseline.t.sol:C01_BaselineTest
+[PASS] test_C03_sameIdentityMoveIsRejected() (gas: 416831)
+[PASS] test_C04_forcedTransferToRestrictedCountrySucceeds() (gas: 474850)
+[PASS] test_C07_exactlyAtCapSucceeds() (gas: 678697)
+[PASS] test_forcedTransferOverCapRevertsOnWriteSide() (gas: 661244)
+[PASS] test_mintRevertMessagesDiffer() (gas: 234929)
+[PASS] test_modulesBoundAndConfigured() (gas: 398683)
+[PASS] test_sameIdentityForcedMoveSucceeds() (gas: 467107)
+[PASS] test_transferOverCapReverts() (gas: 637792)
+[PASS] test_transferToRestrictedCountryReverts() (gas: 397390)
+[PASS] test_transferToUnverifiedReverts() (gas: 340548)
+[PASS] test_transferToVerifiedSucceeds() (gas: 525895)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 41.49ms (23.90ms CPU time)
+
+Ran 11 tests for test/clean/CleanConfigs.t.sol:C02_Scenarios
+[PASS] test_G02a_requiredTopicsNotEmpty() (gas: 13068)
+[PASS] test_G02b_registeredWalletWithoutClaimCannotReceive() (gas: 554335)
+[PASS] test_G05b_recoveryKeepsTrackedBalance() (gas: 862417)
+[PASS] test_G06a_deleteIdentityBlocksReceiving() (gas: 419629)
+[PASS] test_G06b_removeTrustedIssuerBlocksReceiving() (gas: 503142)
+[PASS] test_G06c_revokedClaimBlocksReceiving() (gas: 569955)
+[PASS] test_G07_countryChangeBlocksReceiving() (gas: 578927)
+[PASS] test_G08_countryModuleBoundAndConfigured() (gas: 72941)
+[PASS] test_G09_walletsOfOneIdentityShareTheCap() (gas: 860145)
+[PASS] test_G10_capEqualsPolicyNumber() (gas: 128599)
+[PASS] test_G13_forcedTransferToRestrictedCountryIsKnownException() (gas: 656153)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 50.20ms (30.68ms CPU time)
+
+Ran 1 test for test/Smoke.t.sol:SmokeTest
+[PASS] test_signAndRecover() (gas: 8220)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 992.20µs (623.40µs CPU time)
+
+Ran 4 tests for test/StockGaps.t.sol:StockGapsTest
+[PASS] test_K2_revokedReceiverIsBlocked() (gas: 463596)
+[PASS] test_S01_expiredClaimStillAccepted() (gas: 3109342)
+[PASS] test_S02_revokedSenderCanStillSend() (gas: 677852)
+[PASS] test_S03_revokedClaimRevivedByTwinSignature() (gas: 897530)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 25.14ms (12.71ms CPU time)
+
+Ran 11 tests for test/gold/GoldScenarios.t.sol:GoldScenariosTest
+[PASS] test_G02a_requiredTopicsNotEmpty() (gas: 10751)
+[PASS] test_G02b_registeredWalletWithoutClaimCannotReceive() (gas: 423966)
+[PASS] test_G05b_recoveryKeepsTrackedBalance() (gas: 697528)
+[PASS] test_G06a_deleteIdentityBlocksReceiving() (gas: 337184)
+[PASS] test_G06b_removeTrustedIssuerBlocksReceiving() (gas: 368557)
+[PASS] test_G06c_revokedClaimBlocksReceiving() (gas: 463551)
+[PASS] test_G07_countryChangeBlocksReceiving() (gas: 443282)
+[PASS] test_G08_countryModuleBoundAndConfigured() (gas: 72941)
+[PASS] test_G09_walletsOfOneIdentityShareTheCap() (gas: 642055)
+[PASS] test_G10_capEqualsPolicyNumber() (gas: 128599)
+[PASS] test_G13_forcedTransferToRestrictedCountryIsKnownException() (gas: 491264)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 31.55ms (16.20ms CPU time)
+
+Ran 1 test for test/clean/CleanConfigs.t.sol:C06_Invariants
+[PASS]
+C06_Invariants invariants:
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+ C06_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.34s (3.31s CPU time)
+
+Ran 1 test for test/gold/GoldInvariants.t.sol:GoldInvariantsTest
+[PASS]
+GoldInvariantsTest invariants:
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+ GoldInvariantsTest invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.40s (3.37s CPU time)
+
+Ran 11 tests for test/clean/CleanConfigs.t.sol:C08_Scenarios
+[PASS] test_G02a_requiredTopicsNotEmpty() (gas: 10751)
+[PASS] test_G02b_registeredWalletWithoutClaimCannotReceive() (gas: 389766)
+[PASS] test_G05b_recoveryKeepsTrackedBalance() (gas: 663328)
+[PASS] test_G06a_deleteIdentityBlocksReceiving() (gas: 302984)
+[PASS] test_G06b_removeTrustedIssuerBlocksReceiving() (gas: 334357)
+[PASS] test_G06c_revokedClaimBlocksReceiving() (gas: 429351)
+[PASS] test_G07_countryChangeBlocksReceiving() (gas: 409082)
+[PASS] test_G08_countryModuleBoundAndConfigured() (gas: 72941)
+[PASS] test_G09_walletsOfOneIdentityShareTheCap() (gas: 607855)
+[PASS] test_G10_capEqualsPolicyNumber() (gas: 128599)
+[PASS] test_G13_forcedTransferToRestrictedCountryIsKnownException() (gas: 422864)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 24.51ms (15.16ms CPU time)
+
+Ran 1 test for test/clean/CleanConfigs.t.sol:C05_Invariants
+[PASS]
+C05_Invariants invariants:
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+ C05_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.67s (3.64s CPU time)
+
+Ran 1 test for test/clean/CleanConfigs.t.sol:C02_Invariants
+[PASS]
+C02_Invariants invariants:
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+ C02_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.84s (3.81s CPU time)
+
+Ran 1 test for test/clean/CleanConfigs.t.sol:C07_Invariants
+[PASS]
+C07_Invariants invariants:
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+ C07_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.86s (3.83s CPU time)
+
+Ran 1 test for test/clean/CleanConfigs.t.sol:C04_Invariants
+[PASS]
+C04_Invariants invariants:
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+ C04_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.95s (3.92s CPU time)
+
+Ran 1 test for test/clean/CleanConfigs.t.sol:C03_Invariants
+[PASS]
+C03_Invariants invariants:
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+ C03_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.94s (3.91s CPU time)
+
+Ran 1 test for test/clean/CleanConfigs.t.sol:C08_Invariants
+[PASS]
+C08_Invariants invariants:
+[PASS] invariant_G01a_transferReceiverIsVerified
+[PASS] invariant_G01b_mintAndForcedReceiverIsVerified
+[PASS] invariant_G03a_transferReceiverNotRestricted
+[PASS] invariant_G03b_mintReceiverNotRestricted
+[PASS] invariant_G04_noIdentityAboveCap
+[PASS] invariant_G05a_trackedEqualsRealAfterTransfer
+[PASS] invariant_G05b_trackedEqualsRealAfterMintBurnForced
+ C08_Invariants invariants (runs: 64, calls: 2560, reverts: 0)
+
+╭-------------+----------------+-------+---------+----------╮
+| Contract    | Selector       | Calls | Reverts | Discards |
++===========================================================+
+| GoldHandler | burn           | 368   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | forcedTransfer | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | mint           | 381   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | revokeKyc      | 372   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | setRestricted  | 343   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transfer       | 367   | 0       | 0        |
+|-------------+----------------+-------+---------+----------|
+| GoldHandler | transferFrom   | 357   | 0       | 0        |
+╰-------------+----------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 4.04s (4.01s CPU time)
+
+Ran 16 test suites in 4.21s (30.29s CPU time): 79 tests passed, 0 failed, 0 skipped (79 total tests)
