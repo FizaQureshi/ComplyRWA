@@ -1,0 +1,641 @@
+{
+  "version": 1,
+  "note": "Written in Phase 4 step 4.0. One entry per configuration. 'hooks' lists the fixture hooks the Cfg contract overrides, with the exact Solidity signature parts needed to generate a combined test contract. 'gold_suites' names the existing gold test contracts, so the executor can reproduce the Phase 3 table.",
+  "columns": [
+    "G01a",
+    "G01b",
+    "G02a",
+    "G02b",
+    "G03a",
+    "G03b",
+    "G04",
+    "G05a",
+    "G05b-prop",
+    "G05b-rec",
+    "G06a",
+    "G06b",
+    "G06c",
+    "G07",
+    "G08",
+    "G09",
+    "G10",
+    "G13"
+  ],
+  "configs": [
+    {
+      "id": "C01",
+      "kind": "clean",
+      "cfg_contract": "Cfg01",
+      "cfg_file": "test/configs/CleanCfgs.sol",
+      "rule": "All rules",
+      "description": "Baseline: topic 1, issuer X, restricted 408, cap 1000, all modules bound",
+      "hooks": [],
+      "gold_suites": {
+        "invariants": {
+          "contract": "GoldInvariantsTest",
+          "file": "test/gold/GoldInvariants.t.sol"
+        },
+        "scenarios": {
+          "contract": "GoldScenariosTest",
+          "file": "test/gold/GoldScenarios.t.sol"
+        }
+      }
+    },
+    {
+      "id": "C02",
+      "kind": "clean",
+      "cfg_contract": "Cfg02",
+      "cfg_file": "test/configs/CleanCfgs.sol",
+      "rule": "K1",
+      "description": "Two required topics, two trusted issuers per topic; AND across topics, OR across issuers",
+      "hooks": [
+        {
+          "name": "_deployClaimIssuer",
+          "params": "",
+          "args": "",
+          "returns": ""
+        },
+        {
+          "name": "_registerInvestors",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "C02_Invariants",
+          "file": "test/clean/CleanConfigs.t.sol"
+        },
+        "scenarios": {
+          "contract": "C02_Scenarios",
+          "file": "test/clean/CleanConfigs.t.sol"
+        }
+      }
+    },
+    {
+      "id": "C03",
+      "kind": "clean",
+      "cfg_contract": "Cfg03",
+      "cfg_file": "test/configs/CleanCfgs.sol",
+      "rule": "H2, D3",
+      "description": "Alice holds 600; her 500-token move between her own wallets was rejected (known false-positive trap)",
+      "hooks": [
+        {
+          "name": "_afterSetUp",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "C03_Invariants",
+          "file": "test/clean/CleanConfigs.t.sol"
+        }
+      }
+    },
+    {
+      "id": "C04",
+      "kind": "clean",
+      "cfg_contract": "Cfg04",
+      "cfg_file": "test/configs/CleanCfgs.sol",
+      "rule": "J1, J4, D1",
+      "description": "Agent forcedTransfer put 100 tokens in Carol's wallet (country 408); known exception",
+      "hooks": [
+        {
+          "name": "_afterSetUp",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "C04_Invariants",
+          "file": "test/clean/CleanConfigs.t.sol"
+        }
+      }
+    },
+    {
+      "id": "C05",
+      "kind": "clean",
+      "cfg_contract": "Cfg05",
+      "cfg_file": "test/configs/CleanCfgs.sol",
+      "rule": "J1, H1",
+      "description": "Different valid numbers: cap 500, countries 408 and 643 restricted",
+      "hooks": [
+        {
+          "name": "_configure",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "C05_Invariants",
+          "file": "test/clean/CleanConfigs.t.sol"
+        },
+        "scenarios": {
+          "contract": "C05_Scenarios",
+          "file": "test/clean/CleanConfigs.t.sol"
+        }
+      }
+    },
+    {
+      "id": "C06",
+      "kind": "clean",
+      "cfg_contract": "Cfg06",
+      "cfg_file": "test/configs/CleanCfgs.sol",
+      "rule": "K2",
+      "description": "Bob's claim revoked, then re-issued with different data",
+      "hooks": [
+        {
+          "name": "_registerInvestors",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "C06_Invariants",
+          "file": "test/clean/CleanConfigs.t.sol"
+        },
+        "scenarios": {
+          "contract": "C06_Scenarios",
+          "file": "test/clean/CleanConfigs.t.sol"
+        }
+      }
+    },
+    {
+      "id": "C07",
+      "kind": "clean",
+      "cfg_contract": "Cfg07",
+      "cfg_file": "test/configs/CleanCfgs.sol",
+      "rule": "H1",
+      "description": "Bob holds 900 and receives exactly 100, ending exactly at the cap",
+      "hooks": [
+        {
+          "name": "_afterSetUp",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "C07_Invariants",
+          "file": "test/clean/CleanConfigs.t.sol"
+        }
+      }
+    },
+    {
+      "id": "C08",
+      "kind": "clean",
+      "cfg_contract": "Cfg08",
+      "cfg_file": "test/configs/CleanCfgs.sol",
+      "rule": "H3",
+      "description": "MaxBalanceModule bound to a token that already has holders, with a correct preset",
+      "hooks": [
+        {
+          "name": "_addModules",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "C08_Invariants",
+          "file": "test/clean/CleanConfigs.t.sol"
+        },
+        "scenarios": {
+          "contract": "C08_Scenarios",
+          "file": "test/clean/CleanConfigs.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V01",
+      "kind": "variant",
+      "type": "C",
+      "cfg_contract": "CfgV01",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "K1",
+      "description": "isVerified returns true when any one required topic is satisfied (OR instead of AND); Mallory holds topic 1 only",
+      "hooks": [
+        {
+          "name": "_newIdentityRegistry",
+          "params": "",
+          "args": "",
+          "returns": "IdentityRegistry"
+        },
+        {
+          "name": "_deployClaimIssuer",
+          "params": "",
+          "args": "",
+          "returns": ""
+        },
+        {
+          "name": "_registerInvestors",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "linked_tests": [
+        "G01a",
+        "G01b"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V01_Invariants",
+          "file": "test/variants/Wave2.t.sol"
+        },
+        "scenarios": {
+          "contract": "V01_Scenarios",
+          "file": "test/variants/Wave2.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V02",
+      "kind": "variant",
+      "type": "C",
+      "cfg_contract": "CfgV02",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "K1",
+      "description": "Claim issuer isClaimValid always returns true; Mallory holds a claim signed by a random key",
+      "hooks": [
+        {
+          "name": "_newClaimIssuer",
+          "params": "address admin",
+          "args": "admin",
+          "returns": "ClaimIssuer"
+        },
+        {
+          "name": "_registerInvestors",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "linked_tests": [
+        "G01a",
+        "G01b"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V02_Invariants",
+          "file": "test/variants/Wave2.t.sol"
+        },
+        "scenarios": {
+          "contract": "V02_Scenarios",
+          "file": "test/variants/Wave2.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V03",
+      "kind": "variant",
+      "type": "C",
+      "cfg_contract": "CfgV03",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "K2",
+      "description": "Claim issuer ignores revocation",
+      "hooks": [
+        {
+          "name": "_newClaimIssuer",
+          "params": "address admin",
+          "args": "admin",
+          "returns": "ClaimIssuer"
+        }
+      ],
+      "linked_tests": [
+        "G06c"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V03_Invariants",
+          "file": "test/variants/Wave2.t.sol"
+        },
+        "scenarios": {
+          "contract": "V03_Scenarios",
+          "file": "test/variants/Wave2.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V04",
+      "kind": "variant",
+      "type": "G",
+      "cfg_contract": "CfgV04",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "K3",
+      "description": "Required claim topics list is empty",
+      "hooks": [
+        {
+          "name": "_deployClaimIssuer",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "linked_tests": [
+        "G02a",
+        "G02b",
+        "G01a",
+        "G01b"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V04_Invariants",
+          "file": "test/variants/Wave1.t.sol"
+        },
+        "scenarios": {
+          "contract": "V04_Scenarios",
+          "file": "test/variants/Wave1.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V05",
+      "kind": "variant",
+      "type": "G",
+      "cfg_contract": "CfgV05",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "J1",
+      "description": "Wrong country restricted (410 instead of 408)",
+      "hooks": [
+        {
+          "name": "_configureModules",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "linked_tests": [
+        "G03a",
+        "G03b",
+        "G08"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V05_Invariants",
+          "file": "test/variants/Wave1.t.sol"
+        },
+        "scenarios": {
+          "contract": "V05_Scenarios",
+          "file": "test/variants/Wave1.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V06",
+      "kind": "variant",
+      "type": "C",
+      "cfg_contract": "CfgV06",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "J2",
+      "description": "Registry updateCountry does not write the new country",
+      "hooks": [
+        {
+          "name": "_newIdentityRegistry",
+          "params": "",
+          "args": "",
+          "returns": "IdentityRegistry"
+        }
+      ],
+      "linked_tests": [
+        "G07"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V06_Invariants",
+          "file": "test/variants/Wave2.t.sol"
+        },
+        "scenarios": {
+          "contract": "V06_Scenarios",
+          "file": "test/variants/Wave2.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V07",
+      "kind": "variant",
+      "type": "G",
+      "cfg_contract": "CfgV07",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "J3",
+      "description": "Country module removed after setup",
+      "hooks": [
+        {
+          "name": "_configureModules",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "linked_tests": [
+        "G07",
+        "G08"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V07_Invariants",
+          "file": "test/variants/Wave1.t.sol"
+        },
+        "scenarios": {
+          "contract": "V07_Scenarios",
+          "file": "test/variants/Wave1.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V08",
+      "kind": "variant",
+      "type": "G",
+      "cfg_contract": "CfgV08",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "J3",
+      "description": "Country module bound but no country restricted",
+      "hooks": [
+        {
+          "name": "_configureModules",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "linked_tests": [
+        "G08",
+        "G03a"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V08_Invariants",
+          "file": "test/variants/Wave1.t.sol"
+        },
+        "scenarios": {
+          "contract": "V08_Scenarios",
+          "file": "test/variants/Wave1.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V09",
+      "kind": "variant",
+      "type": "G",
+      "cfg_contract": "CfgV09",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "H1",
+      "description": "MaxBalanceModule removed",
+      "hooks": [
+        {
+          "name": "_configureModules",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "linked_tests": [
+        "G04",
+        "G05a",
+        "G05b-prop"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V09_Invariants",
+          "file": "test/variants/Wave1.t.sol"
+        },
+        "scenarios": {
+          "contract": "V09_Scenarios",
+          "file": "test/variants/Wave1.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V10",
+      "kind": "variant",
+      "type": "C",
+      "cfg_contract": "CfgV10",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "H2",
+      "description": "MaxBalanceModule keyed by wallet instead of identity",
+      "hooks": [
+        {
+          "name": "_maxBalanceImpl",
+          "params": "",
+          "args": "",
+          "returns": "address"
+        }
+      ],
+      "linked_tests": [
+        "G09",
+        "G04"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V10_Invariants",
+          "file": "test/variants/Wave2.t.sol"
+        },
+        "scenarios": {
+          "contract": "V10_Scenarios",
+          "file": "test/variants/Wave2.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V11",
+      "kind": "variant",
+      "type": "G",
+      "cfg_contract": "CfgV11",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "H3",
+      "description": "Bob holds 800 but the module preset says 0 (property suite only)",
+      "hooks": [
+        {
+          "name": "_addModules",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "linked_tests": [
+        "G05a",
+        "G05b-prop",
+        "G04"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V11_Invariants",
+          "file": "test/variants/Wave1.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V12",
+      "kind": "variant",
+      "type": "C",
+      "cfg_contract": "CfgV12",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "H3",
+      "description": "Token forcedTransfer does not call transferred",
+      "hooks": [
+        {
+          "name": "_newToken",
+          "params": "",
+          "args": "",
+          "returns": "Token"
+        }
+      ],
+      "linked_tests": [
+        "G05b-prop"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V12_Invariants",
+          "file": "test/variants/Wave2.t.sol"
+        },
+        "scenarios": {
+          "contract": "V12_Scenarios",
+          "file": "test/variants/Wave2.t.sol"
+        }
+      }
+    },
+    {
+      "id": "V13",
+      "kind": "variant",
+      "type": "G",
+      "cfg_contract": "CfgV13",
+      "cfg_file": "test/configs/VariantCfgs.sol",
+      "rule": "H4",
+      "description": "Cap set to type(uint256).max",
+      "hooks": [
+        {
+          "name": "_configureModules",
+          "params": "",
+          "args": "",
+          "returns": ""
+        }
+      ],
+      "linked_tests": [
+        "G04",
+        "G09",
+        "G10"
+      ],
+      "gold_suites": {
+        "invariants": {
+          "contract": "V13_Invariants",
+          "file": "test/variants/Wave1.t.sol"
+        },
+        "scenarios": {
+          "contract": "V13_Scenarios",
+          "file": "test/variants/Wave1.t.sol"
+        }
+      }
+    }
+  ]
+}

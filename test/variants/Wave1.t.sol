@@ -3,14 +3,13 @@ pragma solidity 0.8.17;
 
 import "../gold/GoldInvariants.t.sol";
 import "../gold/GoldScenarios.t.sol";
+import "../configs/VariantCfgs.sol";
+
+/// @notice Wave 1 variants (configuration only): V04, V05, V07, V08, V09, V11, V13.
+/// The configuration contracts (CfgV04 ...) now live in test/configs/VariantCfgs.sol.
+/// This file only combines each one with the gold suites.
 
 // ---------- V04: no required claim topic (K3)
-abstract contract CfgV04 is ComplyFixture {
-    function _deployClaimIssuer() internal virtual override {
-        super._deployClaimIssuer();
-        ctr.removeClaimTopic(KYC_TOPIC);
-    }
-}
 contract V04_Invariants is GoldInvariantsTest, CfgV04 {
     function setUp() public override(GoldInvariantsTest, ComplyFixture) { GoldInvariantsTest.setUp(); }
     function _deployClaimIssuer() internal override(ComplyFixture, CfgV04) { CfgV04._deployClaimIssuer(); }
@@ -20,12 +19,6 @@ contract V04_Scenarios is GoldScenariosTest, CfgV04 {
 }
 
 // ---------- V05: wrong country restricted, 410 instead of 408 (J1)
-abstract contract CfgV05 is ComplyFixture {
-    function _configureModules() internal virtual override {
-        _restrictCountry(410);
-        _setCap(CAP);
-    }
-}
 contract V05_Invariants is GoldInvariantsTest, CfgV05 {
     function setUp() public override(GoldInvariantsTest, ComplyFixture) { GoldInvariantsTest.setUp(); }
     function _configureModules() internal override(ComplyFixture, CfgV05) { CfgV05._configureModules(); }
@@ -35,12 +28,6 @@ contract V05_Scenarios is GoldScenariosTest, CfgV05 {
 }
 
 // ---------- V07: country module removed after setup (J3)
-abstract contract CfgV07 is ComplyFixture {
-    function _configureModules() internal virtual override {
-        super._configureModules();
-        compliance.removeModule(address(countryModule));
-    }
-}
 contract V07_Invariants is GoldInvariantsTest, CfgV07 {
     function setUp() public override(GoldInvariantsTest, ComplyFixture) { GoldInvariantsTest.setUp(); }
     function _configureModules() internal override(ComplyFixture, CfgV07) { CfgV07._configureModules(); }
@@ -50,11 +37,6 @@ contract V07_Scenarios is GoldScenariosTest, CfgV07 {
 }
 
 // ---------- V08: country module bound, no country restricted (J3)
-abstract contract CfgV08 is ComplyFixture {
-    function _configureModules() internal virtual override {
-        _setCap(CAP);
-    }
-}
 contract V08_Invariants is GoldInvariantsTest, CfgV08 {
     function setUp() public override(GoldInvariantsTest, ComplyFixture) { GoldInvariantsTest.setUp(); }
     function _configureModules() internal override(ComplyFixture, CfgV08) { CfgV08._configureModules(); }
@@ -64,12 +46,6 @@ contract V08_Scenarios is GoldScenariosTest, CfgV08 {
 }
 
 // ---------- V09: MaxBalanceModule removed (H1)
-abstract contract CfgV09 is ComplyFixture {
-    function _configureModules() internal virtual override {
-        super._configureModules();
-        compliance.removeModule(address(maxBalanceModule));
-    }
-}
 contract V09_Invariants is GoldInvariantsTest, CfgV09 {
     function setUp() public override(GoldInvariantsTest, ComplyFixture) { GoldInvariantsTest.setUp(); }
     function _configureModules() internal override(ComplyFixture, CfgV09) { CfgV09._configureModules(); }
@@ -79,12 +55,6 @@ contract V09_Scenarios is GoldScenariosTest, CfgV09 {
 }
 
 // ---------- V13: cap set to type(uint256).max (H4)
-abstract contract CfgV13 is ComplyFixture {
-    function _configureModules() internal virtual override {
-        _restrictCountry(RESTRICTED);
-        _setCap(type(uint256).max);
-    }
-}
 contract V13_Invariants is GoldInvariantsTest, CfgV13 {
     function setUp() public override(GoldInvariantsTest, ComplyFixture) { GoldInvariantsTest.setUp(); }
     function _configureModules() internal override(ComplyFixture, CfgV13) { CfgV13._configureModules(); }
@@ -94,17 +64,6 @@ contract V13_Scenarios is GoldScenariosTest, CfgV13 {
 }
 
 // ---------- V11: Bob holds 800, preset says 0 (H3). Properties only, because the start state has balances.
-abstract contract CfgV11 is ComplyFixture {
-    function _addModules() internal virtual override {
-        _mint(b, 800); // no modules yet, so canTransfer is vacuously true
-        address[] memory ids = new address[](1);
-        ids[0] = address(idB);
-        uint256[] memory bal = new uint256[](1);
-        bal[0] = 0;
-        maxBalanceModule.batchPreSetModuleState(address(compliance), ids, bal);
-        super._addModules();
-    }
-}
 contract V11_Invariants is GoldInvariantsTest, CfgV11 {
     function setUp() public override(GoldInvariantsTest, ComplyFixture) { GoldInvariantsTest.setUp(); }
     function _addModules() internal override(ComplyFixture, CfgV11) { CfgV11._addModules(); }
