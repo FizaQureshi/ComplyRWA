@@ -1,0 +1,51 @@
+{
+  "summary": {
+    "tests": 4,
+    "KEEP": 0,
+    "VACUOUS": 2,
+    "REJECT": 2,
+    "valid_not_rejected": 2,
+    "valid_and_non_vacuous": 0,
+    "executor_seconds": 28.4,
+    "wall_seconds": 33.7
+  },
+  "rows": [
+    {
+      "contract": "BadTests",
+      "test": "test_BAD1_failsEverywhere",
+      "outcome": "REJECT",
+      "reason": "fails on clean: C01 C02 C05 C06 C08 (always fails)",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "BadTests",
+      "test": "test_BAD2_noAssertion",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "no visible assertion",
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "BadTests",
+      "test": "test_BAD3_alwaysTrue",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "BadCompile",
+      "test": "(whole contract)",
+      "outcome": "REJECT",
+      "reason": "does not compile",
+      "notes": [
+        "Error: Compiler run failed: | Error (7576): Undeclared identifier. |   --> candidates/bad/BadCompile.sol:10:9: |    | | 10 |         thisFunctionDoesNotExist(); |    |         ^^^^^^^^^^^^^^^^^^^^^^^^"
+      ]
+    }
+  ]
+}

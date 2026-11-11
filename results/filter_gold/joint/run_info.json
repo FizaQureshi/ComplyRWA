@@ -1,0 +1,8 @@
+{
+  "tests": [
+    "test/gold/GoldInvariants.t.sol:GoldInvariantsTest",
+    "test/gold/GoldScenarios.t.sol:GoldScenariosTest"
+  ],
+  "wrappers": 38,
+  "seconds": 85.73
+}

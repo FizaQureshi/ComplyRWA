@@ -1,0 +1,176 @@
+{
+  "summary": {
+    "tests": 18,
+    "KEEP": 16,
+    "VACUOUS": 2,
+    "REJECT": 0,
+    "valid_not_rejected": 18,
+    "valid_and_non_vacuous": 16,
+    "executor_seconds": 85.7,
+    "wall_seconds": 86.2
+  },
+  "rows": [
+    {
+      "contract": "GoldInvariantsTest",
+      "test": "invariant_G01a_transferReceiverIsVerified",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 8/8 clean, 13/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldInvariantsTest",
+      "test": "invariant_G01b_mintAndForcedReceiverIsVerified",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 8/8 clean, 13/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldInvariantsTest",
+      "test": "invariant_G03a_transferReceiverNotRestricted",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 8/8 clean, 13/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldInvariantsTest",
+      "test": "invariant_G03b_mintReceiverNotRestricted",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 8/8 clean, 13/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldInvariantsTest",
+      "test": "invariant_G04_noIdentityAboveCap",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V11 V12 V13",
+      "notes": [
+        "ran on 8/8 clean, 13/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldInvariantsTest",
+      "test": "invariant_G05a_trackedEqualsRealAfterTransfer",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V11 V12",
+      "notes": [
+        "ran on 8/8 clean, 13/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldInvariantsTest",
+      "test": "invariant_G05b_trackedEqualsRealAfterMintBurnForced",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V11 V12",
+      "notes": [
+        "ran on 8/8 clean, 13/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G02a_requiredTopicsNotEmpty",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G02b_registeredWalletWithoutClaimCannotReceive",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G05b_recoveryKeepsTrackedBalance",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G06a_deleteIdentityBlocksReceiving",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G06b_removeTrustedIssuerBlocksReceiving",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G06c_revokedClaimBlocksReceiving",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G07_countryChangeBlocksReceiving",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G08_countryModuleBoundAndConfigured",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G09_walletsOfOneIdentityShareTheCap",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G10_capEqualsPolicyNumber",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "GoldScenariosTest",
+      "test": "test_G13_forcedTransferToRestrictedCountryIsKnownException",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    }
+  ]
+}

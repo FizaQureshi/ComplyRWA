@@ -1,0 +1,7 @@
+{
+  "tests": [
+    "candidates/bad/BadTests.sol:BadTests"
+  ],
+  "wrappers": 17,
+  "seconds": 28.45
+}

@@ -1,0 +1,7 @@
+
+Error: Compiler run failed:
+Error (7576): Undeclared identifier.
+  --> candidates/bad/BadCompile.sol:10:9:
+   |
+10 |         thisFunctionDoesNotExist();
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^

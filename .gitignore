@@ -2,3 +2,4 @@ T-REX/
 
 cache/
 out/
+__pycache__/
