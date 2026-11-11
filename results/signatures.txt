@@ -1,0 +1,107 @@
+token/Token.sol:76:    modifier whenNotPaused() {
+token/Token.sol:82:    modifier whenPaused() {
+token/Token.sol:100:    function init(
+token/Token.sol:137:    function approve(address _spender, uint256 _amount) external virtual override returns (bool) {
+token/Token.sol:145:    function increaseAllowance(address _spender, uint256 _addedValue) external virtual returns (bool) {
+token/Token.sol:153:    function decreaseAllowance(address _spender, uint256 _subtractedValue) external virtual returns (bool) {
+token/Token.sol:161:    function setName(string calldata _name) external override onlyOwner {
+token/Token.sol:170:    function setSymbol(string calldata _symbol) external override onlyOwner {
+token/Token.sol:180:    function setOnchainID(address _onchainID) external override onlyOwner {
+token/Token.sol:188:    function pause() external override onlyAgent whenNotPaused {
+token/Token.sol:196:    function unpause() external override onlyAgent whenPaused {
+token/Token.sol:204:    function batchTransfer(address[] calldata _toList, uint256[] calldata _amounts) external override {
+token/Token.sol:220:    function transferFrom(
+token/Token.sol:239:    function batchForcedTransfer(
+token/Token.sol:252:    function batchMint(address[] calldata _toList, uint256[] calldata _amounts) external override {
+token/Token.sol:261:    function batchBurn(address[] calldata _userAddresses, uint256[] calldata _amounts) external override {
+token/Token.sol:270:    function batchSetAddressFrozen(address[] calldata _userAddresses, bool[] calldata _freeze) external override {
+token/Token.sol:279:    function batchFreezePartialTokens(address[] calldata _userAddresses, uint256[] calldata _amounts) external override {
+token/Token.sol:288:    function batchUnfreezePartialTokens(address[] calldata _userAddresses, uint256[] calldata _amounts) external override {
+token/Token.sol:297:    function recoveryAddress(
+token/Token.sol:327:    function totalSupply() external view override returns (uint256) {
+token/Token.sol:334:    function allowance(address _owner, address _spender) external view virtual override returns (uint256) {
+token/Token.sol:341:    function identityRegistry() external view override returns (IIdentityRegistry) {
+token/Token.sol:348:    function compliance() external view override returns (IModularCompliance) {
+token/Token.sol:355:    function paused() external view override returns (bool) {
+token/Token.sol:362:    function isFrozen(address _userAddress) external view override returns (bool) {
+token/Token.sol:369:    function getFrozenTokens(address _userAddress) external view override returns (uint256) {
+token/Token.sol:376:    function decimals() external view override returns (uint8) {
+token/Token.sol:383:    function name() external view override returns (string memory) {
+token/Token.sol:390:    function onchainID() external view override returns (address) {
+token/Token.sol:397:    function symbol() external view override returns (string memory) {
+token/Token.sol:404:    function version() external pure override returns (string memory) {
+token/Token.sol:417:    function transfer(address _to, uint256 _amount) public override whenNotPaused returns (bool) {
+token/Token.sol:431:    function forcedTransfer(
+token/Token.sol:454:    function mint(address _to, uint256 _amount) public override onlyAgent {
+token/Token.sol:464:    function burn(address _userAddress, uint256 _amount) public override onlyAgent {
+token/Token.sol:479:    function setAddressFrozen(address _userAddress, bool _freeze) public override onlyAgent {
+token/Token.sol:488:    function freezePartialTokens(address _userAddress, uint256 _amount) public override onlyAgent {
+token/Token.sol:498:    function unfreezePartialTokens(address _userAddress, uint256 _amount) public override onlyAgent {
+token/Token.sol:507:    function setIdentityRegistry(address _identityRegistry) public override onlyOwner {
+token/Token.sol:515:    function setCompliance(address _compliance) public override onlyOwner {
+token/Token.sol:527:    function balanceOf(address _userAddress) public view override returns (uint256) {
+token/Token.sol:534:    function _transfer(
+token/Token.sol:552:    function _mint(address _userAddress, uint256 _amount) internal virtual {
+token/Token.sol:565:    function _burn(address _userAddress, uint256 _amount) internal virtual {
+token/Token.sol:578:    function _approve(
+token/Token.sol:594:    function _beforeTokenTransfer(address _from, address _to, uint256 _amount) internal virtual {}
+registry/implementation/IdentityRegistry.sol:87:    function init(
+registry/implementation/IdentityRegistry.sol:109:    function batchRegisterIdentity(
+registry/implementation/IdentityRegistry.sol:122:    function updateIdentity(address _userAddress, IIdentity _identity) external override onlyAgent {
+registry/implementation/IdentityRegistry.sol:131:    function updateCountry(address _userAddress, uint16 _country) external override onlyAgent {
+registry/implementation/IdentityRegistry.sol:139:    function deleteIdentity(address _userAddress) external override onlyAgent {
+registry/implementation/IdentityRegistry.sol:148:    function setIdentityRegistryStorage(address _identityRegistryStorage) external override onlyOwner {
+registry/implementation/IdentityRegistry.sol:156:    function setClaimTopicsRegistry(address _claimTopicsRegistry) external override onlyOwner {
+registry/implementation/IdentityRegistry.sol:164:    function setTrustedIssuersRegistry(address _trustedIssuersRegistry) external override onlyOwner {
+registry/implementation/IdentityRegistry.sol:173:    function isVerified(address _userAddress) external view override returns (bool) {
+registry/implementation/IdentityRegistry.sol:228:    function investorCountry(address _userAddress) external view override returns (uint16) {
+registry/implementation/IdentityRegistry.sol:235:    function issuersRegistry() external view override returns (ITrustedIssuersRegistry) {
+registry/implementation/IdentityRegistry.sol:242:    function topicsRegistry() external view override returns (IClaimTopicsRegistry) {
+registry/implementation/IdentityRegistry.sol:249:    function identityStorage() external view override returns (IIdentityRegistryStorage) {
+registry/implementation/IdentityRegistry.sol:256:    function contains(address _userAddress) external view override returns (bool) {
+registry/implementation/IdentityRegistry.sol:266:    function registerIdentity(
+registry/implementation/IdentityRegistry.sol:278:    function identity(address _userAddress) public view override returns (IIdentity) {
+compliance/modular/ModularCompliance.sol:79:    modifier onlyToken() {
+compliance/modular/ModularCompliance.sol:84:    function init() external initializer {
+compliance/modular/ModularCompliance.sol:91:    function bindToken(address _token) external override {
+compliance/modular/ModularCompliance.sol:102:    function unbindToken(address _token) external override {
+compliance/modular/ModularCompliance.sol:113:    function addModule(address _module) external override onlyOwner {
+compliance/modular/ModularCompliance.sol:131:    function removeModule(address _module) external override onlyOwner {
+compliance/modular/ModularCompliance.sol:150:    function transferred(address _from, address _to, uint256 _value) external onlyToken override {
+compliance/modular/ModularCompliance.sol:165:    function created(address _to, uint256 _value) external onlyToken override {
+compliance/modular/ModularCompliance.sol:177:    function destroyed(address _from, uint256 _value) external onlyToken override {
+compliance/modular/ModularCompliance.sol:189:    function callModuleFunction(bytes calldata callData, address _module) external override onlyOwner {
+compliance/modular/ModularCompliance.sol:224:    function isModuleBound(address _module) external view override returns (bool) {
+compliance/modular/ModularCompliance.sol:231:    function getModules() external view override returns (address[] memory) {
+compliance/modular/ModularCompliance.sol:238:    function getTokenBound() external view override returns (address) {
+compliance/modular/ModularCompliance.sol:245:    function canTransfer(address _from, address _to, uint256 _value) external view override returns (bool) {
+compliance/modular/ModularCompliance.sol:259:    function _selector(bytes calldata callData) internal pure returns (bytes4 result) {
+compliance/modular/modules/MaxBalanceModule.sol:118:    function initialize() external initializer {
+compliance/modular/modules/MaxBalanceModule.sol:128:    function setMaxBalance(uint256 _max) external onlyComplianceCall {
+compliance/modular/modules/MaxBalanceModule.sol:141:    function preSetModuleState(address _compliance, address _id, uint256 _balance) external {
+compliance/modular/modules/MaxBalanceModule.sol:161:    function batchPreSetModuleState(
+compliance/modular/modules/MaxBalanceModule.sol:189:    function presetCompleted(address _compliance) external {
+compliance/modular/modules/MaxBalanceModule.sol:202:    function moduleTransferAction(address _from, address _to, uint256 _value) external override onlyComplianceCall {
+compliance/modular/modules/MaxBalanceModule.sol:214:    function moduleMintAction(address _to, uint256 _value) external override onlyComplianceCall {
+compliance/modular/modules/MaxBalanceModule.sol:224:    function moduleBurnAction(address _from, uint256 _value) external override onlyComplianceCall {
+compliance/modular/modules/MaxBalanceModule.sol:235:    function moduleCheck(
+compliance/modular/modules/MaxBalanceModule.sol:256:    function getIDBalance(address _compliance, address _identity) external view returns (uint256) {
+compliance/modular/modules/MaxBalanceModule.sol:263:    function canComplianceBind(address _compliance) external view returns (bool) {
+compliance/modular/modules/MaxBalanceModule.sol:280:    function isPlugAndPlay() external pure returns (bool) {
+compliance/modular/modules/MaxBalanceModule.sol:287:    function name() public pure returns (string memory _name) {
+compliance/modular/modules/MaxBalanceModule.sol:298:    function _preSetModuleState(address _compliance, address _id, uint256 _balance) internal {
+compliance/modular/modules/MaxBalanceModule.sol:310:    function _getIdentity(address _compliance, address _userAddress) internal view returns (address) {
+compliance/modular/modules/CountryRestrictModule.sol:97:    function initialize() external initializer {
+compliance/modular/modules/CountryRestrictModule.sol:108:    function addCountryRestriction(uint16 _country) external onlyComplianceCall {
+compliance/modular/modules/CountryRestrictModule.sol:122:    function removeCountryRestriction(uint16 _country) external onlyComplianceCall {
+compliance/modular/modules/CountryRestrictModule.sol:137:    function batchRestrictCountries(uint16[] calldata _countries) external onlyComplianceCall {
+compliance/modular/modules/CountryRestrictModule.sol:155:    function batchUnrestrictCountries(uint16[] calldata _countries) external onlyComplianceCall {
+compliance/modular/modules/CountryRestrictModule.sol:169:    function moduleTransferAction(address _from, address _to, uint256 _value) external override onlyComplianceCall {}
+compliance/modular/modules/CountryRestrictModule.sol:176:    function moduleMintAction(address _to, uint256 _value) external override onlyComplianceCall {}
+compliance/modular/modules/CountryRestrictModule.sol:183:    function moduleBurnAction(address _from, uint256 _value) external override onlyComplianceCall {}
+compliance/modular/modules/CountryRestrictModule.sol:191:    function moduleCheck(
+compliance/modular/modules/CountryRestrictModule.sol:207:    function canComplianceBind(address /*_compliance*/) external view override returns (bool) {
+compliance/modular/modules/CountryRestrictModule.sol:214:    function isPlugAndPlay() external pure override returns (bool) {
+compliance/modular/modules/CountryRestrictModule.sol:222:    function isCountryRestricted(address _compliance, uint16 _country) public view
+compliance/modular/modules/CountryRestrictModule.sol:230:    function name() public pure returns (string memory _name) {
+compliance/modular/modules/CountryRestrictModule.sol:241:    function _getCountry(address _compliance, address _userAddress) internal view returns (uint16) {
