@@ -1,0 +1,114 @@
+contract ComplyFixture is Test {
+    // ---------------------------------------------------------------- constants
+    uint256 internal constant KYC_TOPIC = 1;
+    uint16 internal constant INDIA = 356;
+    // Policy numbers. Variables, not constants, so a clean configuration (C05) can change them in _configure().
+    uint16 internal RESTRICTED = 408;
+    uint16 internal RESTRICTED2 = 0; // optional second restricted country (0 = none)
+    uint256 internal CAP = 1000;
+    bytes internal constant KYC_DATA = "KYC-OK";
+
+    // ------------------------------------------------------------------- actors
+    address internal agent;
+    address internal issuerAdmin;
+    address internal issuerSigner;
+    uint256 internal issuerKey;
+
+    // Alice has two wallets (a1, a2) under one identity (idA). Bob = b, Carol = c, Mallory = m.
+    address internal a1;
+    address internal a2;
+    address internal b;
+    address internal c;
+    address internal m;
+    Identity internal idA;
+    Identity internal idB;
+    Identity internal idC;
+    Identity internal idM;
+
+    // -------------------------------------------------------------------- suite
+    ClaimTopicsRegistry internal ctr;
+    TrustedIssuersRegistry internal tir;
+    IdentityRegistryStorage internal irs;
+    IdentityRegistry internal ir;
+    ModularCompliance internal compliance;
+    Token internal token;
+    ClaimIssuer internal claimIssuer;
+    ClaimIssuer internal claimIssuer2; // only used by C02
+    address internal issuer2Signer;
+    uint256 internal issuer2Key;
+    CountryRestrictModule internal countryModule;
+    MaxBalanceModule internal maxBalanceModule;
+
+    // ------------------------------------------------------------------- set up
+    function setUp() public virtual;
+
+    /// @dev Hook: change policy numbers before anything is deployed (C05).
+    function _configure() internal virtual;
+
+    /// @dev Hook: put the system into a special starting state after the baseline is built (C03, C04, C07).
+    function _afterSetUp() internal virtual;
+
+    function _makeActors() internal virtual;
+
+    function _deployRegistries() internal virtual;
+
+    /// @dev Hook: a variant can swap in a copied registry.
+    function _newIdentityRegistry() internal virtual returns (IdentityRegistry);
+
+    function _deployClaimIssuer() internal virtual;
+
+    /// @dev Hook: a variant can swap in a copied claim issuer.
+    function _newClaimIssuer(address admin) internal virtual returns (ClaimIssuer);
+
+    function _deployComplianceAndToken() internal virtual;
+
+    /// @dev Hook: a variant can swap in a copied Token.
+    function _newToken() internal virtual returns (Token);
+
+    function _registerInvestors() internal virtual;
+
+    function _wireModules() internal virtual;
+
+    function _deployModules() internal virtual;
+
+    /// @dev Hook: a variant can swap in a copied MaxBalanceModule (same functions, so the cast above works).
+    function _maxBalanceImpl() internal virtual returns (address);
+
+    /// @dev The token is already bound (Token.init does it). With no tokens in existence (or a completed
+    /// preset), MaxBalanceModule.canComplianceBind is true.
+    function _addModules() internal virtual;
+
+    function _configureModules() internal virtual;
+
+    // ------------------------------------------------------------------ helpers
+    /// @dev Signs exactly what ClaimIssuer.isClaimValid rebuilds: the data hash with the
+    /// "Ethereum Signed Message" prefix. Returns r, s, v separately for malleability tests.
+    function _rsv(Identity id, uint256 topic, bytes memory data)
+        internal
+        view
+        returns (uint8 v, bytes32 r, bytes32 s);
+
+    function _rsvFor(uint256 key, Identity id, uint256 topic, bytes memory data)
+        internal
+        view
+        returns (uint8 v, bytes32 r, bytes32 s);
+
+    function _issueClaim(Identity id, address wallet) internal;
+
+    function _issueClaim(Identity id, address wallet, uint256 topic, bytes memory data) internal;
+
+    function _issueClaimFrom(ClaimIssuer issuer, uint256 key, Identity id, address wallet, uint256 topic, bytes memory data)
+        internal;
+
+    function _revokeClaim(Identity id) internal;
+
+    function _mint(address to, uint256 amount) internal;
+
+    function _transfer(address from, address to, uint256 amount) internal;
+
+    function _idBalance(Identity id) internal view returns (uint256);
+
+    function _restrictCountry(uint16 country) internal;
+
+    function _setCap(uint256 cap) internal;
+}

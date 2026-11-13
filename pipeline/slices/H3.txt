@@ -1,0 +1,359 @@
+// Rule H3: Tracked balance must equal the real balance (counter drift)
+// Source: pinned T-REX 4.1.6 (a09cfd3) and ONCHAINID 2.1.0. Comments removed. Only the parts this rule needs.
+
+// ===== T-REX/contracts/token/Token.sol :: Token =====
+contract Token is IToken, AgentRoleUpgradeable, TokenStorage {
+    modifier whenNotPaused() {
+        require(!_tokenPaused, "Pausable: paused");
+        _;
+    }
+    function batchTransfer(address[] calldata _toList, uint256[] calldata _amounts) external override {
+        for (uint256 i = 0; i < _toList.length; i++) {
+            transfer(_toList[i], _amounts[i]);
+        }
+    }
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) external override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[_from], "wallet is frozen");
+        require(_amount <= balanceOf(_from) - (_frozenTokens[_from]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(_from, _to, _amount)) {
+            _approve(_from, msg.sender, _allowances[_from][msg.sender] - (_amount));
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function recoveryAddress(
+        address _lostWallet,
+        address _newWallet,
+        address _investorOnchainID
+    ) external override onlyAgent returns (bool) {
+        require(balanceOf(_lostWallet) != 0, "no tokens to recover");
+        IIdentity _onchainID = IIdentity(_investorOnchainID);
+        bytes32 _key = keccak256(abi.encode(_newWallet));
+        if (_onchainID.keyHasPurpose(_key, 1)) {
+            uint256 investorTokens = balanceOf(_lostWallet);
+            uint256 frozenTokens = _frozenTokens[_lostWallet];
+            _tokenIdentityRegistry.registerIdentity(_newWallet, _onchainID, _tokenIdentityRegistry.investorCountry
+                (_lostWallet));
+            forcedTransfer(_lostWallet, _newWallet, investorTokens);
+            if (frozenTokens > 0) {
+                freezePartialTokens(_newWallet, frozenTokens);
+            }
+            if (_frozen[_lostWallet] == true) {
+                setAddressFrozen(_newWallet, true);
+            }
+            _tokenIdentityRegistry.deleteIdentity(_lostWallet);
+            emit RecoverySuccess(_lostWallet, _newWallet, _investorOnchainID);
+            return true;
+        }
+        revert("Recovery not possible");
+    }
+    function transfer(address _to, uint256 _amount) public override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[msg.sender], "wallet is frozen");
+        require(_amount <= balanceOf(msg.sender) - (_frozenTokens[msg.sender]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(msg.sender, _to, _amount)) {
+            _transfer(msg.sender, _to, _amount);
+            _tokenCompliance.transferred(msg.sender, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function forcedTransfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) public override onlyAgent returns (bool) {
+        require(balanceOf(_from) >= _amount, "sender balance too low");
+        uint256 freeBalance = balanceOf(_from) - (_frozenTokens[_from]);
+        if (_amount > freeBalance) {
+            uint256 tokensToUnfreeze = _amount - (freeBalance);
+            _frozenTokens[_from] = _frozenTokens[_from] - (tokensToUnfreeze);
+            emit TokensUnfrozen(_from, tokensToUnfreeze);
+        }
+        if (_tokenIdentityRegistry.isVerified(_to)) {
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function mint(address _to, uint256 _amount) public override onlyAgent {
+        require(_tokenIdentityRegistry.isVerified(_to), "Identity is not verified.");
+        require(_tokenCompliance.canTransfer(address(0), _to, _amount), "Compliance not followed");
+        _mint(_to, _amount);
+        _tokenCompliance.created(_to, _amount);
+    }
+    function burn(address _userAddress, uint256 _amount) public override onlyAgent {
+        require(balanceOf(_userAddress) >= _amount, "cannot burn more than balance");
+        uint256 freeBalance = balanceOf(_userAddress) - _frozenTokens[_userAddress];
+        if (_amount > freeBalance) {
+            uint256 tokensToUnfreeze = _amount - (freeBalance);
+            _frozenTokens[_userAddress] = _frozenTokens[_userAddress] - (tokensToUnfreeze);
+            emit TokensUnfrozen(_userAddress, tokensToUnfreeze);
+        }
+        _burn(_userAddress, _amount);
+        _tokenCompliance.destroyed(_userAddress, _amount);
+    }
+    function setAddressFrozen(address _userAddress, bool _freeze) public override onlyAgent {
+        _frozen[_userAddress] = _freeze;
+        emit AddressFrozen(_userAddress, _freeze, msg.sender);
+    }
+    function freezePartialTokens(address _userAddress, uint256 _amount) public override onlyAgent {
+        uint256 balance = balanceOf(_userAddress);
+        require(balance >= _frozenTokens[_userAddress] + _amount, "Amount exceeds available balance");
+        _frozenTokens[_userAddress] = _frozenTokens[_userAddress] + (_amount);
+        emit TokensFrozen(_userAddress, _amount);
+    }
+    function balanceOf(address _userAddress) public view override returns (uint256) {
+        return _balances[_userAddress];
+    }
+    function _transfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal virtual {
+        require(_from != address(0), "ERC20: transfer from the zero address");
+        require(_to != address(0), "ERC20: transfer to the zero address");
+        _beforeTokenTransfer(_from, _to, _amount);
+        _balances[_from] = _balances[_from] - _amount;
+        _balances[_to] = _balances[_to] + _amount;
+        emit Transfer(_from, _to, _amount);
+    }
+    function _mint(address _userAddress, uint256 _amount) internal virtual {
+        require(_userAddress != address(0), "ERC20: mint to the zero address");
+        _beforeTokenTransfer(address(0), _userAddress, _amount);
+        _totalSupply = _totalSupply + _amount;
+        _balances[_userAddress] = _balances[_userAddress] + _amount;
+        emit Transfer(address(0), _userAddress, _amount);
+    }
+    function _burn(address _userAddress, uint256 _amount) internal virtual {
+        require(_userAddress != address(0), "ERC20: burn from the zero address");
+        _beforeTokenTransfer(_userAddress, address(0), _amount);
+        _balances[_userAddress] = _balances[_userAddress] - _amount;
+        _totalSupply = _totalSupply - _amount;
+        emit Transfer(_userAddress, address(0), _amount);
+    }
+    function _approve(
+        address _owner,
+        address _spender,
+        uint256 _amount
+    ) internal virtual {
+        require(_owner != address(0), "ERC20: approve from the zero address");
+        require(_spender != address(0), "ERC20: approve to the zero address");
+        _allowances[_owner][_spender] = _amount;
+        emit Approval(_owner, _spender, _amount);
+    }
+    function _beforeTokenTransfer(address _from, address _to, uint256 _amount) internal virtual {}
+}
+
+// ===== T-REX/contracts/compliance/modular/ModularCompliance.sol :: ModularCompliance =====
+contract ModularCompliance is IModularCompliance, OwnableUpgradeable, MCStorage {
+    modifier onlyToken() {
+        require(msg.sender == _tokenBound, "error : this address is not a token bound to the compliance contract");
+        _;
+    }
+    function addModule(address _module) external override onlyOwner {
+        require(_module != address(0), "invalid argument - zero address");
+        require(!_moduleBound[_module], "module already bound");
+        require(_modules.length <= 24, "cannot add more than 25 modules");
+        IModule module = IModule(_module);
+        if (!module.isPlugAndPlay()) {
+            require(module.canComplianceBind(address(this)), "compliance is not suitable for binding to the module");
+        }
+        module.bindCompliance(address(this));
+        _modules.push(_module);
+        _moduleBound[_module] = true;
+        emit ModuleAdded(_module);
+    }
+    function removeModule(address _module) external override onlyOwner {
+        require(_module != address(0), "invalid argument - zero address");
+        require(_moduleBound[_module], "module not bound");
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            if (_modules[i] == _module) {
+                IModule(_module).unbindCompliance(address(this));
+                _modules[i] = _modules[length - 1];
+                _modules.pop();
+                _moduleBound[_module] = false;
+                emit ModuleRemoved(_module);
+                break;
+            }
+        }
+    }
+    function transferred(address _from, address _to, uint256 _value) external onlyToken override {
+        require(
+            _from != address(0)
+            && _to != address(0)
+        , "invalid argument - zero address");
+        require(_value > 0, "invalid argument - no value transfer");
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            IModule(_modules[i]).moduleTransferAction(_from, _to, _value);
+        }
+    }
+    function created(address _to, uint256 _value) external onlyToken override {
+        require(_to != address(0), "invalid argument - zero address");
+        require(_value > 0, "invalid argument - no value mint");
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            IModule(_modules[i]).moduleMintAction(_to, _value);
+        }
+    }
+    function destroyed(address _from, uint256 _value) external onlyToken override {
+        require(_from != address(0), "invalid argument - zero address");
+        require(_value > 0, "invalid argument - no value burn");
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            IModule(_modules[i]).moduleBurnAction(_from, _value);
+        }
+    }
+    function callModuleFunction(bytes calldata callData, address _module) external override onlyOwner {
+        require(_moduleBound[_module], "call only on bound module");
+        assembly {
+            let freeMemoryPointer := mload(0x40)
+            calldatacopy(freeMemoryPointer, callData.offset, callData.length)
+            if iszero(
+            call(
+            gas(),
+            _module,
+            0,
+            freeMemoryPointer,
+            callData.length,
+            0,
+            0
+            ))
+            {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, returndatasize())
+            }
+        }
+        emit ModuleInteraction(_module, _selector(callData));
+    }
+    function isModuleBound(address _module) external view override returns (bool) {
+        return _moduleBound[_module];
+    }
+    function getModules() external view override returns (address[] memory) {
+        return _modules;
+    }
+    function canTransfer(address _from, address _to, uint256 _value) external view override returns (bool) {
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            if (!IModule(_modules[i]).moduleCheck(_from, _to, _value, address(this))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    function _selector(bytes calldata callData) internal pure returns (bytes4 result) {
+        if (callData.length >= 4) {
+            assembly {
+                result := calldataload(callData.offset)
+            }
+        }
+    }
+}
+
+// ===== T-REX/contracts/compliance/modular/modules/MaxBalanceModule.sol :: MaxBalanceModule =====
+contract MaxBalanceModule is AbstractModuleUpgradeable {
+    mapping(address => bool) private _compliancePresetStatus;
+    mapping(address => uint256) private _maxBalance;
+    mapping(address => mapping(address => uint256)) private _IDBalance;
+    error MaxBalanceExceeded(address _compliance, uint256 _value);
+    error InvalidPresetValues(address _compliance, address[] _id, uint256[] _balance);
+    error OnlyComplianceOwnerCanCall(address _compliance);
+    error TokenAlreadyBound(address _compliance);
+    function preSetModuleState(address _compliance, address _id, uint256 _balance) external {
+        if (OwnableUpgradeable(_compliance).owner() != msg.sender) {
+            revert OnlyComplianceOwnerCanCall(_compliance);
+        }
+        if (IModularCompliance(_compliance).isModuleBound(address(this))) {
+            revert TokenAlreadyBound(_compliance);
+        }
+        _preSetModuleState(_compliance, _id, _balance);
+    }
+    function batchPreSetModuleState(
+        address _compliance,
+        address[] calldata _id,
+        uint256[] calldata _balance) external {
+        if(_id.length == 0 || _id.length != _balance.length) {
+            revert InvalidPresetValues(_compliance, _id, _balance);
+        }
+        if (OwnableUpgradeable(_compliance).owner() != msg.sender) {
+            revert OnlyComplianceOwnerCanCall(_compliance);
+        }
+        if (IModularCompliance(_compliance).isModuleBound(address(this))) {
+            revert TokenAlreadyBound(_compliance);
+        }
+        for (uint i = 0; i < _id.length; i++) {
+            _preSetModuleState(_compliance, _id[i], _balance[i]);
+        }
+        _compliancePresetStatus[_compliance] = true;
+    }
+    function presetCompleted(address _compliance) external {
+        if (OwnableUpgradeable(_compliance).owner() != msg.sender) {
+            revert OnlyComplianceOwnerCanCall(_compliance);
+        }
+        _compliancePresetStatus[_compliance] = true;
+        emit PresetCompleted(_compliance);
+    }
+    function moduleTransferAction(address _from, address _to, uint256 _value) external override onlyComplianceCall {
+        address _idFrom = _getIdentity(msg.sender, _from);
+        address _idTo = _getIdentity(msg.sender, _to);
+        _IDBalance[msg.sender][_idTo] += _value;
+        _IDBalance[msg.sender][_idFrom] -= _value;
+        if (_IDBalance[msg.sender][_idTo] > _maxBalance[msg.sender]) revert MaxBalanceExceeded(msg.sender, _value);
+    }
+    function moduleMintAction(address _to, uint256 _value) external override onlyComplianceCall {
+        address _idTo = _getIdentity(msg.sender, _to);
+        _IDBalance[msg.sender][_idTo] += _value;
+        if (_IDBalance[msg.sender][_idTo] > _maxBalance[msg.sender]) revert MaxBalanceExceeded(msg.sender, _value);
+    }
+    function moduleBurnAction(address _from, uint256 _value) external override onlyComplianceCall {
+        address _idFrom = _getIdentity(msg.sender, _from);
+        _IDBalance[msg.sender][_idFrom] -= _value;
+    }
+    function moduleCheck(
+        address  ,
+        address _to,
+        uint256 _value,
+        address _compliance
+    ) external view override returns (bool) {
+        if (_value > _maxBalance[_compliance]) {
+            return false;
+        }
+        address _id = _getIdentity(_compliance, _to);
+        if ((_IDBalance[_compliance][_id] + _value) > _maxBalance[_compliance]) {
+            return false;
+        }
+        return true;
+    }
+    function getIDBalance(address _compliance, address _identity) external view returns (uint256) {
+        return _IDBalance[_compliance][_identity];
+    }
+    function canComplianceBind(address _compliance) external view returns (bool) {
+        if (_compliancePresetStatus[_compliance]) {
+            return true;
+        }
+        IToken token = IToken(IModularCompliance(_compliance).getTokenBound());
+        uint256 totalSupply = token.totalSupply();
+        if (totalSupply == 0) {
+            return true;
+        }
+        return false;
+    }
+    function _preSetModuleState(address _compliance, address _id, uint256 _balance) internal {
+        _IDBalance[_compliance][_id] = _balance;
+        emit IDBalancePreSet(_compliance, _id, _balance);
+    }
+    function _getIdentity(address _compliance, address _userAddress) internal view returns (address) {
+        address identity = address(IToken(IModularCompliance(_compliance).getTokenBound())
+            .identityRegistry().identity(_userAddress));
+        require(identity != address(0), "identity not found");
+        return identity;
+    }
+}

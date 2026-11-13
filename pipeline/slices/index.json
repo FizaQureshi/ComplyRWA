@@ -1,0 +1,110 @@
+{
+  "K1": {
+    "title": "Only fully verified investors can receive",
+    "files": 7,
+    "slice_chars": 12420,
+    "slice_tokens": 3105,
+    "full_chars": 80603,
+    "full_tokens": 20151
+  },
+  "K2": {
+    "title": "Revocation must block receiving",
+    "files": 5,
+    "slice_chars": 14135,
+    "slice_tokens": 3534,
+    "full_chars": 66674,
+    "full_tokens": 16668
+  },
+  "K3": {
+    "title": "Required claim topics list must not be empty",
+    "files": 3,
+    "slice_chars": 8137,
+    "slice_tokens": 2034,
+    "full_chars": 40143,
+    "full_tokens": 10036
+  },
+  "K4": {
+    "title": "Expired KYC must not be accepted",
+    "files": 4,
+    "slice_chars": 11181,
+    "slice_tokens": 2795,
+    "full_chars": 56615,
+    "full_tokens": 14154
+  },
+  "K5": {
+    "title": "A sender who lost KYC cannot send",
+    "files": 2,
+    "slice_chars": 5221,
+    "slice_tokens": 1305,
+    "full_chars": 34793,
+    "full_tokens": 8698
+  },
+  "J1": {
+    "title": "No receiving in a restricted country",
+    "files": 5,
+    "slice_chars": 9223,
+    "slice_tokens": 2306,
+    "full_chars": 67033,
+    "full_tokens": 16758
+  },
+  "J2": {
+    "title": "A country change to a restricted one blocks future receiving",
+    "files": 4,
+    "slice_chars": 6828,
+    "slice_tokens": 1707,
+    "full_chars": 55579,
+    "full_tokens": 13895
+  },
+  "J3": {
+    "title": "The country module must be bound and configured",
+    "files": 2,
+    "slice_chars": 5838,
+    "slice_tokens": 1460,
+    "full_chars": 23661,
+    "full_tokens": 5915
+  },
+  "J4": {
+    "title": "forcedTransfer to a restricted country must be classified, not blindly reported",
+    "files": 3,
+    "slice_chars": 5334,
+    "slice_tokens": 1334,
+    "full_chars": 46408,
+    "full_tokens": 11602
+  },
+  "H1": {
+    "title": "No identity may exceed the maximum",
+    "files": 3,
+    "slice_chars": 9227,
+    "slice_tokens": 2307,
+    "full_chars": 47624,
+    "full_tokens": 11906
+  },
+  "H2": {
+    "title": "The cap is per identity, not per wallet",
+    "files": 3,
+    "slice_chars": 7214,
+    "slice_tokens": 1804,
+    "full_chars": 48216,
+    "full_tokens": 12054
+  },
+  "H3": {
+    "title": "Tracked balance must equal the real balance (counter drift)",
+    "files": 3,
+    "slice_chars": 16440,
+    "slice_tokens": 4110,
+    "full_chars": 47624,
+    "full_tokens": 11906
+  },
+  "H4": {
+    "title": "The maximum must be configured sensibly",
+    "files": 2,
+    "slice_chars": 4647,
+    "slice_tokens": 1162,
+    "full_chars": 24877,
+    "full_tokens": 6219
+  },
+  "_fixture_api": {
+    "slice_chars": 4477,
+    "slice_tokens": 1119
+  }
+}

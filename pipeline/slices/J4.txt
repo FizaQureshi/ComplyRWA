@@ -1,0 +1,118 @@
+// Rule J4: forcedTransfer to a restricted country must be classified, not blindly reported
+// Source: pinned T-REX 4.1.6 (a09cfd3) and ONCHAINID 2.1.0. Comments removed. Only the parts this rule needs.
+
+// ===== T-REX/contracts/token/Token.sol :: Token =====
+contract Token is IToken, AgentRoleUpgradeable, TokenStorage {
+    function forcedTransfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) public override onlyAgent returns (bool) {
+        require(balanceOf(_from) >= _amount, "sender balance too low");
+        uint256 freeBalance = balanceOf(_from) - (_frozenTokens[_from]);
+        if (_amount > freeBalance) {
+            uint256 tokensToUnfreeze = _amount - (freeBalance);
+            _frozenTokens[_from] = _frozenTokens[_from] - (tokensToUnfreeze);
+            emit TokensUnfrozen(_from, tokensToUnfreeze);
+        }
+        if (_tokenIdentityRegistry.isVerified(_to)) {
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function balanceOf(address _userAddress) public view override returns (uint256) {
+        return _balances[_userAddress];
+    }
+    function _transfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal virtual {
+        require(_from != address(0), "ERC20: transfer from the zero address");
+        require(_to != address(0), "ERC20: transfer to the zero address");
+        _beforeTokenTransfer(_from, _to, _amount);
+        _balances[_from] = _balances[_from] - _amount;
+        _balances[_to] = _balances[_to] + _amount;
+        emit Transfer(_from, _to, _amount);
+    }
+    function _beforeTokenTransfer(address _from, address _to, uint256 _amount) internal virtual {}
+}
+
+// ===== T-REX/contracts/compliance/modular/ModularCompliance.sol :: ModularCompliance =====
+contract ModularCompliance is IModularCompliance, OwnableUpgradeable, MCStorage {
+    modifier onlyToken() {
+        require(msg.sender == _tokenBound, "error : this address is not a token bound to the compliance contract");
+        _;
+    }
+    function transferred(address _from, address _to, uint256 _value) external onlyToken override {
+        require(
+            _from != address(0)
+            && _to != address(0)
+        , "invalid argument - zero address");
+        require(_value > 0, "invalid argument - no value transfer");
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            IModule(_modules[i]).moduleTransferAction(_from, _to, _value);
+        }
+    }
+    function created(address _to, uint256 _value) external onlyToken override {
+        require(_to != address(0), "invalid argument - zero address");
+        require(_value > 0, "invalid argument - no value mint");
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            IModule(_modules[i]).moduleMintAction(_to, _value);
+        }
+    }
+    function destroyed(address _from, uint256 _value) external onlyToken override {
+        require(_from != address(0), "invalid argument - zero address");
+        require(_value > 0, "invalid argument - no value burn");
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            IModule(_modules[i]).moduleBurnAction(_from, _value);
+        }
+    }
+    function isModuleBound(address _module) external view override returns (bool) {
+        return _moduleBound[_module];
+    }
+    function getModules() external view override returns (address[] memory) {
+        return _modules;
+    }
+    function canTransfer(address _from, address _to, uint256 _value) external view override returns (bool) {
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            if (!IModule(_modules[i]).moduleCheck(_from, _to, _value, address(this))) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+// ===== T-REX/contracts/compliance/modular/modules/CountryRestrictModule.sol :: CountryRestrictModule =====
+contract CountryRestrictModule is AbstractModuleUpgradeable {
+    mapping(address => mapping(uint16 => bool)) private _restrictedCountries;
+    function moduleTransferAction(address _from, address _to, uint256 _value) external override onlyComplianceCall {}
+    function moduleMintAction(address _to, uint256 _value) external override onlyComplianceCall {}
+    function moduleBurnAction(address _from, uint256 _value) external override onlyComplianceCall {}
+    function moduleCheck(
+        address  ,
+        address _to,
+        uint256  ,
+        address _compliance
+    ) external view override returns (bool) {
+        uint16 receiverCountry = _getCountry(_compliance, _to);
+        if (isCountryRestricted(_compliance, receiverCountry)) {
+            return false;
+        }
+        return true;
+    }
+    function isCountryRestricted(address _compliance, uint16 _country) public view
+    returns (bool) {
+        return ((_restrictedCountries[_compliance])[_country]);
+    }
+    function _getCountry(address _compliance, address _userAddress) internal view returns (uint16) {
+        return IToken(IModularCompliance(_compliance).getTokenBound()).identityRegistry().investorCountry(_userAddress);
+    }
+}

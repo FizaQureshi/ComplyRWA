@@ -1,0 +1,375 @@
+{
+ "version": 1,
+ "note": "Written in Phase 4 step 4.3. Units are named groups of functions in one contract; rules list the units each rule needs, in transfer-path order (Token, registries, ONCHAINID, compliance, modules). Rule titles are from Phase2.md. The slicer adds helpers, modifiers, errors and state variables automatically. Check with: python pipeline/slicer.py --check",
+ "default_audit": [
+  "K1",
+  "K3",
+  "J1",
+  "H1",
+  "H3"
+ ],
+ "units": {
+  "token_receive": {
+   "file": "T-REX/contracts/token/Token.sol",
+   "contract": "Token",
+   "functions": [
+    "transfer",
+    "transferFrom",
+    "batchTransfer",
+    "mint",
+    "forcedTransfer",
+    "_transfer",
+    "_mint"
+   ]
+  },
+  "token_balance_paths": {
+   "file": "T-REX/contracts/token/Token.sol",
+   "contract": "Token",
+   "functions": [
+    "transfer",
+    "transferFrom",
+    "batchTransfer",
+    "mint",
+    "burn",
+    "forcedTransfer",
+    "recoveryAddress",
+    "_transfer",
+    "_mint",
+    "_burn"
+   ]
+  },
+  "token_sender": {
+   "file": "T-REX/contracts/token/Token.sol",
+   "contract": "Token",
+   "functions": [
+    "transfer",
+    "transferFrom"
+   ]
+  },
+  "token_forced": {
+   "file": "T-REX/contracts/token/Token.sol",
+   "contract": "Token",
+   "functions": [
+    "forcedTransfer",
+    "_transfer"
+   ]
+  },
+  "ir_verify": {
+   "file": "T-REX/contracts/registry/implementation/IdentityRegistry.sol",
+   "contract": "IdentityRegistry",
+   "functions": [
+    "isVerified",
+    "identity"
+   ]
+  },
+  "ir_identity": {
+   "file": "T-REX/contracts/registry/implementation/IdentityRegistry.sol",
+   "contract": "IdentityRegistry",
+   "functions": [
+    "identity"
+   ]
+  },
+  "ir_country": {
+   "file": "T-REX/contracts/registry/implementation/IdentityRegistry.sol",
+   "contract": "IdentityRegistry",
+   "functions": [
+    "investorCountry",
+    "updateCountry",
+    "identity"
+   ]
+  },
+  "ir_revoke": {
+   "file": "T-REX/contracts/registry/implementation/IdentityRegistry.sol",
+   "contract": "IdentityRegistry",
+   "functions": [
+    "isVerified",
+    "identity",
+    "deleteIdentity"
+   ]
+  },
+  "ctr_all": {
+   "file": "T-REX/contracts/registry/implementation/ClaimTopicsRegistry.sol",
+   "contract": "ClaimTopicsRegistry",
+   "functions": [
+    "addClaimTopic",
+    "removeClaimTopic",
+    "getClaimTopics"
+   ]
+  },
+  "ctr_read": {
+   "file": "T-REX/contracts/registry/implementation/ClaimTopicsRegistry.sol",
+   "contract": "ClaimTopicsRegistry",
+   "functions": [
+    "getClaimTopics"
+   ]
+  },
+  "tir_read": {
+   "file": "T-REX/contracts/registry/implementation/TrustedIssuersRegistry.sol",
+   "contract": "TrustedIssuersRegistry",
+   "functions": [
+    "getTrustedIssuersForClaimTopic"
+   ]
+  },
+  "tir_remove": {
+   "file": "T-REX/contracts/registry/implementation/TrustedIssuersRegistry.sol",
+   "contract": "TrustedIssuersRegistry",
+   "functions": [
+    "getTrustedIssuersForClaimTopic",
+    "removeTrustedIssuer"
+   ]
+  },
+  "irs_read": {
+   "file": "T-REX/contracts/registry/implementation/IdentityRegistryStorage.sol",
+   "contract": "IdentityRegistryStorage",
+   "functions": [
+    "storedIdentity",
+    "storedInvestorCountry"
+   ]
+  },
+  "claim_issuer_valid": {
+   "file": "T-REX/node_modules/@onchain-id/solidity/contracts/ClaimIssuer.sol",
+   "contract": "ClaimIssuer",
+   "functions": [
+    "isClaimValid",
+    "getRecoveredAddress"
+   ]
+  },
+  "claim_issuer_revoke": {
+   "file": "T-REX/node_modules/@onchain-id/solidity/contracts/ClaimIssuer.sol",
+   "contract": "ClaimIssuer",
+   "functions": [
+    "isClaimValid",
+    "getRecoveredAddress",
+    "revokeClaim",
+    "revokeClaimBySignature"
+   ]
+  },
+  "identity_claims": {
+   "file": "T-REX/node_modules/@onchain-id/solidity/contracts/Identity.sol",
+   "contract": "Identity",
+   "functions": [
+    "addClaim",
+    "getClaim"
+   ]
+  },
+  "compliance_check": {
+   "file": "T-REX/contracts/compliance/modular/ModularCompliance.sol",
+   "contract": "ModularCompliance",
+   "functions": [
+    "canTransfer",
+    "getModules",
+    "isModuleBound"
+   ]
+  },
+  "compliance_notify": {
+   "file": "T-REX/contracts/compliance/modular/ModularCompliance.sol",
+   "contract": "ModularCompliance",
+   "functions": [
+    "transferred",
+    "created",
+    "destroyed"
+   ]
+  },
+  "compliance_admin": {
+   "file": "T-REX/contracts/compliance/modular/ModularCompliance.sol",
+   "contract": "ModularCompliance",
+   "functions": [
+    "addModule",
+    "removeModule",
+    "callModuleFunction"
+   ]
+  },
+  "cr_check": {
+   "file": "T-REX/contracts/compliance/modular/modules/CountryRestrictModule.sol",
+   "contract": "CountryRestrictModule",
+   "functions": [
+    "moduleCheck",
+    "_getCountry",
+    "isCountryRestricted"
+   ]
+  },
+  "cr_config": {
+   "file": "T-REX/contracts/compliance/modular/modules/CountryRestrictModule.sol",
+   "contract": "CountryRestrictModule",
+   "functions": [
+    "addCountryRestriction",
+    "removeCountryRestriction",
+    "batchRestrictCountries",
+    "batchUnrestrictCountries"
+   ]
+  },
+  "cr_hooks": {
+   "file": "T-REX/contracts/compliance/modular/modules/CountryRestrictModule.sol",
+   "contract": "CountryRestrictModule",
+   "functions": [
+    "moduleTransferAction",
+    "moduleMintAction",
+    "moduleBurnAction"
+   ]
+  },
+  "mb_check": {
+   "file": "T-REX/contracts/compliance/modular/modules/MaxBalanceModule.sol",
+   "contract": "MaxBalanceModule",
+   "functions": [
+    "moduleCheck",
+    "_getIdentity",
+    "getIDBalance"
+   ]
+  },
+  "mb_actions": {
+   "file": "T-REX/contracts/compliance/modular/modules/MaxBalanceModule.sol",
+   "contract": "MaxBalanceModule",
+   "functions": [
+    "moduleTransferAction",
+    "moduleMintAction",
+    "moduleBurnAction"
+   ]
+  },
+  "mb_config": {
+   "file": "T-REX/contracts/compliance/modular/modules/MaxBalanceModule.sol",
+   "contract": "MaxBalanceModule",
+   "functions": [
+    "setMaxBalance"
+   ]
+  },
+  "mb_preset": {
+   "file": "T-REX/contracts/compliance/modular/modules/MaxBalanceModule.sol",
+   "contract": "MaxBalanceModule",
+   "functions": [
+    "preSetModuleState",
+    "batchPreSetModuleState",
+    "presetCompleted",
+    "_preSetModuleState",
+    "canComplianceBind"
+   ]
+  }
+ },
+ "rules": {
+  "K1": {
+   "title": "Only fully verified investors can receive",
+   "units": [
+    "token_receive",
+    "ir_verify",
+    "ctr_read",
+    "tir_read",
+    "irs_read",
+    "claim_issuer_valid",
+    "identity_claims"
+   ]
+  },
+  "K2": {
+   "title": "Revocation must block receiving",
+   "units": [
+    "token_receive",
+    "ir_revoke",
+    "tir_remove",
+    "claim_issuer_revoke",
+    "identity_claims"
+   ]
+  },
+  "K3": {
+   "title": "Required claim topics list must not be empty",
+   "units": [
+    "token_receive",
+    "ir_verify",
+    "ctr_all"
+   ]
+  },
+  "K4": {
+   "title": "Expired KYC must not be accepted",
+   "units": [
+    "token_receive",
+    "ir_verify",
+    "claim_issuer_valid",
+    "identity_claims"
+   ]
+  },
+  "K5": {
+   "title": "A sender who lost KYC cannot send",
+   "units": [
+    "token_sender",
+    "ir_verify"
+   ]
+  },
+  "J1": {
+   "title": "No receiving in a restricted country",
+   "units": [
+    "token_receive",
+    "ir_country",
+    "irs_read",
+    "compliance_check",
+    "cr_check",
+    "cr_config"
+   ]
+  },
+  "J2": {
+   "title": "A country change to a restricted one blocks future receiving",
+   "units": [
+    "token_receive",
+    "ir_country",
+    "irs_read",
+    "cr_check"
+   ]
+  },
+  "J3": {
+   "title": "The country module must be bound and configured",
+   "units": [
+    "compliance_check",
+    "compliance_admin",
+    "cr_check",
+    "cr_config"
+   ]
+  },
+  "J4": {
+   "title": "forcedTransfer to a restricted country must be classified, not blindly reported",
+   "units": [
+    "token_forced",
+    "compliance_check",
+    "compliance_notify",
+    "cr_check",
+    "cr_hooks"
+   ]
+  },
+  "H1": {
+   "title": "No identity may exceed the maximum",
+   "units": [
+    "token_receive",
+    "compliance_check",
+    "compliance_notify",
+    "mb_check",
+    "mb_actions",
+    "mb_config"
+   ]
+  },
+  "H2": {
+   "title": "The cap is per identity, not per wallet",
+   "units": [
+    "token_receive",
+    "ir_identity",
+    "mb_check",
+    "mb_actions"
+   ]
+  },
+  "H3": {
+   "title": "Tracked balance must equal the real balance (counter drift)",
+   "units": [
+    "token_balance_paths",
+    "compliance_check",
+    "compliance_notify",
+    "compliance_admin",
+    "mb_check",
+    "mb_actions",
+    "mb_preset"
+   ]
+  },
+  "H4": {
+   "title": "The maximum must be configured sensibly",
+   "units": [
+    "compliance_admin",
+    "compliance_check",
+    "mb_check",
+    "mb_config"
+   ]
+  }
+ }
+}

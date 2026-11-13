@@ -1,0 +1,128 @@
+// Rule J3: The country module must be bound and configured
+// Source: pinned T-REX 4.1.6 (a09cfd3) and ONCHAINID 2.1.0. Comments removed. Only the parts this rule needs.
+
+// ===== T-REX/contracts/compliance/modular/ModularCompliance.sol :: ModularCompliance =====
+contract ModularCompliance is IModularCompliance, OwnableUpgradeable, MCStorage {
+    function addModule(address _module) external override onlyOwner {
+        require(_module != address(0), "invalid argument - zero address");
+        require(!_moduleBound[_module], "module already bound");
+        require(_modules.length <= 24, "cannot add more than 25 modules");
+        IModule module = IModule(_module);
+        if (!module.isPlugAndPlay()) {
+            require(module.canComplianceBind(address(this)), "compliance is not suitable for binding to the module");
+        }
+        module.bindCompliance(address(this));
+        _modules.push(_module);
+        _moduleBound[_module] = true;
+        emit ModuleAdded(_module);
+    }
+    function removeModule(address _module) external override onlyOwner {
+        require(_module != address(0), "invalid argument - zero address");
+        require(_moduleBound[_module], "module not bound");
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            if (_modules[i] == _module) {
+                IModule(_module).unbindCompliance(address(this));
+                _modules[i] = _modules[length - 1];
+                _modules.pop();
+                _moduleBound[_module] = false;
+                emit ModuleRemoved(_module);
+                break;
+            }
+        }
+    }
+    function callModuleFunction(bytes calldata callData, address _module) external override onlyOwner {
+        require(_moduleBound[_module], "call only on bound module");
+        assembly {
+            let freeMemoryPointer := mload(0x40)
+            calldatacopy(freeMemoryPointer, callData.offset, callData.length)
+            if iszero(
+            call(
+            gas(),
+            _module,
+            0,
+            freeMemoryPointer,
+            callData.length,
+            0,
+            0
+            ))
+            {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, returndatasize())
+            }
+        }
+        emit ModuleInteraction(_module, _selector(callData));
+    }
+    function isModuleBound(address _module) external view override returns (bool) {
+        return _moduleBound[_module];
+    }
+    function getModules() external view override returns (address[] memory) {
+        return _modules;
+    }
+    function canTransfer(address _from, address _to, uint256 _value) external view override returns (bool) {
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            if (!IModule(_modules[i]).moduleCheck(_from, _to, _value, address(this))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    function _selector(bytes calldata callData) internal pure returns (bytes4 result) {
+        if (callData.length >= 4) {
+            assembly {
+                result := calldataload(callData.offset)
+            }
+        }
+    }
+}
+
+// ===== T-REX/contracts/compliance/modular/modules/CountryRestrictModule.sol :: CountryRestrictModule =====
+contract CountryRestrictModule is AbstractModuleUpgradeable {
+    mapping(address => mapping(uint16 => bool)) private _restrictedCountries;
+    function addCountryRestriction(uint16 _country) external onlyComplianceCall {
+        require((_restrictedCountries[msg.sender])[_country] == false, "country already restricted");
+        (_restrictedCountries[msg.sender])[_country] = true;
+        emit AddedRestrictedCountry(msg.sender, _country);
+    }
+    function removeCountryRestriction(uint16 _country) external onlyComplianceCall {
+        require((_restrictedCountries[msg.sender])[_country] == true, "country not restricted");
+        (_restrictedCountries[msg.sender])[_country] = false;
+        emit RemovedRestrictedCountry(msg.sender, _country);
+    }
+    function batchRestrictCountries(uint16[] calldata _countries) external onlyComplianceCall {
+        require(_countries.length < 195, "maximum 195 can be restricted in one batch");
+        for (uint256 i = 0; i < _countries.length; i++) {
+            require((_restrictedCountries[msg.sender])[_countries[i]] == false, "country already restricted");
+            (_restrictedCountries[msg.sender])[_countries[i]] = true;
+            emit AddedRestrictedCountry(msg.sender, _countries[i]);
+        }
+    }
+    function batchUnrestrictCountries(uint16[] calldata _countries) external onlyComplianceCall {
+        require(_countries.length < 195, "maximum 195 can be unrestricted in one batch");
+        for (uint256 i = 0; i < _countries.length; i++) {
+            require((_restrictedCountries[msg.sender])[_countries[i]] == true, "country not restricted");
+            (_restrictedCountries[msg.sender])[_countries[i]] = false;
+            emit RemovedRestrictedCountry(msg.sender, _countries[i]);
+        }
+    }
+    function moduleCheck(
+        address  ,
+        address _to,
+        uint256  ,
+        address _compliance
+    ) external view override returns (bool) {
+        uint16 receiverCountry = _getCountry(_compliance, _to);
+        if (isCountryRestricted(_compliance, receiverCountry)) {
+            return false;
+        }
+        return true;
+    }
+    function isCountryRestricted(address _compliance, uint16 _country) public view
+    returns (bool) {
+        return ((_restrictedCountries[_compliance])[_country]);
+    }
+    function _getCountry(address _compliance, address _userAddress) internal view returns (uint16) {
+        return IToken(IModularCompliance(_compliance).getTokenBound()).identityRegistry().investorCountry(_userAddress);
+    }
+}

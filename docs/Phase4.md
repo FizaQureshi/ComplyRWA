@@ -2,11 +2,11 @@
 
 **Goal of Phase 4:** build the pipeline that turns an issuer's plain-English policy into executable Foundry tests, filters them, runs them on every configuration, and explains what failed.
 
-**Status so far:** steps 4.0, 4.1 and 4.2 are COMPLETE. Steps 4.3 to 4.7 are not started.
+**Status so far:** steps 4.0 to 4.3 are COMPLETE. Steps 4.4 to 4.7 are not started.
 
 Pinned system: T-REX tag `4.1.6`, commit `a09cfd38aa257d56db7ff9c90f30e65f125a141b`, Solidity `0.8.17`, Foundry `1.8.7`, Halmos `0.3.3` (see `environment.md`).
 
-> **How to read this file.** Section 1 is the step list. Section 2 covers step 4.0, section 3 step 4.1, section 4 step 4.2. Section 5 records design decisions. Section 6 is the status and what comes next. Steps are added here as they close.
+> **How to read this file.** Section 1 is the step list. Section 2 covers step 4.0, section 3 step 4.1, section 4 step 4.2, section 5 step 4.3. Section 6 records design decisions. Section 7 is the status and what comes next. Steps are added here as they close.
 
 ---
 
@@ -19,7 +19,7 @@ Everything that needs no LLM comes first, so the LLM choice can wait until step 
 | 4.0 | Prepare: importable Cfg contracts and a manifest | No | **Done** |
 | 4.1 | Executor: run any test file on every configuration, same table | No | **Done** |
 | 4.2 | Validity filter: reject tests that do not compile, fail on clean, or are vacuous | No | **Done** |
-| 4.3 | Code slicer | No | |
+| 4.3 | Code slicer | No | **Done** |
 | 4.4 | LLM interface and prompts (mock/replay first) | Yes | |
 | 4.5 | Generator: policy text to candidate tests, then the filter | Yes | |
 | 4.6 | Explainer (template fallback) | Yes | |
@@ -271,7 +271,84 @@ The joint run failed with exit 2, so the fallback ran each candidate alone, as d
 
 ---
 
-## 5. Design decisions for Phase 4 (agreed)
+## 5. Step 4.3: Code slicer
+
+**Goal:** cut the pinned contracts down to the functions each rule needs, with comments removed, so that an LLM gets a small and honest view of the code.
+
+**Status: COMPLETE.** Commit: _fill in after committing_. Files: `pipeline/slicer.py`, `pipeline/slice_map.json`, `pipeline/fixture_facts.md`, and the generated `pipeline/slices/`.
+
+### 5.1 Why
+
+- A full source file is large (the files behind one rule are about 6,000 to 20,000 approximate tokens). Most of it is irrelevant to a single rule.
+- Phase 1 found copy-pasted NatSpec in `MaxBalanceModule` (the `moduleCheck` comment is the `CountryAllowModule` text, and the action functions say "no action required"). An LLM reads comments, so the slicer **removes all comments** and the model sees code only.
+
+### 5.2 How it works
+
+1. `pipeline/slice_map.json` holds **26 units** (named groups of functions in one contract: file, contract, function names) and the **13 rules**, each a list of units in transfer-path order (Token, registries, ONCHAINID, compliance, modules). Rule titles are the Phase 2 titles. `default_audit` lists K1, K3, J1, H1, H3.
+2. For each rule the units are merged per contract. The slicer then adds, **from the same contract and automatically**:
+   - helper functions and modifiers that an included function calls (unqualified calls only) or uses,
+   - `error` declarations that an included function mentions,
+   - the contract's own state variable declarations.
+3. Comments are removed by a small scanner that respects string literals. Function bodies are kept exactly as they are.
+4. `--check` verifies that every name in the map exists in the pinned source. `--all` writes one slice per rule, `_fixture_api.txt`, `index.json` and `sizes.md`, and checks that no comment marker remains.
+5. `_fixture_api.txt` is `test/ComplyFixture.sol` without function bodies: the members, helper signatures, hooks and the fixture's own comments (they are accurate).
+6. `pipeline/fixture_facts.md` is a short written summary of facts that live **inside** fixture function bodies and so are lost in the summary: who is registered, who holds a KYC claim, countries, who may call what, revert messages. It was written from the fixture source.
+
+Commands:
+
+```
+python pipeline/slicer.py --check
+python pipeline/slicer.py --all
+python pipeline/slicer.py --rule K1
+```
+
+### 5.3 Results (on the project owner's machine)
+
+| Check | Result |
+|---|---|
+| `--check` | `SLICE MAP OK: 26 units, 13 rules` |
+| Comment check | OK, no comments in any slice |
+| Independent check | Identical sizes in a separate run against a fresh clone of the pinned tag (`a09cfd3`) and ONCHAINID 2.1.0 |
+| Average slice | 2,227 approximate tokens (full source files: 12,304) |
+| Fixture summary | 1,119 approximate tokens |
+
+Approximate tokens are characters divided by 4, a rough guide only.
+
+| Rule | Files | Slice ~tokens | Full files ~tokens | Slice is |
+|---|---|---|---|---|
+| K1 | 7 | 3,105 | 20,151 | 15% |
+| K2 | 5 | 3,534 | 16,668 | 21% |
+| K3 | 3 | 2,034 | 10,036 | 20% |
+| K4 | 4 | 2,795 | 14,154 | 20% |
+| K5 | 2 | 1,305 | 8,698 | 15% |
+| J1 | 5 | 2,306 | 16,758 | 14% |
+| J2 | 4 | 1,707 | 13,895 | 12% |
+| J3 | 2 | 1,460 | 5,915 | 25% |
+| J4 | 3 | 1,334 | 11,602 | 11% |
+| H1 | 3 | 2,307 | 11,906 | 19% |
+| H2 | 3 | 1,804 | 12,054 | 15% |
+| H3 | 3 | 4,110 | 11,906 | 35% |
+| H4 | 2 | 1,162 | 6,219 | 19% |
+
+A slice is 11% to 35% of the full source files. H3 is the largest because it needs the preset functions. A prompt for one rule is roughly the slice, the fixture summary, the fixture facts and the instructions, which is about 4,000 to 6,000 input tokens (an estimate, to be measured in step 4.4).
+
+### 5.4 Observations
+
+1. **ONCHAINID version.** The line numbers of `isClaimValid`, `getRecoveredAddress`, `addClaim` and `getClaim` on the owner's machine match ONCHAINID 2.1.0 exactly. This supports the open item from Phase 3 (limit 7) that the installed version should be recorded in `environment.md`.
+2. **The generator sees the clean pinned code only.** It never sees the variants (`variants/`) or the gold tests. This stops the answer key from leaking into the generated tests.
+3. **Slices keep the real revert strings** (for example `"Transfer not possible"`), which step 4.6 needs because that message is the same for KYC and rule failures.
+4. **A first version of the comment check was wrong.** It flagged the slicer's own `// =====` file marker lines. It was fixed before the final run, and the slices themselves never contained comments.
+
+### 5.5 Limits
+
+1. State that a contract inherits from a separate storage contract (`TokenStorage`, `IRStorage`, `CTRStorage`, `MCStorage`) is not in the slice, because the slicer reads only the contract named in the map. Tests use public functions and the fixture, so this should not matter. If the generator is confused by it, those contracts can be added as units.
+2. The map is curated by hand. If a rule changes, the map must be updated (`--check` catches wrong names but not missing functions).
+3. Helper inclusion follows unqualified calls by name. It can include an extra helper or miss a call written as `this.f()` or `super.f()`.
+4. The slices describe stock code. They are not made for the variant copies.
+
+---
+
+## 6. Design decisions for Phase 4 (agreed)
 
 1. **Kind detection is automatic** (invariants or scenarios), so scenario tests skip C03, C04, C07 and V11.
 2. **Wrappers are deleted after each run**, so Phase 3 counts stay valid.
@@ -283,15 +360,17 @@ The joint run failed with exit 2, so the fallback ran each candidate alone, as d
    - KEEP: passes on all clean configurations and fails on at least one variant.
 6. **VACUOUS means unproven, not wrong.** A correct test for a rule that none of the 13 variants breaks is labelled VACUOUS and listed separately for review.
 7. **"No visible assertion" is a note, not an outcome.** An assertion inside a handler in another contract cannot be seen from the test source, so it would give wrong labels if it decided the outcome.
+8. **The generator sees only the clean pinned code** (slices, fixture summary and facts), never the variants or the gold tests.
 
 ---
 
-## 6. Status and next
+## 7. Status and next
 
 - [x] 4.0 Cfg contracts importable, manifest written and checked
 - [x] 4.1 Executor reproduces the Phase 3 table
 - [x] 4.2 Validity filter: gold 16 KEEP / 2 VACUOUS / 0 REJECT, bad tests rejected
-- [ ] 4.3 Code slicer (next)
-- [ ] 4.4 to 4.7
+- [x] 4.3 Code slicer: 13 rule slices, no comments, 11% to 35% of the full source
+- [ ] 4.4 LLM interface and prompts (next)
+- [ ] 4.5 to 4.7
 
-Commits: step 4.0 `c9763d9`, step 4.1 `35ad477`, step 4.2 `bc193dd`.
+Commits: step 4.0 `c9763d9`, step 4.1 `35ad477`, step 4.2 `bc193dd`, step 4.3 _fill in after committing_.

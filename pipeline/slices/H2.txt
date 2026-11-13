@@ -1,0 +1,153 @@
+// Rule H2: The cap is per identity, not per wallet
+// Source: pinned T-REX 4.1.6 (a09cfd3) and ONCHAINID 2.1.0. Comments removed. Only the parts this rule needs.
+
+// ===== T-REX/contracts/token/Token.sol :: Token =====
+contract Token is IToken, AgentRoleUpgradeable, TokenStorage {
+    modifier whenNotPaused() {
+        require(!_tokenPaused, "Pausable: paused");
+        _;
+    }
+    function batchTransfer(address[] calldata _toList, uint256[] calldata _amounts) external override {
+        for (uint256 i = 0; i < _toList.length; i++) {
+            transfer(_toList[i], _amounts[i]);
+        }
+    }
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) external override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[_from], "wallet is frozen");
+        require(_amount <= balanceOf(_from) - (_frozenTokens[_from]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(_from, _to, _amount)) {
+            _approve(_from, msg.sender, _allowances[_from][msg.sender] - (_amount));
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function transfer(address _to, uint256 _amount) public override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[msg.sender], "wallet is frozen");
+        require(_amount <= balanceOf(msg.sender) - (_frozenTokens[msg.sender]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(msg.sender, _to, _amount)) {
+            _transfer(msg.sender, _to, _amount);
+            _tokenCompliance.transferred(msg.sender, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function forcedTransfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) public override onlyAgent returns (bool) {
+        require(balanceOf(_from) >= _amount, "sender balance too low");
+        uint256 freeBalance = balanceOf(_from) - (_frozenTokens[_from]);
+        if (_amount > freeBalance) {
+            uint256 tokensToUnfreeze = _amount - (freeBalance);
+            _frozenTokens[_from] = _frozenTokens[_from] - (tokensToUnfreeze);
+            emit TokensUnfrozen(_from, tokensToUnfreeze);
+        }
+        if (_tokenIdentityRegistry.isVerified(_to)) {
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function mint(address _to, uint256 _amount) public override onlyAgent {
+        require(_tokenIdentityRegistry.isVerified(_to), "Identity is not verified.");
+        require(_tokenCompliance.canTransfer(address(0), _to, _amount), "Compliance not followed");
+        _mint(_to, _amount);
+        _tokenCompliance.created(_to, _amount);
+    }
+    function balanceOf(address _userAddress) public view override returns (uint256) {
+        return _balances[_userAddress];
+    }
+    function _transfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal virtual {
+        require(_from != address(0), "ERC20: transfer from the zero address");
+        require(_to != address(0), "ERC20: transfer to the zero address");
+        _beforeTokenTransfer(_from, _to, _amount);
+        _balances[_from] = _balances[_from] - _amount;
+        _balances[_to] = _balances[_to] + _amount;
+        emit Transfer(_from, _to, _amount);
+    }
+    function _mint(address _userAddress, uint256 _amount) internal virtual {
+        require(_userAddress != address(0), "ERC20: mint to the zero address");
+        _beforeTokenTransfer(address(0), _userAddress, _amount);
+        _totalSupply = _totalSupply + _amount;
+        _balances[_userAddress] = _balances[_userAddress] + _amount;
+        emit Transfer(address(0), _userAddress, _amount);
+    }
+    function _approve(
+        address _owner,
+        address _spender,
+        uint256 _amount
+    ) internal virtual {
+        require(_owner != address(0), "ERC20: approve from the zero address");
+        require(_spender != address(0), "ERC20: approve to the zero address");
+        _allowances[_owner][_spender] = _amount;
+        emit Approval(_owner, _spender, _amount);
+    }
+    function _beforeTokenTransfer(address _from, address _to, uint256 _amount) internal virtual {}
+}
+
+// ===== T-REX/contracts/registry/implementation/IdentityRegistry.sol :: IdentityRegistry =====
+contract IdentityRegistry is IIdentityRegistry, AgentRoleUpgradeable, IRStorage {
+    function identity(address _userAddress) public view override returns (IIdentity) {
+        return _tokenIdentityStorage.storedIdentity(_userAddress);
+    }
+}
+
+// ===== T-REX/contracts/compliance/modular/modules/MaxBalanceModule.sol :: MaxBalanceModule =====
+contract MaxBalanceModule is AbstractModuleUpgradeable {
+    mapping(address => bool) private _compliancePresetStatus;
+    mapping(address => uint256) private _maxBalance;
+    mapping(address => mapping(address => uint256)) private _IDBalance;
+    error MaxBalanceExceeded(address _compliance, uint256 _value);
+    function moduleTransferAction(address _from, address _to, uint256 _value) external override onlyComplianceCall {
+        address _idFrom = _getIdentity(msg.sender, _from);
+        address _idTo = _getIdentity(msg.sender, _to);
+        _IDBalance[msg.sender][_idTo] += _value;
+        _IDBalance[msg.sender][_idFrom] -= _value;
+        if (_IDBalance[msg.sender][_idTo] > _maxBalance[msg.sender]) revert MaxBalanceExceeded(msg.sender, _value);
+    }
+    function moduleMintAction(address _to, uint256 _value) external override onlyComplianceCall {
+        address _idTo = _getIdentity(msg.sender, _to);
+        _IDBalance[msg.sender][_idTo] += _value;
+        if (_IDBalance[msg.sender][_idTo] > _maxBalance[msg.sender]) revert MaxBalanceExceeded(msg.sender, _value);
+    }
+    function moduleBurnAction(address _from, uint256 _value) external override onlyComplianceCall {
+        address _idFrom = _getIdentity(msg.sender, _from);
+        _IDBalance[msg.sender][_idFrom] -= _value;
+    }
+    function moduleCheck(
+        address  ,
+        address _to,
+        uint256 _value,
+        address _compliance
+    ) external view override returns (bool) {
+        if (_value > _maxBalance[_compliance]) {
+            return false;
+        }
+        address _id = _getIdentity(_compliance, _to);
+        if ((_IDBalance[_compliance][_id] + _value) > _maxBalance[_compliance]) {
+            return false;
+        }
+        return true;
+    }
+    function getIDBalance(address _compliance, address _identity) external view returns (uint256) {
+        return _IDBalance[_compliance][_identity];
+    }
+    function _getIdentity(address _compliance, address _userAddress) internal view returns (address) {
+        address identity = address(IToken(IModularCompliance(_compliance).getTokenBound())
+            .identityRegistry().identity(_userAddress));
+        require(identity != address(0), "identity not found");
+        return identity;
+    }
+}

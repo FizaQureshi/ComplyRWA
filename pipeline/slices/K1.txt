@@ -1,0 +1,305 @@
+// Rule K1: Only fully verified investors can receive
+// Source: pinned T-REX 4.1.6 (a09cfd3) and ONCHAINID 2.1.0. Comments removed. Only the parts this rule needs.
+
+// ===== T-REX/contracts/token/Token.sol :: Token =====
+contract Token is IToken, AgentRoleUpgradeable, TokenStorage {
+    modifier whenNotPaused() {
+        require(!_tokenPaused, "Pausable: paused");
+        _;
+    }
+    function batchTransfer(address[] calldata _toList, uint256[] calldata _amounts) external override {
+        for (uint256 i = 0; i < _toList.length; i++) {
+            transfer(_toList[i], _amounts[i]);
+        }
+    }
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) external override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[_from], "wallet is frozen");
+        require(_amount <= balanceOf(_from) - (_frozenTokens[_from]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(_from, _to, _amount)) {
+            _approve(_from, msg.sender, _allowances[_from][msg.sender] - (_amount));
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function transfer(address _to, uint256 _amount) public override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[msg.sender], "wallet is frozen");
+        require(_amount <= balanceOf(msg.sender) - (_frozenTokens[msg.sender]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(msg.sender, _to, _amount)) {
+            _transfer(msg.sender, _to, _amount);
+            _tokenCompliance.transferred(msg.sender, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function forcedTransfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) public override onlyAgent returns (bool) {
+        require(balanceOf(_from) >= _amount, "sender balance too low");
+        uint256 freeBalance = balanceOf(_from) - (_frozenTokens[_from]);
+        if (_amount > freeBalance) {
+            uint256 tokensToUnfreeze = _amount - (freeBalance);
+            _frozenTokens[_from] = _frozenTokens[_from] - (tokensToUnfreeze);
+            emit TokensUnfrozen(_from, tokensToUnfreeze);
+        }
+        if (_tokenIdentityRegistry.isVerified(_to)) {
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function mint(address _to, uint256 _amount) public override onlyAgent {
+        require(_tokenIdentityRegistry.isVerified(_to), "Identity is not verified.");
+        require(_tokenCompliance.canTransfer(address(0), _to, _amount), "Compliance not followed");
+        _mint(_to, _amount);
+        _tokenCompliance.created(_to, _amount);
+    }
+    function balanceOf(address _userAddress) public view override returns (uint256) {
+        return _balances[_userAddress];
+    }
+    function _transfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal virtual {
+        require(_from != address(0), "ERC20: transfer from the zero address");
+        require(_to != address(0), "ERC20: transfer to the zero address");
+        _beforeTokenTransfer(_from, _to, _amount);
+        _balances[_from] = _balances[_from] - _amount;
+        _balances[_to] = _balances[_to] + _amount;
+        emit Transfer(_from, _to, _amount);
+    }
+    function _mint(address _userAddress, uint256 _amount) internal virtual {
+        require(_userAddress != address(0), "ERC20: mint to the zero address");
+        _beforeTokenTransfer(address(0), _userAddress, _amount);
+        _totalSupply = _totalSupply + _amount;
+        _balances[_userAddress] = _balances[_userAddress] + _amount;
+        emit Transfer(address(0), _userAddress, _amount);
+    }
+    function _approve(
+        address _owner,
+        address _spender,
+        uint256 _amount
+    ) internal virtual {
+        require(_owner != address(0), "ERC20: approve from the zero address");
+        require(_spender != address(0), "ERC20: approve to the zero address");
+        _allowances[_owner][_spender] = _amount;
+        emit Approval(_owner, _spender, _amount);
+    }
+    function _beforeTokenTransfer(address _from, address _to, uint256 _amount) internal virtual {}
+}
+
+// ===== T-REX/contracts/registry/implementation/IdentityRegistry.sol :: IdentityRegistry =====
+contract IdentityRegistry is IIdentityRegistry, AgentRoleUpgradeable, IRStorage {
+    function isVerified(address _userAddress) external view override returns (bool) {
+        if (address(identity(_userAddress)) == address(0)) {return false;}
+        uint256[] memory requiredClaimTopics = _tokenTopicsRegistry.getClaimTopics();
+        if (requiredClaimTopics.length == 0) {
+            return true;
+        }
+        uint256 foundClaimTopic;
+        uint256 scheme;
+        address issuer;
+        bytes memory sig;
+        bytes memory data;
+        uint256 claimTopic;
+        for (claimTopic = 0; claimTopic < requiredClaimTopics.length; claimTopic++) {
+            IClaimIssuer[] memory trustedIssuers =
+            _tokenIssuersRegistry.getTrustedIssuersForClaimTopic(requiredClaimTopics[claimTopic]);
+            if (trustedIssuers.length == 0) {return false;}
+            bytes32[] memory claimIds = new bytes32[](trustedIssuers.length);
+            for (uint256 i = 0; i < trustedIssuers.length; i++) {
+                claimIds[i] = keccak256(abi.encode(trustedIssuers[i], requiredClaimTopics[claimTopic]));
+            }
+            for (uint256 j = 0; j < claimIds.length; j++) {
+                (foundClaimTopic, scheme, issuer, sig, data, ) = identity(_userAddress).getClaim(claimIds[j]);
+                if (foundClaimTopic == requiredClaimTopics[claimTopic]) {
+                    try IClaimIssuer(issuer).isClaimValid(identity(_userAddress), requiredClaimTopics[claimTopic], sig,
+                        data) returns(bool _validity) {
+                        if (
+                            _validity
+                        ) {
+                            j = claimIds.length;
+                        }
+                        if (!_validity && j == (claimIds.length - 1)) {
+                            return false;
+                        }
+                    } catch {
+                        if (j == (claimIds.length - 1)) {
+                            return false;
+                        }
+                    }
+                } else if (j == (claimIds.length - 1)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    function identity(address _userAddress) public view override returns (IIdentity) {
+        return _tokenIdentityStorage.storedIdentity(_userAddress);
+    }
+}
+
+// ===== T-REX/contracts/registry/implementation/ClaimTopicsRegistry.sol :: ClaimTopicsRegistry =====
+contract ClaimTopicsRegistry is IClaimTopicsRegistry, OwnableUpgradeable, CTRStorage {
+    function getClaimTopics() external view override returns (uint256[] memory) {
+        return _claimTopics;
+    }
+}
+
+// ===== T-REX/contracts/registry/implementation/TrustedIssuersRegistry.sol :: TrustedIssuersRegistry =====
+contract TrustedIssuersRegistry is ITrustedIssuersRegistry, OwnableUpgradeable, TIRStorage {
+    function getTrustedIssuersForClaimTopic(uint256 claimTopic) external view override returns (IClaimIssuer[] memory) {
+        return _claimTopicsToTrustedIssuers[claimTopic];
+    }
+}
+
+// ===== T-REX/contracts/registry/implementation/IdentityRegistryStorage.sol :: IdentityRegistryStorage =====
+contract IdentityRegistryStorage is IIdentityRegistryStorage, AgentRoleUpgradeable, IRSStorage {
+    function storedIdentity(address _userAddress) external view override returns (IIdentity) {
+        return _identities[_userAddress].identityContract;
+    }
+    function storedInvestorCountry(address _userAddress) external view override returns (uint16) {
+        return _identities[_userAddress].investorCountry;
+    }
+}
+
+// ===== T-REX/node_modules/@onchain-id/solidity/contracts/ClaimIssuer.sol :: ClaimIssuer =====
+contract ClaimIssuer is IClaimIssuer, Identity {
+    mapping (bytes => bool) public revokedClaims;
+    function isClaimValid(
+        IIdentity _identity,
+        uint256 claimTopic,
+        bytes memory sig,
+        bytes memory data)
+    external override view returns (bool claimValid)
+    {
+        bytes32 dataHash = keccak256(abi.encode(_identity, claimTopic, data));
+        bytes32 prefixedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", dataHash));
+        address recovered = getRecoveredAddress(sig, prefixedHash);
+        bytes32 hashedAddr = keccak256(abi.encode(recovered));
+        if (keyHasPurpose(hashedAddr, 3) && (isClaimRevoked(sig) == false)) {
+            return true;
+        }
+        return false;
+    }
+    function isClaimRevoked(bytes memory _sig) public override view returns (bool) {
+        if (revokedClaims[_sig]) {
+            return true;
+        }
+        return false;
+    }
+    function getRecoveredAddress(bytes memory sig, bytes32 dataHash)
+        public override
+        pure
+        returns (address addr)
+    {
+        bytes32 ra;
+        bytes32 sa;
+        uint8 va;
+        if (sig.length != 65) {
+            return address(0);
+        }
+        assembly {
+            ra := mload(add(sig, 32))
+            sa := mload(add(sig, 64))
+            va := byte(0, mload(add(sig, 96)))
+        }
+        if (va < 27) {
+            va += 27;
+        }
+        address recoveredAddress = ecrecover(dataHash, va, ra, sa);
+        return (recoveredAddress);
+    }
+}
+
+// ===== T-REX/node_modules/@onchain-id/solidity/contracts/Identity.sol :: Identity =====
+contract Identity is Storage, IIdentity, Version {
+    modifier delegatedOnly() {
+        require(_canInteract == true, "Interacting with the library contract is forbidden.");
+        _;
+    }
+    modifier onlyClaimKey() {
+        require(msg.sender == address(this) || keyHasPurpose(keccak256(abi.encode(msg.sender)), 3)
+        , "Permissions: Sender does not have claim signer key");
+        _;
+    }
+    function addClaim(
+        uint256 _topic,
+        uint256 _scheme,
+        address _issuer,
+        bytes memory _signature,
+        bytes memory _data,
+        string memory _uri
+    )
+    public
+    delegatedOnly
+    onlyClaimKey
+    override
+    returns (bytes32 claimRequestId)
+    {
+        if (_issuer != address(this)) {
+            require(IClaimIssuer(_issuer).isClaimValid(IIdentity(address(this)), _topic, _signature, _data), "invalid claim");
+        }
+        bytes32 claimId = keccak256(abi.encode(_issuer, _topic));
+        _claims[claimId].topic = _topic;
+        _claims[claimId].scheme = _scheme;
+        _claims[claimId].signature = _signature;
+        _claims[claimId].data = _data;
+        _claims[claimId].uri = _uri;
+        if (_claims[claimId].issuer != _issuer) {
+            _claimsByTopic[_topic].push(claimId);
+            _claims[claimId].issuer = _issuer;
+            emit ClaimAdded(claimId, _topic, _scheme, _issuer, _signature, _data, _uri);
+        }
+        else {
+            emit ClaimChanged(claimId, _topic, _scheme, _issuer, _signature, _data, _uri);
+        }
+        return claimId;
+    }
+    function getClaim(bytes32 _claimId)
+    public
+    override
+    view
+    returns(
+        uint256 topic,
+        uint256 scheme,
+        address issuer,
+        bytes memory signature,
+        bytes memory data,
+        string memory uri
+    )
+    {
+        return (
+        _claims[_claimId].topic,
+        _claims[_claimId].scheme,
+        _claims[_claimId].issuer,
+        _claims[_claimId].signature,
+        _claims[_claimId].data,
+        _claims[_claimId].uri
+        );
+    }
+    function keyHasPurpose(bytes32 _key, uint256 _purpose)
+    public
+    override
+    view
+    returns(bool result)
+    {
+        Key memory key = _keys[_key];
+        if (key.key == 0) return false;
+        for (uint keyPurposeIndex = 0; keyPurposeIndex < key.purposes.length; keyPurposeIndex++) {
+            uint256 purpose = key.purposes[keyPurposeIndex];
+            if (purpose == 1 || purpose == _purpose) return true;
+        }
+        return false;
+    }
+}

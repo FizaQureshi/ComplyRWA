@@ -1,0 +1,113 @@
+// Rule H4: The maximum must be configured sensibly
+// Source: pinned T-REX 4.1.6 (a09cfd3) and ONCHAINID 2.1.0. Comments removed. Only the parts this rule needs.
+
+// ===== T-REX/contracts/compliance/modular/ModularCompliance.sol :: ModularCompliance =====
+contract ModularCompliance is IModularCompliance, OwnableUpgradeable, MCStorage {
+    function addModule(address _module) external override onlyOwner {
+        require(_module != address(0), "invalid argument - zero address");
+        require(!_moduleBound[_module], "module already bound");
+        require(_modules.length <= 24, "cannot add more than 25 modules");
+        IModule module = IModule(_module);
+        if (!module.isPlugAndPlay()) {
+            require(module.canComplianceBind(address(this)), "compliance is not suitable for binding to the module");
+        }
+        module.bindCompliance(address(this));
+        _modules.push(_module);
+        _moduleBound[_module] = true;
+        emit ModuleAdded(_module);
+    }
+    function removeModule(address _module) external override onlyOwner {
+        require(_module != address(0), "invalid argument - zero address");
+        require(_moduleBound[_module], "module not bound");
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            if (_modules[i] == _module) {
+                IModule(_module).unbindCompliance(address(this));
+                _modules[i] = _modules[length - 1];
+                _modules.pop();
+                _moduleBound[_module] = false;
+                emit ModuleRemoved(_module);
+                break;
+            }
+        }
+    }
+    function callModuleFunction(bytes calldata callData, address _module) external override onlyOwner {
+        require(_moduleBound[_module], "call only on bound module");
+        assembly {
+            let freeMemoryPointer := mload(0x40)
+            calldatacopy(freeMemoryPointer, callData.offset, callData.length)
+            if iszero(
+            call(
+            gas(),
+            _module,
+            0,
+            freeMemoryPointer,
+            callData.length,
+            0,
+            0
+            ))
+            {
+                returndatacopy(0, 0, returndatasize())
+                revert(0, returndatasize())
+            }
+        }
+        emit ModuleInteraction(_module, _selector(callData));
+    }
+    function isModuleBound(address _module) external view override returns (bool) {
+        return _moduleBound[_module];
+    }
+    function getModules() external view override returns (address[] memory) {
+        return _modules;
+    }
+    function canTransfer(address _from, address _to, uint256 _value) external view override returns (bool) {
+        uint256 length = _modules.length;
+        for (uint256 i = 0; i < length; i++) {
+            if (!IModule(_modules[i]).moduleCheck(_from, _to, _value, address(this))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    function _selector(bytes calldata callData) internal pure returns (bytes4 result) {
+        if (callData.length >= 4) {
+            assembly {
+                result := calldataload(callData.offset)
+            }
+        }
+    }
+}
+
+// ===== T-REX/contracts/compliance/modular/modules/MaxBalanceModule.sol :: MaxBalanceModule =====
+contract MaxBalanceModule is AbstractModuleUpgradeable {
+    mapping(address => bool) private _compliancePresetStatus;
+    mapping(address => uint256) private _maxBalance;
+    mapping(address => mapping(address => uint256)) private _IDBalance;
+    function setMaxBalance(uint256 _max) external onlyComplianceCall {
+        _maxBalance[msg.sender] = _max;
+        emit MaxBalanceSet(msg.sender, _max);
+    }
+    function moduleCheck(
+        address  ,
+        address _to,
+        uint256 _value,
+        address _compliance
+    ) external view override returns (bool) {
+        if (_value > _maxBalance[_compliance]) {
+            return false;
+        }
+        address _id = _getIdentity(_compliance, _to);
+        if ((_IDBalance[_compliance][_id] + _value) > _maxBalance[_compliance]) {
+            return false;
+        }
+        return true;
+    }
+    function getIDBalance(address _compliance, address _identity) external view returns (uint256) {
+        return _IDBalance[_compliance][_identity];
+    }
+    function _getIdentity(address _compliance, address _userAddress) internal view returns (address) {
+        address identity = address(IToken(IModularCompliance(_compliance).getTokenBound())
+            .identityRegistry().identity(_userAddress));
+        require(identity != address(0), "identity not found");
+        return identity;
+    }
+}

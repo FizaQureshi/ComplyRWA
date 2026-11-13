@@ -1,0 +1,146 @@
+// Rule J2: A country change to a restricted one blocks future receiving
+// Source: pinned T-REX 4.1.6 (a09cfd3) and ONCHAINID 2.1.0. Comments removed. Only the parts this rule needs.
+
+// ===== T-REX/contracts/token/Token.sol :: Token =====
+contract Token is IToken, AgentRoleUpgradeable, TokenStorage {
+    modifier whenNotPaused() {
+        require(!_tokenPaused, "Pausable: paused");
+        _;
+    }
+    function batchTransfer(address[] calldata _toList, uint256[] calldata _amounts) external override {
+        for (uint256 i = 0; i < _toList.length; i++) {
+            transfer(_toList[i], _amounts[i]);
+        }
+    }
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) external override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[_from], "wallet is frozen");
+        require(_amount <= balanceOf(_from) - (_frozenTokens[_from]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(_from, _to, _amount)) {
+            _approve(_from, msg.sender, _allowances[_from][msg.sender] - (_amount));
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function transfer(address _to, uint256 _amount) public override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[msg.sender], "wallet is frozen");
+        require(_amount <= balanceOf(msg.sender) - (_frozenTokens[msg.sender]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(msg.sender, _to, _amount)) {
+            _transfer(msg.sender, _to, _amount);
+            _tokenCompliance.transferred(msg.sender, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function forcedTransfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) public override onlyAgent returns (bool) {
+        require(balanceOf(_from) >= _amount, "sender balance too low");
+        uint256 freeBalance = balanceOf(_from) - (_frozenTokens[_from]);
+        if (_amount > freeBalance) {
+            uint256 tokensToUnfreeze = _amount - (freeBalance);
+            _frozenTokens[_from] = _frozenTokens[_from] - (tokensToUnfreeze);
+            emit TokensUnfrozen(_from, tokensToUnfreeze);
+        }
+        if (_tokenIdentityRegistry.isVerified(_to)) {
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function mint(address _to, uint256 _amount) public override onlyAgent {
+        require(_tokenIdentityRegistry.isVerified(_to), "Identity is not verified.");
+        require(_tokenCompliance.canTransfer(address(0), _to, _amount), "Compliance not followed");
+        _mint(_to, _amount);
+        _tokenCompliance.created(_to, _amount);
+    }
+    function balanceOf(address _userAddress) public view override returns (uint256) {
+        return _balances[_userAddress];
+    }
+    function _transfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal virtual {
+        require(_from != address(0), "ERC20: transfer from the zero address");
+        require(_to != address(0), "ERC20: transfer to the zero address");
+        _beforeTokenTransfer(_from, _to, _amount);
+        _balances[_from] = _balances[_from] - _amount;
+        _balances[_to] = _balances[_to] + _amount;
+        emit Transfer(_from, _to, _amount);
+    }
+    function _mint(address _userAddress, uint256 _amount) internal virtual {
+        require(_userAddress != address(0), "ERC20: mint to the zero address");
+        _beforeTokenTransfer(address(0), _userAddress, _amount);
+        _totalSupply = _totalSupply + _amount;
+        _balances[_userAddress] = _balances[_userAddress] + _amount;
+        emit Transfer(address(0), _userAddress, _amount);
+    }
+    function _approve(
+        address _owner,
+        address _spender,
+        uint256 _amount
+    ) internal virtual {
+        require(_owner != address(0), "ERC20: approve from the zero address");
+        require(_spender != address(0), "ERC20: approve to the zero address");
+        _allowances[_owner][_spender] = _amount;
+        emit Approval(_owner, _spender, _amount);
+    }
+    function _beforeTokenTransfer(address _from, address _to, uint256 _amount) internal virtual {}
+}
+
+// ===== T-REX/contracts/registry/implementation/IdentityRegistry.sol :: IdentityRegistry =====
+contract IdentityRegistry is IIdentityRegistry, AgentRoleUpgradeable, IRStorage {
+    function updateCountry(address _userAddress, uint16 _country) external override onlyAgent {
+        _tokenIdentityStorage.modifyStoredInvestorCountry(_userAddress, _country);
+        emit CountryUpdated(_userAddress, _country);
+    }
+    function investorCountry(address _userAddress) external view override returns (uint16) {
+        return _tokenIdentityStorage.storedInvestorCountry(_userAddress);
+    }
+    function identity(address _userAddress) public view override returns (IIdentity) {
+        return _tokenIdentityStorage.storedIdentity(_userAddress);
+    }
+}
+
+// ===== T-REX/contracts/registry/implementation/IdentityRegistryStorage.sol :: IdentityRegistryStorage =====
+contract IdentityRegistryStorage is IIdentityRegistryStorage, AgentRoleUpgradeable, IRSStorage {
+    function storedIdentity(address _userAddress) external view override returns (IIdentity) {
+        return _identities[_userAddress].identityContract;
+    }
+    function storedInvestorCountry(address _userAddress) external view override returns (uint16) {
+        return _identities[_userAddress].investorCountry;
+    }
+}
+
+// ===== T-REX/contracts/compliance/modular/modules/CountryRestrictModule.sol :: CountryRestrictModule =====
+contract CountryRestrictModule is AbstractModuleUpgradeable {
+    mapping(address => mapping(uint16 => bool)) private _restrictedCountries;
+    function moduleCheck(
+        address  ,
+        address _to,
+        uint256  ,
+        address _compliance
+    ) external view override returns (bool) {
+        uint16 receiverCountry = _getCountry(_compliance, _to);
+        if (isCountryRestricted(_compliance, receiverCountry)) {
+            return false;
+        }
+        return true;
+    }
+    function isCountryRestricted(address _compliance, uint16 _country) public view
+    returns (bool) {
+        return ((_restrictedCountries[_compliance])[_country]);
+    }
+    function _getCountry(address _compliance, address _userAddress) internal view returns (uint16) {
+        return IToken(IModularCompliance(_compliance).getTokenBound()).identityRegistry().investorCountry(_userAddress);
+    }
+}

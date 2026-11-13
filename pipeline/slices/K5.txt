@@ -1,0 +1,113 @@
+// Rule K5: A sender who lost KYC cannot send
+// Source: pinned T-REX 4.1.6 (a09cfd3) and ONCHAINID 2.1.0. Comments removed. Only the parts this rule needs.
+
+// ===== T-REX/contracts/token/Token.sol :: Token =====
+contract Token is IToken, AgentRoleUpgradeable, TokenStorage {
+    modifier whenNotPaused() {
+        require(!_tokenPaused, "Pausable: paused");
+        _;
+    }
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) external override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[_from], "wallet is frozen");
+        require(_amount <= balanceOf(_from) - (_frozenTokens[_from]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(_from, _to, _amount)) {
+            _approve(_from, msg.sender, _allowances[_from][msg.sender] - (_amount));
+            _transfer(_from, _to, _amount);
+            _tokenCompliance.transferred(_from, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function transfer(address _to, uint256 _amount) public override whenNotPaused returns (bool) {
+        require(!_frozen[_to] && !_frozen[msg.sender], "wallet is frozen");
+        require(_amount <= balanceOf(msg.sender) - (_frozenTokens[msg.sender]), "Insufficient Balance");
+        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(msg.sender, _to, _amount)) {
+            _transfer(msg.sender, _to, _amount);
+            _tokenCompliance.transferred(msg.sender, _to, _amount);
+            return true;
+        }
+        revert("Transfer not possible");
+    }
+    function balanceOf(address _userAddress) public view override returns (uint256) {
+        return _balances[_userAddress];
+    }
+    function _transfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal virtual {
+        require(_from != address(0), "ERC20: transfer from the zero address");
+        require(_to != address(0), "ERC20: transfer to the zero address");
+        _beforeTokenTransfer(_from, _to, _amount);
+        _balances[_from] = _balances[_from] - _amount;
+        _balances[_to] = _balances[_to] + _amount;
+        emit Transfer(_from, _to, _amount);
+    }
+    function _approve(
+        address _owner,
+        address _spender,
+        uint256 _amount
+    ) internal virtual {
+        require(_owner != address(0), "ERC20: approve from the zero address");
+        require(_spender != address(0), "ERC20: approve to the zero address");
+        _allowances[_owner][_spender] = _amount;
+        emit Approval(_owner, _spender, _amount);
+    }
+    function _beforeTokenTransfer(address _from, address _to, uint256 _amount) internal virtual {}
+}
+
+// ===== T-REX/contracts/registry/implementation/IdentityRegistry.sol :: IdentityRegistry =====
+contract IdentityRegistry is IIdentityRegistry, AgentRoleUpgradeable, IRStorage {
+    function isVerified(address _userAddress) external view override returns (bool) {
+        if (address(identity(_userAddress)) == address(0)) {return false;}
+        uint256[] memory requiredClaimTopics = _tokenTopicsRegistry.getClaimTopics();
+        if (requiredClaimTopics.length == 0) {
+            return true;
+        }
+        uint256 foundClaimTopic;
+        uint256 scheme;
+        address issuer;
+        bytes memory sig;
+        bytes memory data;
+        uint256 claimTopic;
+        for (claimTopic = 0; claimTopic < requiredClaimTopics.length; claimTopic++) {
+            IClaimIssuer[] memory trustedIssuers =
+            _tokenIssuersRegistry.getTrustedIssuersForClaimTopic(requiredClaimTopics[claimTopic]);
+            if (trustedIssuers.length == 0) {return false;}
+            bytes32[] memory claimIds = new bytes32[](trustedIssuers.length);
+            for (uint256 i = 0; i < trustedIssuers.length; i++) {
+                claimIds[i] = keccak256(abi.encode(trustedIssuers[i], requiredClaimTopics[claimTopic]));
+            }
+            for (uint256 j = 0; j < claimIds.length; j++) {
+                (foundClaimTopic, scheme, issuer, sig, data, ) = identity(_userAddress).getClaim(claimIds[j]);
+                if (foundClaimTopic == requiredClaimTopics[claimTopic]) {
+                    try IClaimIssuer(issuer).isClaimValid(identity(_userAddress), requiredClaimTopics[claimTopic], sig,
+                        data) returns(bool _validity) {
+                        if (
+                            _validity
+                        ) {
+                            j = claimIds.length;
+                        }
+                        if (!_validity && j == (claimIds.length - 1)) {
+                            return false;
+                        }
+                    } catch {
+                        if (j == (claimIds.length - 1)) {
+                            return false;
+                        }
+                    }
+                } else if (j == (claimIds.length - 1)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    function identity(address _userAddress) public view override returns (IIdentity) {
+        return _tokenIdentityStorage.storedIdentity(_userAddress);
+    }
+}
