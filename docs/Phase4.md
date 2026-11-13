@@ -191,7 +191,7 @@ The 208 is the 63 clean gold tests plus the 145 variant tests. The 63 is the 79 
 
 **Goal:** decide which candidate tests are worth keeping, using only running code (no LLM).
 
-**Status: COMPLETE.** Commit: _fill in the hash from `git log` after committing_. Files: `pipeline/validity_filter.py`, `candidates/bad/BadTests.sol`, `candidates/bad/BadCompile.sol`.
+**Status: COMPLETE.** Commit: `bc193dd`. Files: `pipeline/validity_filter.py`, `candidates/bad/BadTests.sol`, `candidates/bad/BadCompile.sol`.
 
 ### 4.1 The three outcomes
 
@@ -294,4 +294,4 @@ The joint run failed with exit 2, so the fallback ran each candidate alone, as d
 - [ ] 4.3 Code slicer (next)
 - [ ] 4.4 to 4.7
 
-Commits: step 4.0 `c9763d9`, step 4.1 `35ad477`, step 4.2 _fill in after committing_.
+Commits: step 4.0 `c9763d9`, step 4.1 `35ad477`, step 4.2 `bc193dd`.
