@@ -2,7 +2,7 @@
 
 Phase 0 reproducibility record. Every benchmark result in this project depends on these versions, so update this file whenever any of them change.
 
-Last updated: 2026-10-31
+Last updated: 2026-11-13
 
 ---
 
@@ -26,6 +26,7 @@ Last updated: 2026-10-31
 | Halmos | 0.3.3 | `halmos --version` |
 | Hardhat | 2.14.0 (from `T-REX/package.json`) | `npx hardhat --version` |
 | fuzz seed | 0x436f6d706c79 | invariant runs 64 | depth 40 |
+| ONCHAINID (`@onchain-id/solidity`) | 2.1.0 | `grep '"version"' T-REX/node_modules/@onchain-id/solidity/package.json` |
 
 ### Foundry build details
 
