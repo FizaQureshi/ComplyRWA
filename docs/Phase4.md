@@ -275,7 +275,7 @@ The joint run failed with exit 2, so the fallback ran each candidate alone, as d
 
 **Goal:** cut the pinned contracts down to the functions each rule needs, with comments removed, so that an LLM gets a small and honest view of the code.
 
-**Status: COMPLETE.** Commit: _fill in after committing_. Files: `pipeline/slicer.py`, `pipeline/slice_map.json`, `pipeline/fixture_facts.md`, and the generated `pipeline/slices/`.
+**Status: COMPLETE.** Commit: `ff80f4a`. Files: `pipeline/slicer.py`, `pipeline/slice_map.json`, `pipeline/fixture_facts.md`, and the generated `pipeline/slices/`.
 
 ### 5.1 Why
 
@@ -373,4 +373,4 @@ A slice is 11% to 35% of the full source files. H3 is the largest because it nee
 - [ ] 4.4 LLM interface and prompts (next)
 - [ ] 4.5 to 4.7
 
-Commits: step 4.0 `c9763d9`, step 4.1 `35ad477`, step 4.2 `bc193dd`, step 4.3 _fill in after committing_.
+Commits: step 4.0 `c9763d9`, step 4.1 `35ad477`, step 4.2 `bc193dd`, step 4.3 `ff80f4a`.
