@@ -1,0 +1,78 @@
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_K1_s1 is ComplyFixture {
+    function _amt() internal view returns (uint256) {
+        uint256 x = CAP / 100;
+        if (x == 0) x = 1;
+        return x;
+    }
+
+    // Normal allowed case: a fully verified investor can receive.
+    function test_verifiedInvestorCanReceiveTransfer() public {
+        uint256 amt = _amt();
+        _mint(a1, amt);
+        uint256 balB = token.balanceOf(b);
+        uint256 balA = token.balanceOf(a1);
+        vm.prank(a1);
+        token.transfer(b, amt);
+        assertEq(token.balanceOf(b), balB + amt);
+        assertEq(token.balanceOf(a1), balA - amt);
+    }
+
+    // Mallory is registered but holds no KYC claim: must not receive by transfer, mint or forcedTransfer.
+    function test_noKycClaimCannotReceive() public {
+        uint256 amt = _amt();
+        _mint(a1, amt);
+        uint256 balM = token.balanceOf(m);
+
+        vm.prank(a1);
+        vm.expectRevert();
+        token.transfer(m, amt);
+
+        vm.prank(agent);
+        vm.expectRevert();
+        token.mint(m, amt);
+
+        vm.prank(agent);
+        vm.expectRevert();
+        token.forcedTransfer(a1, m, amt);
+
+        assertEq(token.balanceOf(m), balM);
+    }
+
+    // A KYC claim that was revoked no longer qualifies the holder to receive.
+    function test_revokedClaimCannotReceive() public {
+        uint256 amt = _amt();
+        _mint(a1, amt);
+        _revokeClaim(idB);
+        uint256 balB = token.balanceOf(b);
+
+        vm.prank(a1);
+        vm.expectRevert();
+        token.transfer(b, amt);
+
+        vm.prank(agent);
+        vm.expectRevert();
+        token.mint(b, amt);
+
+        assertEq(token.balanceOf(b), balB);
+    }
+
+    // A wallet with no identity registered at all cannot receive.
+    function test_unregisteredWalletCannotReceive() public {
+        uint256 amt = _amt();
+        address stranger = address(0xBEEF1234);
+        _mint(a1, amt);
+
+        vm.prank(a1);
+        vm.expectRevert();
+        token.transfer(stranger, amt);
+
+        vm.prank(agent);
+        vm.expectRevert();
+        token.mint(stranger, amt);
+
+        assertEq(token.balanceOf(stranger), 0);
+    }
+}

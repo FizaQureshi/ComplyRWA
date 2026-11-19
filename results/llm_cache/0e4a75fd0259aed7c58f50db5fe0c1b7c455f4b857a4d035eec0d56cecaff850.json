@@ -1,0 +1,12 @@
+{
+ "text": "```solidity\npragma solidity ^0.8.17;\nimport \"../../test/ComplyFixture.sol\";\n\ncontract Cand_K3_s1 is ComplyFixture {\n    uint256 internal constant AMT = 10;\n\n    // The required claim topic list must contain at least one topic.\n    function test_requiredTopicsListNotEmpty() public view {\n        uint256[] memory topics = ctr.getClaimTopics();\n        assertTrue(topics.length >= 1, \"no claim topic is required\");\n    }\n\n    // Mallory is registered but has no KYC claim: she must not be able to receive tokens.\n    function test_identityWithoutClaimCannotReceive() public {\n        uint256 mBefore = token.balanceOf(m);\n\n        vm.prank(agent);\n        vm.expectRevert();\n        token.mint(m, AMT);\n        assertEq(token.balanceOf(m), mBefore);\n\n        // A holder transferring to Mallory must also fail.\n        _mint(a1, AMT);\n        uint256 a1Before = token.balanceOf(a1);\n        vm.prank(a1);\n        vm.expectRevert();\n        token.transfer(m, AMT);\n        assertEq(token.balanceOf(m), mBefore);\n        assertEq(token.balanceOf(a1), a1Before);\n    }\n\n    // After the KYC claim of Bob is revoked, Bob must not be able to receive tokens.\n    function test_revokedClaimBlocksReceiving() public {\n        _mint(a1, AMT);\n        uint256 bBefore = token.balanceOf(b);\n        uint256 a1Before = token.balanceOf(a1);\n\n        _revokeClaim(idB);\n\n        vm.prank(a1);\n        vm.expectRevert();\n        token.transfer(b, AMT);\n\n        assertEq(token.balanceOf(b), bBefore);\n        assertEq(token.balanceOf(a1), a1Before);\n    }\n\n    // Normal case: KYC-holding investors can still receive mint and transfers.\n    function test_verifiedInvestorsStillWork() public {\n        uint256 a1Before = token.balanceOf(a1);\n        uint256 bBefore = token.balanceOf(b);\n\n        _mint(a1, AMT);\n        assertEq(token.balanceOf(a1), a1Before + AMT);\n\n        _transfer(a1, b, AMT);\n        assertEq(token.balanceOf(a1), a1Before);\n        assertEq(token.balanceOf(b), bBefore + AMT);\n    }\n}\n```",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 7545,
+  "output_tokens": 1737
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.03246,
+ "tag": "generator:K3:s1",
+ "created": "2026-11-20 02:21:14"
+}

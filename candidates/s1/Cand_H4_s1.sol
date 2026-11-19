@@ -1,0 +1,55 @@
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_H4_s1 is ComplyFixture {
+    // A normal mint well below the policy cap must work (the cap is not 0).
+    function test_normalMintBelowCapWorks() public {
+        uint256 amount = CAP / 10;
+        require(amount > 0, "cap too small");
+        uint256 before = token.balanceOf(a1);
+        _mint(a1, amount);
+        assertEq(token.balanceOf(a1), before + amount);
+    }
+
+    // A mint above the policy cap must be blocked (the cap is not max uint256 or too high).
+    function test_mintAboveCapBlocked() public {
+        uint256 before = token.balanceOf(b);
+        vm.prank(agent);
+        vm.expectRevert();
+        token.mint(b, CAP + 1);
+        assertEq(token.balanceOf(b), before);
+    }
+
+    // Exactly the cap is allowed, one more unit is not (same identity, other wallet).
+    function test_cap_exactBoundary() public {
+        uint256 held = _idBalance(idA);
+        require(held < CAP, "already at cap");
+        uint256 fill = CAP - held;
+        uint256 before = token.balanceOf(a1);
+        _mint(a1, fill);
+        assertEq(token.balanceOf(a1), before + fill);
+        assertEq(_idBalance(idA), CAP);
+
+        uint256 beforeA2 = token.balanceOf(a2);
+        vm.prank(agent);
+        vm.expectRevert();
+        token.mint(a2, 1);
+        assertEq(token.balanceOf(a2), beforeA2);
+    }
+
+    // Cap is enforced cumulatively: after partial fill, an amount pushing over CAP reverts.
+    function test_cap_cumulativeEnforced() public {
+        uint256 held = _idBalance(idB);
+        require(held < CAP, "already at cap");
+        uint256 remaining = CAP - held;
+        uint256 half = remaining / 2;
+        require(half > 0, "no room");
+        _mint(b, half);
+        uint256 balAfter = token.balanceOf(b);
+
+        vm.prank(agent);
+        vm.expectRevert();
+        token.mint(b, remaining - half + 1);
+        assertEq(token.balanceOf(b), balAfter);
+    }
+}

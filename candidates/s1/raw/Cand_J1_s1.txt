@@ -1,0 +1,72 @@
+```solidity
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_J1_s1 is ComplyFixture {
+    function test_mintToRestrictedCountryInvestorReverts() public {
+        uint256 amt = CAP / 10;
+        uint256 before = token.balanceOf(c);
+        uint256 supplyBefore = token.totalSupply();
+        vm.prank(agent);
+        vm.expectRevert();
+        token.mint(c, amt);
+        assertEq(token.balanceOf(c), before, "restricted investor received minted tokens");
+        assertEq(token.totalSupply(), supplyBefore, "supply changed");
+    }
+
+    function test_transferToRestrictedCountryInvestorReverts() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+        uint256 cBefore = token.balanceOf(c);
+        uint256 aBefore = token.balanceOf(a1);
+        vm.prank(a1);
+        vm.expectRevert();
+        token.transfer(c, amt);
+        assertEq(token.balanceOf(c), cBefore, "restricted investor received tokens");
+        assertEq(token.balanceOf(a1), aBefore, "sender balance changed");
+    }
+
+    function test_transferFromToRestrictedCountryInvestorReverts() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+        vm.prank(a1);
+        token.approve(address(this), amt);
+        uint256 cBefore = token.balanceOf(c);
+        uint256 aBefore = token.balanceOf(a1);
+        vm.expectRevert();
+        token.transferFrom(a1, c, amt);
+        assertEq(token.balanceOf(c), cBefore, "restricted investor received tokens via transferFrom");
+        assertEq(token.balanceOf(a1), aBefore, "sender balance changed");
+    }
+
+    function test_countryChangeBlocksAndUnblocksReceiving() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt * 2);
+
+        // Bob moves to the restricted country: he must not receive.
+        vm.prank(agent);
+        ir.updateCountry(b, RESTRICTED);
+        uint256 bBefore = token.balanceOf(b);
+        vm.prank(a1);
+        vm.expectRevert();
+        token.transfer(b, amt);
+        assertEq(token.balanceOf(b), bBefore, "Bob received while in restricted country");
+
+        if (RESTRICTED2 != 0) {
+            vm.prank(agent);
+            ir.updateCountry(b, RESTRICTED2);
+            vm.prank(a1);
+            vm.expectRevert();
+            token.transfer(b, amt);
+            assertEq(token.balanceOf(b), bBefore, "Bob received while in second restricted country");
+        }
+
+        // Bob moves back to an allowed country: receiving works again.
+        vm.prank(agent);
+        ir.updateCountry(b, INDIA);
+        vm.prank(a1);
+        token.transfer(b, amt);
+        assertEq(token.balanceOf(b), bBefore + amt, "Bob could not receive after returning to allowed country");
+    }
+}
+```

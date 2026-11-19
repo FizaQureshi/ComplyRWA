@@ -23,7 +23,7 @@ import llm  # noqa: E402
 import prompts  # noqa: E402
 
 # Problems that would break the executor wrappers or the fixture, so the file is NOT sent to the filter.
-HARD = ("defines setUp", "has invariant_", "defines an underscore", "test function with arguments",
+HARD = ("defines setUp", "has invariant_", "defines a fixture function", "test function with arguments",
         "uses vm.ffi", "no 'contract X", "no test function", "wrong or missing")
 
 
@@ -48,6 +48,7 @@ def main():
         rules = sorted(prompts.RULE_TEXT)
 
     client = llm.LLMClient(a.mode, a.cap)
+    fixture_names = prompts.fixture_function_names()
     outdir = ROOT / "candidates" / a.batch
     (outdir / "raw").mkdir(parents=True, exist_ok=True)
     (outdir / "rejected").mkdir(exist_ok=True)
@@ -64,7 +65,7 @@ def main():
         paid += r.cost_usd
         original += r.original_cost_usd
         (outdir / "raw" / f"{name}.txt").write_text(r.text, encoding="utf-8")
-        code, probs = prompts.extract_solidity(r.text, name)
+        code, probs = prompts.extract_solidity(r.text, name, fixture_names)
         if r.truncated:
             probs.append("answer was cut by max_tokens")
         n_tests = code.count("function test") if code else 0

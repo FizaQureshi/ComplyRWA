@@ -1,0 +1,16 @@
+{
+  "tests": [
+    "candidates/s1/Cand_K1_s1.sol:Cand_K1_s1",
+    "candidates/s1/Cand_K2_s1.sol:Cand_K2_s1",
+    "candidates/s1/Cand_K3_s1.sol:Cand_K3_s1",
+    "candidates/s1/Cand_J1_s1.sol:Cand_J1_s1",
+    "candidates/s1/Cand_J2_s1.sol:Cand_J2_s1",
+    "candidates/s1/Cand_J3_s1.sol:Cand_J3_s1",
+    "candidates/s1/Cand_H1_s1.sol:Cand_H1_s1",
+    "candidates/s1/Cand_H2_s1.sol:Cand_H2_s1",
+    "candidates/s1/Cand_H3_s1.sol:Cand_H3_s1",
+    "candidates/s1/Cand_H4_s1.sol:Cand_H4_s1"
+  ],
+  "wrappers": 170,
+  "seconds": 134.41
+}

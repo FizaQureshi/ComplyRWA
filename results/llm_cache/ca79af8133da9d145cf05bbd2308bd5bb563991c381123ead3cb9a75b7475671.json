@@ -1,0 +1,12 @@
+{
+ "text": "```solidity\npragma solidity ^0.8.17;\nimport \"../../test/ComplyFixture.sol\";\n\ncontract Cand_K1_s1 is ComplyFixture {\n    function _amt() internal view returns (uint256) {\n        uint256 x = CAP / 100;\n        if (x == 0) x = 1;\n        return x;\n    }\n\n    // Normal allowed case: a fully verified investor can receive.\n    function test_verifiedInvestorCanReceiveTransfer() public {\n        uint256 amt = _amt();\n        _mint(a1, amt);\n        uint256 balB = token.balanceOf(b);\n        uint256 balA = token.balanceOf(a1);\n        vm.prank(a1);\n        token.transfer(b, amt);\n        assertEq(token.balanceOf(b), balB + amt);\n        assertEq(token.balanceOf(a1), balA - amt);\n    }\n\n    // Mallory is registered but holds no KYC claim: must not receive by transfer, mint or forcedTransfer.\n    function test_noKycClaimCannotReceive() public {\n        uint256 amt = _amt();\n        _mint(a1, amt);\n        uint256 balM = token.balanceOf(m);\n\n        vm.prank(a1);\n        vm.expectRevert();\n        token.transfer(m, amt);\n\n        vm.prank(agent);\n        vm.expectRevert();\n        token.mint(m, amt);\n\n        vm.prank(agent);\n        vm.expectRevert();\n        token.forcedTransfer(a1, m, amt);\n\n        assertEq(token.balanceOf(m), balM);\n    }\n\n    // A KYC claim that was revoked no longer qualifies the holder to receive.\n    function test_revokedClaimCannotReceive() public {\n        uint256 amt = _amt();\n        _mint(a1, amt);\n        _revokeClaim(idB);\n        uint256 balB = token.balanceOf(b);\n\n        vm.prank(a1);\n        vm.expectRevert();\n        token.transfer(b, amt);\n\n        vm.prank(agent);\n        vm.expectRevert();\n        token.mint(b, amt);\n\n        assertEq(token.balanceOf(b), balB);\n    }\n\n    // A wallet with no identity registered at all cannot receive.\n    function test_unregisteredWalletCannotReceive() public {\n        uint256 amt = _amt();\n        address stranger = address(0xBEEF1234);\n        _mint(a1, amt);\n\n        vm.prank(a1);\n        vm.expectRevert();\n        token.transfer(stranger, amt);\n\n        vm.prank(agent);\n        vm.expectRevert();\n        token.mint(stranger, amt);\n\n        assertEq(token.balanceOf(stranger), 0);\n    }\n}\n```",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 9316,
+  "output_tokens": 1893
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.037562,
+ "tag": "generator:K1:s1",
+ "created": "2026-11-20 02:20:44"
+}

@@ -1,0 +1,90 @@
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_H2_s1 is ComplyFixture {
+    function _headroomA() internal view returns (uint256) {
+        uint256 bal = _idBalance(idA);
+        require(CAP > bal, "no headroom");
+        uint256 h = CAP - bal;
+        require(h >= 10, "headroom too small");
+        return h;
+    }
+
+    // Mint to a1, then mint to a2 so the combined holding exceeds the cap -> must revert.
+    function test_mintToSecondWalletCountsAgainstSameIdentityCap() public {
+        uint256 h = _headroomA();
+        uint256 part = (h * 6) / 10; // each fits alone, together they exceed the cap
+
+        _mint(a1, part);
+        uint256 a2Before = token.balanceOf(a2);
+        uint256 idBefore = _idBalance(idA);
+
+        vm.expectRevert();
+        vm.prank(agent);
+        token.mint(a2, part);
+
+        assertEq(token.balanceOf(a2), a2Before, "a2 balance must not change");
+        assertEq(_idBalance(idA), idBefore, "identity balance must not change");
+        assertTrue(token.balanceOf(a1) + token.balanceOf(a2) <= CAP, "identity holds more than cap");
+    }
+
+    // Another investor sends tokens to a2 while a1 already holds a large part of the cap -> must revert.
+    function test_transferFromOtherIdentityToSecondWalletRespectsSharedCap() public {
+        uint256 h = _headroomA();
+        uint256 part = (h * 6) / 10;
+
+        _mint(a1, part);
+        _mint(b, part);
+
+        uint256 a2Before = token.balanceOf(a2);
+        uint256 bBefore = token.balanceOf(b);
+
+        vm.expectRevert(bytes("Transfer not possible"));
+        vm.prank(b);
+        token.transfer(a2, part);
+
+        assertEq(token.balanceOf(a2), a2Before, "a2 must not receive");
+        assertEq(token.balanceOf(b), bBefore, "b must keep tokens");
+    }
+
+    // Normal case: moving tokens between two wallets of the same identity works and keeps the identity total.
+    function test_transferBetweenOwnWalletsAllowed() public {
+        uint256 h = _headroomA();
+        uint256 part = (h * 4) / 10;
+
+        _mint(a1, part);
+        uint256 idBefore = _idBalance(idA);
+        uint256 a1Before = token.balanceOf(a1);
+        uint256 a2Before = token.balanceOf(a2);
+
+        _transfer(a1, a2, part);
+
+        assertEq(token.balanceOf(a1), a1Before - part, "a1 balance");
+        assertEq(token.balanceOf(a2), a2Before + part, "a2 balance");
+        assertEq(_idBalance(idA), idBefore, "identity total unchanged by internal move");
+    }
+
+    // Two wallets may together fill exactly the cap, but not a single unit more on either wallet.
+    function test_twoWalletsCanFillCapButNotExceed() public {
+        uint256 h = _headroomA();
+        uint256 first = h / 2;
+        uint256 second = h - first;
+        uint256 startId = _idBalance(idA);
+
+        _mint(a1, first);
+        _mint(a2, second);
+
+        assertEq(_idBalance(idA), startId + h, "identity filled to cap");
+        assertEq(_idBalance(idA), CAP, "identity at cap");
+
+        vm.expectRevert();
+        vm.prank(agent);
+        token.mint(a1, 1);
+
+        vm.expectRevert();
+        vm.prank(agent);
+        token.mint(a2, 1);
+
+        assertEq(_idBalance(idA), CAP, "identity still at cap");
+    }
+}

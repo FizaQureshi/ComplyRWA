@@ -1,0 +1,66 @@
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_J3_s1 is ComplyFixture {
+    // The country module must be bound to the compliance contract.
+    function test_countryModuleIsBoundToCompliance() public {
+        assertTrue(compliance.isModuleBound(address(countryModule)), "country module not bound");
+        address[] memory mods = compliance.getModules();
+        bool found;
+        for (uint256 i = 0; i < mods.length; i++) {
+            if (mods[i] == address(countryModule)) found = true;
+        }
+        assertTrue(found, "country module not in module list");
+    }
+
+    // Minting to a KYC-verified investor in the restricted country must be refused.
+    function test_mintToRestrictedCountryReverts() public {
+        uint256 before = token.balanceOf(c);
+        vm.expectRevert();
+        vm.prank(agent);
+        token.mint(c, 10);
+        assertEq(token.balanceOf(c), before, "restricted-country holder received tokens");
+    }
+
+    // Transfer to a restricted country must fail, while a normal transfer between allowed countries works.
+    function test_transferToRestrictedBlockedButAllowedWorks() public {
+        _mint(a1, 20);
+        uint256 a1Before = token.balanceOf(a1);
+        uint256 bBefore = token.balanceOf(b);
+        uint256 cBefore = token.balanceOf(c);
+
+        vm.prank(a1);
+        vm.expectRevert();
+        token.transfer(c, 5);
+        assertEq(token.balanceOf(c), cBefore, "restricted country received tokens");
+        assertEq(token.balanceOf(a1), a1Before, "sender balance changed on failed transfer");
+
+        _transfer(a1, b, 5);
+        assertEq(token.balanceOf(b), bBefore + 5, "allowed transfer did not arrive");
+        assertEq(token.balanceOf(a1), a1Before - 5, "allowed transfer not debited");
+    }
+
+    // A holder whose country changes to a restricted one (incl. the second restricted country) cannot receive.
+    function test_countryChangeToRestrictedBlocksReceiving() public {
+        _mint(a1, 20);
+        uint16 target = RESTRICTED2 != 0 ? RESTRICTED2 : RESTRICTED;
+        vm.prank(agent);
+        ir.updateCountry(b, target);
+
+        uint256 bBefore = token.balanceOf(b);
+        uint256 a1Before = token.balanceOf(a1);
+        vm.prank(a1);
+        vm.expectRevert();
+        token.transfer(b, 5);
+        assertEq(token.balanceOf(b), bBefore, "tokens reached restricted-country wallet");
+        assertEq(token.balanceOf(a1), a1Before, "sender debited on failed transfer");
+
+        // also the primary restricted country is blocked when mint is attempted
+        vm.prank(agent);
+        ir.updateCountry(b, RESTRICTED);
+        vm.prank(agent);
+        vm.expectRevert();
+        token.mint(b, 5);
+        assertEq(token.balanceOf(b), bBefore, "mint reached restricted country");
+    }
+}

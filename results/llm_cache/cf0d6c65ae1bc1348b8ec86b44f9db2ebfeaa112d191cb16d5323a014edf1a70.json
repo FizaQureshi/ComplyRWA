@@ -1,0 +1,12 @@
+{
+ "text": "```solidity\npragma solidity ^0.8.17;\nimport \"../../test/ComplyFixture.sol\";\n\ncontract Cand_H1_s1 is ComplyFixture {\n    function _aliceTotal() internal view returns (uint256) {\n        return token.balanceOf(a1) + token.balanceOf(a2);\n    }\n\n    // Fill Alice's identity (a1 + a2) exactly up to CAP. Reaching CAP is allowed.\n    function _fillAliceToCap() internal {\n        uint256 bal = _aliceTotal();\n        if (bal < CAP) {\n            _mint(a1, CAP - bal);\n        }\n        assertEq(_aliceTotal(), CAP);\n    }\n\n    // A single mint larger than CAP must be rejected.\n    function test_mintAboveCapReverts() public {\n        uint256 before = token.balanceOf(b);\n        vm.expectRevert();\n        vm.prank(agent);\n        token.mint(b, CAP + 1);\n        assertEq(token.balanceOf(b), before);\n    }\n\n    // Alice at CAP via a1; minting 1 more to her other wallet a2 (same identity) must revert.\n    function test_mintToSecondWalletOfSameIdentityOverCapReverts() public {\n        _fillAliceToCap();\n        uint256 a2Before = token.balanceOf(a2);\n        vm.expectRevert();\n        vm.prank(agent);\n        token.mint(a2, 1);\n        assertEq(token.balanceOf(a2), a2Before);\n        assertTrue(_aliceTotal() <= CAP);\n    }\n\n    // Alice at CAP; Bob sending 1 token to her second wallet must be rejected.\n    function test_transferPushingIdentityOverCapReverts() public {\n        _fillAliceToCap();\n        if (token.balanceOf(b) == 0) {\n            _mint(b, 1);\n        }\n        uint256 bBefore = token.balanceOf(b);\n        uint256 a2Before = token.balanceOf(a2);\n        vm.expectRevert();\n        vm.prank(b);\n        token.transfer(a2, 1);\n        assertEq(token.balanceOf(b), bBefore);\n        assertEq(token.balanceOf(a2), a2Before);\n        assertTrue(_aliceTotal() <= CAP);\n    }\n\n    // Normal case: a small transfer that keeps the receiver under CAP still works.\n    function test_smallTransferWithinCapWorks() public {\n        _mint(b, 2);\n        uint256 bBefore = token.balanceOf(b);\n        uint256 a1Before = token.balanceOf(a1);\n        _transfer(b, a1, 1);\n        assertEq(token.balanceOf(b), bBefore - 1);\n        assertEq(token.balanceOf(a1), a1Before + 1);\n        assertTrue(_aliceTotal() <= CAP);\n    }\n}\n```",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 7953,
+  "output_tokens": 2779
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.043696,
+ "tag": "generator:H1:s1",
+ "created": "2026-11-20 02:22:21"
+}

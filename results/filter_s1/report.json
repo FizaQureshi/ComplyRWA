@@ -1,0 +1,374 @@
+{
+  "summary": {
+    "tests": 40,
+    "KEEP": 32,
+    "VACUOUS": 8,
+    "REJECT": 0,
+    "valid_not_rejected": 40,
+    "valid_and_non_vacuous": 32,
+    "executor_seconds": 134.4,
+    "wall_seconds": 134.7
+  },
+  "rows": [
+    {
+      "contract": "Cand_K1_s1",
+      "test": "test_noKycClaimCannotReceive",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_s1",
+      "test": "test_revokedClaimCannotReceive",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_s1",
+      "test": "test_unregisteredWalletCannotReceive",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_s1",
+      "test": "test_verifiedInvestorCanReceiveTransfer",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K2_s1",
+      "test": "test_revoked_wallet_cannot_receive_mint",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K2_s1",
+      "test": "test_revoked_wallet_cannot_receive_transfer",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K2_s1",
+      "test": "test_revoked_wallet_cannot_receive_via_transferFrom",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K2_s1",
+      "test": "test_unrevoked_investor_still_receives_after_other_revocation",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K3_s1",
+      "test": "test_identityWithoutClaimCannotReceive",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K3_s1",
+      "test": "test_requiredTopicsListNotEmpty",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K3_s1",
+      "test": "test_revokedClaimBlocksReceiving",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K3_s1",
+      "test": "test_verifiedInvestorsStillWork",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J1_s1",
+      "test": "test_countryChangeBlocksAndUnblocksReceiving",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J1_s1",
+      "test": "test_mintToRestrictedCountryInvestorReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J1_s1",
+      "test": "test_transferFromToRestrictedCountryInvestorReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J1_s1",
+      "test": "test_transferToRestrictedCountryInvestorReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J2_s1",
+      "test": "test_changeToUnrestrictedCountryStillReceives",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J2_s1",
+      "test": "test_mintBlockedAfterCountryChangedToRestricted",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J2_s1",
+      "test": "test_receiveWorksBeforeBlockedDuringAndAllowedAfterRestore",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J2_s1",
+      "test": "test_transferBlockedAfterCountryChangedToRestricted",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J3_s1",
+      "test": "test_countryChangeToRestrictedBlocksReceiving",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J3_s1",
+      "test": "test_countryModuleIsBoundToCompliance",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V07",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J3_s1",
+      "test": "test_mintToRestrictedCountryReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J3_s1",
+      "test": "test_transferToRestrictedBlockedButAllowedWorks",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H1_s1",
+      "test": "test_mintAboveCapReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H1_s1",
+      "test": "test_mintToSecondWalletOfSameIdentityOverCapReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H1_s1",
+      "test": "test_smallTransferWithinCapWorks",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H1_s1",
+      "test": "test_transferPushingIdentityOverCapReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H2_s1",
+      "test": "test_mintToSecondWalletCountsAgainstSameIdentityCap",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H2_s1",
+      "test": "test_transferBetweenOwnWalletsAllowed",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H2_s1",
+      "test": "test_transferFromOtherIdentityToSecondWalletRespectsSharedCap",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H2_s1",
+      "test": "test_twoWalletsCanFillCapButNotExceed",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H3_s1",
+      "test": "test_burnAndSameIdentityTransferKeepTrackedEqualReal",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H3_s1",
+      "test": "test_forcedTransferKeepsTrackedEqualReal",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V12",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H3_s1",
+      "test": "test_mintKeepsTrackedEqualReal",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H3_s1",
+      "test": "test_transferBetweenIdentitiesKeepsTrackedEqualReal",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H4_s1",
+      "test": "test_cap_cumulativeEnforced",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H4_s1",
+      "test": "test_cap_exactBoundary",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H4_s1",
+      "test": "test_mintAboveCapBlocked",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H4_s1",
+      "test": "test_normalMintBelowCapWorks",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    }
+  ]
+}

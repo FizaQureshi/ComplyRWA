@@ -98,6 +98,15 @@ def test_extract_solidity():
     assert any("arguments" in p for p in probs), probs
 
 
+def test_fixture_name_clash_only():
+    helper = TEAM_MOCK.replace("function test_K1_mock_a()", "function _myHelper() internal {}\n    function test_K1_mock_a()")
+    _, probs = prompts.extract_solidity(helper, "Cand_K1_mock", {"_mint", "_transfer"})
+    assert probs == [], probs                      # a new underscore helper is fine
+    clash = TEAM_MOCK.replace("function test_K1_mock_a()", "function _mint() internal {}\n    function test_K1_mock_a()")
+    _, probs = prompts.extract_solidity(clash, "Cand_K1_mock", {"_mint", "_transfer"})
+    assert probs == ["defines a fixture function (_mint)"], probs
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

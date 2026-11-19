@@ -71,8 +71,15 @@ def generator_prompt(rule, n_tests=4, batch="b1", policy_text=None):
 _FENCE = re.compile(r"```(?:solidity|sol)?\s*\n(.*?)```", re.S)
 
 
-def extract_solidity(text, expected_name=None):
+def fixture_function_names():
+    """Names of all functions in the fixture API (from the slicer output)."""
+    api = (SLICES / "_fixture_api.txt").read_text(encoding="utf-8")
+    return set(re.findall(r"function\s+(\w+)", api))
+
+
+def extract_solidity(text, expected_name=None, fixture_names=None):
     """Pull the Solidity file out of a model answer. Returns (code, problems).
+    fixture_names (optional): names the test file must not redefine.
     code is None when there is no code block. A problem list does not stop the pipeline:
     the validity filter (step 4.2) is the real judge; this only explains early failures."""
     problems = []
@@ -94,8 +101,10 @@ def extract_solidity(text, expected_name=None):
         problems.append("defines setUp (not allowed)")
     if re.search(r"function\s+invariant_", code):
         problems.append("has invariant_ function (not allowed)")
-    if re.search(r"function\s+_\w+", code):
-        problems.append("defines an underscore function (may clash with fixture hooks)")
+    if fixture_names:
+        for fn in re.findall(r"function\s+(\w+)", code):
+            if fn in fixture_names:
+                problems.append(f"defines a fixture function ({fn})")
     if re.search(r"function\s+test\w*\(\s*[^)\s]", code):
         problems.append("test function with arguments (not allowed)")
     if "vm.ffi" in code:

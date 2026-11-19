@@ -1,0 +1,12 @@
+{
+ "text": "```solidity\npragma solidity ^0.8.17;\nimport \"../../test/ComplyFixture.sol\";\n\ncontract Cand_H4_s1 is ComplyFixture {\n    // A normal mint well below the policy cap must work (the cap is not 0).\n    function test_normalMintBelowCapWorks() public {\n        uint256 amount = CAP / 10;\n        require(amount > 0, \"cap too small\");\n        uint256 before = token.balanceOf(a1);\n        _mint(a1, amount);\n        assertEq(token.balanceOf(a1), before + amount);\n    }\n\n    // A mint above the policy cap must be blocked (the cap is not max uint256 or too high).\n    function test_mintAboveCapBlocked() public {\n        uint256 before = token.balanceOf(b);\n        vm.prank(agent);\n        vm.expectRevert();\n        token.mint(b, CAP + 1);\n        assertEq(token.balanceOf(b), before);\n    }\n\n    // Exactly the cap is allowed, one more unit is not (same identity, other wallet).\n    function test_cap_exactBoundary() public {\n        uint256 held = _idBalance(idA);\n        require(held < CAP, \"already at cap\");\n        uint256 fill = CAP - held;\n        uint256 before = token.balanceOf(a1);\n        _mint(a1, fill);\n        assertEq(token.balanceOf(a1), before + fill);\n        assertEq(_idBalance(idA), CAP);\n\n        uint256 beforeA2 = token.balanceOf(a2);\n        vm.prank(agent);\n        vm.expectRevert();\n        token.mint(a2, 1);\n        assertEq(token.balanceOf(a2), beforeA2);\n    }\n\n    // Cap is enforced cumulatively: after partial fill, an amount pushing over CAP reverts.\n    function test_cap_cumulativeEnforced() public {\n        uint256 held = _idBalance(idB);\n        require(held < CAP, \"already at cap\");\n        uint256 remaining = CAP - held;\n        uint256 half = remaining / 2;\n        require(half > 0, \"no room\");\n        _mint(b, half);\n        uint256 balAfter = token.balanceOf(b);\n\n        vm.prank(agent);\n        vm.expectRevert();\n        token.mint(b, remaining - half + 1);\n        assertEq(token.balanceOf(b), balAfter);\n    }\n}\n```",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 6020,
+  "output_tokens": 2021
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.03225,
+ "tag": "generator:H4:s1",
+ "created": "2026-11-20 02:23:13"
+}
