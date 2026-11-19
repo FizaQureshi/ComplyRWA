@@ -1,0 +1,82 @@
+```solidity
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_K2_e1 is ComplyFixture {
+    // Policy: once Bob's KYC is revoked, his wallet must not receive tokens
+    // through transfer, mint or transferFrom.
+
+    function test_revokedKycCannotReceiveTransfer() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+
+        // Control: while Bob's KYC is valid, a transfer to him goes through.
+        uint256 bBefore = token.balanceOf(b);
+        vm.prank(a1);
+        assertTrue(token.transfer(b, amt / 2));
+        assertEq(token.balanceOf(b), bBefore + amt / 2);
+
+        // Revoke Bob's KYC claim.
+        _revokeClaim(idB);
+
+        // A transfer into Bob's wallet must now fail and move nothing.
+        uint256 a1Before = token.balanceOf(a1);
+        uint256 bAfter = token.balanceOf(b);
+        vm.expectRevert(bytes("Transfer not possible"));
+        vm.prank(a1);
+        token.transfer(b, amt / 4);
+
+        assertEq(token.balanceOf(b), bAfter);
+        assertEq(token.balanceOf(a1), a1Before);
+    }
+
+    function test_revokedKycCannotReceiveMint() public {
+        uint256 amt = CAP / 10;
+        uint256 bBefore = token.balanceOf(b);
+
+        _revokeClaim(idB);
+
+        vm.expectRevert(bytes("Identity is not verified."));
+        vm.prank(agent);
+        token.mint(b, amt);
+
+        assertEq(token.balanceOf(b), bBefore);
+    }
+
+    function test_revocationOfBobDoesNotBlockAliceWallets() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+
+        // Revoke Bob only. Alice's identity still has a valid KYC claim.
+        _revokeClaim(idB);
+
+        uint256 a1Before = token.balanceOf(a1);
+        uint256 a2Before = token.balanceOf(a2);
+        vm.prank(a1);
+        assertTrue(token.transfer(a2, amt / 2));
+
+        assertEq(token.balanceOf(a1), a1Before - amt / 2);
+        assertEq(token.balanceOf(a2), a2Before + amt / 2);
+    }
+
+    function test_revokedKycCannotReceiveTransferFrom() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+
+        // a1 approves a2 as a spender. The spender tries to pull funds into Bob's revoked wallet.
+        vm.prank(a1);
+        assertTrue(token.approve(a2, amt / 2));
+
+        _revokeClaim(idB);
+
+        uint256 bBefore = token.balanceOf(b);
+        uint256 a1Before = token.balanceOf(a1);
+        vm.expectRevert(bytes("Transfer not possible"));
+        vm.prank(a2);
+        token.transferFrom(a1, b, amt / 2);
+
+        assertEq(token.balanceOf(b), bBefore);
+        assertEq(token.balanceOf(a1), a1Before);
+    }
+}
+```

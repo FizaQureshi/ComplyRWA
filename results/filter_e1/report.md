@@ -1,0 +1,22 @@
+| contract | test | outcome | reason | notes |
+|---|---|---|---|---|
+| Cand_K2_e1 | test_revocationOfBobDoesNotBlockAliceWallets | VACUOUS | passes on all 12 variants it ran on | ran on 5/8 clean, 12/13 variants |
+| Cand_K2_e1 | test_revokedKycCannotReceiveMint | KEEP | fails on variants: V01 V02 V03 V04 | ran on 5/8 clean, 12/13 variants |
+| Cand_K2_e1 | test_revokedKycCannotReceiveTransfer | KEEP | fails on variants: V01 V02 V03 V04 | ran on 5/8 clean, 12/13 variants |
+| Cand_K2_e1 | test_revokedKycCannotReceiveTransferFrom | KEEP | fails on variants: V01 V02 V03 V04 | ran on 5/8 clean, 12/13 variants |
+| Cand_J2_e1 | test_J2_allowedCountryTransferStillWorks | VACUOUS | passes on all 12 variants it ran on | ran on 5/8 clean, 12/13 variants |
+| Cand_J2_e1 | test_J2_restoringAllowedCountryReenablesReceiving | KEEP | fails on variants: V05 V06 V07 V08 | ran on 5/8 clean, 12/13 variants |
+| Cand_J2_e1 | test_J2_restrictedCountryUpdateBlocksMint | KEEP | fails on variants: V05 V06 V07 V08 | ran on 5/8 clean, 12/13 variants |
+| Cand_J2_e1 | test_J2_restrictedCountryUpdateBlocksTransfer | KEEP | fails on variants: V05 V06 V07 V08 | ran on 5/8 clean, 12/13 variants |
+| Cand_J3_e1 | test_J3_allowedCountryStillReceivesTokens | VACUOUS | passes on all 12 variants it ran on | ran on 5/8 clean, 12/13 variants |
+| Cand_J3_e1 | test_J3_restrictedCountriesAreConfiguredInModule | KEEP | fails on variants: V05 V08 | ran on 5/8 clean, 12/13 variants |
+| Cand_J3_e1 | test_J3_restrictedCountryMintBlockedWhileModuleBound | KEEP | fails on variants: V05 V07 V08 | ran on 5/8 clean, 12/13 variants |
+| Cand_J3_e1 | test_J3_transferIntoRestrictedCountryBlocked | KEEP | fails on variants: V05 V07 V08 | ran on 5/8 clean, 12/13 variants |
+| Cand_H2_e1 | test_H2_fullIdentityDoesNotBlockOtherIdentity | KEEP | fails on variants: V09 V10 | ran on 5/8 clean, 12/13 variants |
+| Cand_H2_e1 | test_H2_mintToSecondWalletCountsAgainstIdentityCap | KEEP | fails on variants: V09 V10 V13 | ran on 5/8 clean, 12/13 variants |
+| Cand_H2_e1 | test_H2_transferIntoSecondWalletCountsAgainstIdentityCap | KEEP | fails on variants: V09 V10 V13 | ran on 5/8 clean, 12/13 variants |
+| Cand_H2_e1 | test_H2_walletsOfSameIdentityCanFillSharedCapExactly | KEEP | fails on variants: V09 V10 | ran on 5/8 clean, 12/13 variants |
+| Cand_H4_e1 | test_H4_capIsNotMaxUint256 | KEEP | fails on variants: V13 | ran on 5/8 clean, 12/13 variants |
+| Cand_H4_e1 | test_H4_capIsNotZero | VACUOUS | passes on all 12 variants it ran on | ran on 5/8 clean, 12/13 variants |
+| Cand_H4_e1 | test_H4_capMatchesPolicyNumber | KEEP | fails on variants: V13 | ran on 5/8 clean, 12/13 variants |
+| Cand_H4_e1 | test_H4_normalMintWithinCapWorks | VACUOUS | passes on all 12 variants it ran on | ran on 5/8 clean, 12/13 variants |

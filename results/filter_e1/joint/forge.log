@@ -1,0 +1,747 @@
+Compiling 10 files with Solc 0.8.17
+Solc 0.8.17 finished in 63.96s
+Compiler run successful with warnings:
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:34:9:
+   |
+34 |         IIdentity _identity,
+   |         ^^^^^^^^^^^^^^^^^^^
+
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:35:9:
+   |
+35 |         uint256 claimTopic,
+   |         ^^^^^^^^^^^^^^^^^^
+
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:36:9:
+   |
+36 |         bytes memory sig,
+   |         ^^^^^^^^^^^^^^^^
+
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:37:9:
+   |
+37 |         bytes memory data)
+   |         ^^^^^^^^^^^^^^^^^
+
+Warning (2018): Function state mutability can be restricted to pure
+   --> T-REX/contracts/compliance/modular/modules/CountryRestrictModule.sol:207:5:
+    |
+207 |     function canComplianceBind(address /*_compliance*/) external view override returns (bool) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to pure
+   --> test/ComplyFixture.sol:205:5:
+    |
+205 |     function _rsvFor(uint256 key, Identity id, uint256 topic, bytes memory data)
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to view
+ --> candidates/e1/Cand_H4_e1.sol:7:5:
+  |
+7 |     function test_H4_capIsNotZero() public {
+  |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to view
+  --> candidates/e1/Cand_H4_e1.sol:18:5:
+   |
+18 |     function test_H4_capIsNotMaxUint256() public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to view
+  --> candidates/e1/Cand_H4_e1.sol:29:5:
+   |
+29 |     function test_H4_capMatchesPolicyNumber() public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to view
+  --> candidates/e1/Cand_J3_e1.sol:35:5:
+   |
+35 |     function test_J3_restrictedCountriesAreConfiguredInModule() public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to pure
+  --> variants/ClaimIssuerV02.sol:33:5:
+   |
+33 |     function isClaimValid(
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_C08
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 264478)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.12ms (1.02ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V10
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 39150)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 56513)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 274039)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 13.13ms (938.10µs CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V08
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 264663)
+[FAIL: RESTRICTED country must be set as restricted in the module] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 20537)
+[FAIL: next call did not revert as expected] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 271472)
+[FAIL: next call did not revert as expected] test_J3_transferIntoRestrictedCountryBlocked() (gas: 523094)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 14.70ms (5.53ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V04
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 404635)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 599928)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 170779)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 381686)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 17.87ms (7.31ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V06
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 772793)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 480640)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 711339)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 740999)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 17.77ms (8.82ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V01
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 777173)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 483560)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 715719)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 745379)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 16.64ms (6.85ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_C05
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 772757)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 480616)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 711303)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 740963)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 17.05ms (8.67ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_C01
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 772793)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 480640)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 711339)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 740999)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 17.28ms (8.84ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V12
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 281578)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 7.93ms (1.09ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V01
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 283038)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.47ms (955.10µs CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V09
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 216837)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 175488)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 387758)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.34ms (2.16ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V05
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 534723)
+[FAIL: next call did not revert as expected] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 578238)
+[FAIL: assertion failed] test_J2_restrictedCountryUpdateBlocksMint() (gas: 20115)
+[FAIL: assertion failed] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 268819)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 11.91ms (5.47ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V02
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 724469)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 448424)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 663015)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 692675)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.44ms (5.42ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V02
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 265470)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 7.74ms (992.30µs CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V07
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 710252)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 442800)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 652652)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 678417)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 15.65ms (9.06ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V13
+[FAIL: a max-uint256 holding must be refused] test_H4_capIsNotMaxUint256() (gas: 64234)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[FAIL: one unit above the policy cap must be refused] test_H4_capMatchesPolicyNumber() (gas: 105849)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 281578)
+Suite result: FAILED. 2 passed; 2 failed; 0 skipped; finished in 12.55ms (5.83ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_C06
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 772793)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 480640)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 711339)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 740999)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 15.46ms (6.72ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V10
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 257124)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 175488)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 428045)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.97ms (3.12ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V06
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 534723)
+[FAIL: next call did not revert as expected] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 563549)
+[FAIL: next call did not revert as expected] test_J2_restrictedCountryUpdateBlocksMint() (gas: 317187)
+[FAIL: next call did not revert as expected] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 574830)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 12.33ms (5.22ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V03
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 278932)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.51ms (1.00ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_C01
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 534723)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 795060)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 235823)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 511774)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 13.85ms (5.10ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V08
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 772793)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 480640)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 711339)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 740999)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 13.69ms (6.99ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V03
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 764855)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 475348)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 703401)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 733061)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 14.99ms (7.75ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V12
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 264663)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 175488)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 435584)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.64ms (2.53ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_C08
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 721493)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 446440)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 677139)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 689699)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 15.35ms (7.46ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V04
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 216534)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 7.28ms (652.00µs CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V07
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 492988)
+[FAIL: next call did not revert as expected] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 536503)
+[FAIL: next call did not revert as expected] test_J2_restrictedCountryUpdateBlocksMint() (gas: 311029)
+[FAIL: next call did not revert as expected] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 550284)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 16.14ms (6.07ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_C02
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 990884)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 645529)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 929429)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 959089)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 40.75ms (32.18ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V09
+[FAIL: assertion failed: 0 != 1000] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 417973)
+[FAIL: next call did not revert as expected] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 427544)
+[FAIL: assertion failed: 0 != 500] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 421246)
+[FAIL: assertion failed: 0 != 1000] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 615944)
+Suite result: FAILED. 0 passed; 4 failed; 0 skipped; finished in 11.27ms (4.87ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V13
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 264663)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 175488)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 435584)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.02ms (2.51ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V05
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 281578)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.11ms (1.04ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V04
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 577661)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 350552)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 516207)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 545867)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.88ms (3.56ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_C02
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 317864)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 257933)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 600473)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.96ms (4.05ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_C02
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 670368)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 983905)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 289023)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 647419)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 17.32ms (7.74ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V08
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 534723)
+[FAIL: next call did not revert as expected] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 578238)
+[FAIL: assertion failed] test_J2_restrictedCountryUpdateBlocksMint() (gas: 20115)
+[FAIL: assertion failed] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 268819)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 10.16ms (3.51ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V06
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 281578)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.27ms (927.60µs CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V09
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 427912)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 688249)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 235823)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 463948)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.24ms (4.36ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V10
+[FAIL: assertion failed: 0 != 1000] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 498547)
+[FAIL: next call did not revert as expected] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 508118)
+[FAIL: assertion failed: 0 != 500] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 501820)
+[FAIL: assertion failed: 0 != 1000] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 742210)
+Suite result: FAILED. 0 passed; 4 failed; 0 skipped; finished in 11.85ms (5.16ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_C01
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 594868)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 770662)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 556250)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.58ms (5.63ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_C05
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 264663)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 51612)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 175488)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 435584)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.97ms (2.34ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V05
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 772793)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 480640)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 711339)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 740999)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 13.57ms (6.73ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_C05
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 534723)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 795060)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 235823)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 511774)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.99ms (5.40ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V02
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 248555)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 159380)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 403368)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.81ms (3.10ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V07
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 260731)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.29ms (1.18ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_C06
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 264663)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 175488)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 435584)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.89ms (2.51ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_C08
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 247563)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 175488)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 401384)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.10ms (2.47ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V08
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 281578)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 7.53ms (940.40µs CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V03
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 262017)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 172842)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 430292)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.43ms (2.53ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V12
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 772793)
+[PASS] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 480640)
+[PASS] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 711339)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 740999)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 14.19ms (7.00ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_C02
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 759769)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 258504)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 930266)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 662654)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 15.79ms (7.28ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_C06
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 534723)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 795060)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 235823)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 511774)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 15.21ms (5.19ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_C02
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 334779)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.85ms (1.36ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V09
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 233752)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 7.65ms (921.80µs CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V01
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 266123)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 176948)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 438504)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.47ms (2.62ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V04
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 199619)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 110444)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 305496)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.44ms (1.25ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V10
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 513891)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 774228)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 235823)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 504235)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 25.45ms (5.87ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_C05
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 594868)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 770662)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 556250)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.40ms (5.50ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V13
+[PASS] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 772793)
+[FAIL: next call did not revert as expected] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 506096)
+[FAIL: next call did not revert as expected] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 745436)
+[PASS] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 740999)
+Suite result: FAILED. 2 passed; 2 failed; 0 skipped; finished in 14.28ms (7.28ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_C08
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 500523)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 760860)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 235823)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 477574)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 13.05ms (5.43ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V02
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 562652)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveMint() (gas: 341443)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransfer() (gas: 792790)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransferFrom() (gas: 636043)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 11.87ms (5.10ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_C05
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 281578)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.15ms (1.03ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V07
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 553133)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 728927)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 535403)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.82ms (4.96ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V12
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 534723)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 795060)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 235823)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 511774)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.39ms (5.34ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_C01
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 281578)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 7.94ms (1.08ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V05
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 264663)
+[FAIL: RESTRICTED country must be set as restricted in the module] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 20537)
+[FAIL: next call did not revert as expected] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 271472)
+[FAIL: next call did not revert as expected] test_J3_transferIntoRestrictedCountryBlocked() (gas: 523094)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 14.23ms (6.70ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_C06
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 594868)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 770662)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 556250)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.68ms (5.43ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_C06
+[PASS] test_H4_capIsNotMaxUint256() (gas: 36660)
+[PASS] test_H4_capIsNotZero() (gas: 60914)
+[PASS] test_H4_capMatchesPolicyNumber() (gas: 78277)
+[PASS] test_H4_normalMintWithinCapWorks() (gas: 281578)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 7.85ms (1.10ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V03
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 589576)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveMint() (gas: 354905)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransfer() (gas: 833176)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransferFrom() (gas: 662967)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 12.51ms (6.15ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V01
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 537643)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 799440)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 237283)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 514694)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 13.42ms (4.96ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V06
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 264663)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 175488)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 435584)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.56ms (2.74ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V08
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 594868)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 770662)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 556250)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.60ms (5.81ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V13
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 534723)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 795060)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 235823)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 511774)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.09ms (5.19ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V04
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 467292)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveMint() (gas: 292519)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransfer() (gas: 645994)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransferFrom() (gas: 540683)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 11.41ms (4.54ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V07
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 243816)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[FAIL: country module must be bound to compliance] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 13362)
+[FAIL: next call did not revert as expected] test_J3_transferIntoRestrictedCountryBlocked() (gas: 481359)
+Suite result: FAILED. 2 passed; 2 failed; 0 skipped; finished in 9.78ms (2.03ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V02
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 502507)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 746736)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 219715)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 479558)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.11ms (3.94ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_C08
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 543568)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 736462)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 522050)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 18.59ms (6.34ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_C01
+[PASS] test_J3_allowedCountryStillReceivesTokens() (gas: 264663)
+[PASS] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 34595)
+[PASS] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 175488)
+[PASS] test_J3_transferIntoRestrictedCountryBlocked() (gas: 435584)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.96ms (2.40ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V03
+[PASS] test_J2_allowedCountryTransferStillWorks() (gas: 529431)
+[PASS] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 787122)
+[PASS] test_J2_restrictedCountryUpdateBlocksMint() (gas: 233177)
+[PASS] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 506482)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.81ms (5.31ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V05
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 594868)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 770662)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 556250)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 21.89ms (6.04ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V01
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 597800)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveMint() (gas: 403468)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransfer() (gas: 889951)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransferFrom() (gas: 715636)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 11.27ms (6.97ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V10
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 598736)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 749830)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 548711)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.42ms (4.95ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V12
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 594868)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 770662)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 556250)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.74ms (5.02ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V13
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 594868)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 770662)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 556250)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.34ms (4.35ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V06
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 594868)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 770662)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 556250)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 23.08ms (5.50ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V09
+[PASS] test_revocationOfBobDoesNotBlockAliceWallets() (gas: 512757)
+[PASS] test_revokedKycCannotReceiveMint() (gas: 234545)
+[PASS] test_revokedKycCannotReceiveTransfer() (gas: 663851)
+[PASS] test_revokedKycCannotReceiveTransferFrom() (gas: 508424)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 22.17ms (4.51ms CPU time)
+
+Ran 85 test suites in 157.91ms (1.09s CPU time): 296 tests passed, 44 failed, 0 skipped (340 total tests)
+
+Failing tests:
+Encountered 4 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V09
+[FAIL: assertion failed: 0 != 1000] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 417973)
+[FAIL: next call did not revert as expected] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 427544)
+[FAIL: assertion failed: 0 != 500] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 421246)
+[FAIL: assertion failed: 0 != 1000] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 615944)
+
+Encountered 4 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V10
+[FAIL: assertion failed: 0 != 1000] test_H2_fullIdentityDoesNotBlockOtherIdentity() (gas: 498547)
+[FAIL: next call did not revert as expected] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 508118)
+[FAIL: assertion failed: 0 != 500] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 501820)
+[FAIL: assertion failed: 0 != 1000] test_H2_walletsOfSameIdentityCanFillSharedCapExactly() (gas: 742210)
+
+Encountered 2 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_H2_e1_V13
+[FAIL: next call did not revert as expected] test_H2_mintToSecondWalletCountsAgainstIdentityCap() (gas: 506096)
+[FAIL: next call did not revert as expected] test_H2_transferIntoSecondWalletCountsAgainstIdentityCap() (gas: 745436)
+
+Encountered 2 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_H4_e1_V13
+[FAIL: a max-uint256 holding must be refused] test_H4_capIsNotMaxUint256() (gas: 64234)
+[FAIL: one unit above the policy cap must be refused] test_H4_capMatchesPolicyNumber() (gas: 105849)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V05
+[FAIL: next call did not revert as expected] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 578238)
+[FAIL: assertion failed] test_J2_restrictedCountryUpdateBlocksMint() (gas: 20115)
+[FAIL: assertion failed] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 268819)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V06
+[FAIL: next call did not revert as expected] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 563549)
+[FAIL: next call did not revert as expected] test_J2_restrictedCountryUpdateBlocksMint() (gas: 317187)
+[FAIL: next call did not revert as expected] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 574830)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V07
+[FAIL: next call did not revert as expected] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 536503)
+[FAIL: next call did not revert as expected] test_J2_restrictedCountryUpdateBlocksMint() (gas: 311029)
+[FAIL: next call did not revert as expected] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 550284)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J2_e1_V08
+[FAIL: next call did not revert as expected] test_J2_restoringAllowedCountryReenablesReceiving() (gas: 578238)
+[FAIL: assertion failed] test_J2_restrictedCountryUpdateBlocksMint() (gas: 20115)
+[FAIL: assertion failed] test_J2_restrictedCountryUpdateBlocksTransfer() (gas: 268819)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V05
+[FAIL: RESTRICTED country must be set as restricted in the module] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 20537)
+[FAIL: next call did not revert as expected] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 271472)
+[FAIL: next call did not revert as expected] test_J3_transferIntoRestrictedCountryBlocked() (gas: 523094)
+
+Encountered 2 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V07
+[FAIL: country module must be bound to compliance] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 13362)
+[FAIL: next call did not revert as expected] test_J3_transferIntoRestrictedCountryBlocked() (gas: 481359)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J3_e1_V08
+[FAIL: RESTRICTED country must be set as restricted in the module] test_J3_restrictedCountriesAreConfiguredInModule() (gas: 20537)
+[FAIL: next call did not revert as expected] test_J3_restrictedCountryMintBlockedWhileModuleBound() (gas: 271472)
+[FAIL: next call did not revert as expected] test_J3_transferIntoRestrictedCountryBlocked() (gas: 523094)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V01
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveMint() (gas: 403468)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransfer() (gas: 889951)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransferFrom() (gas: 715636)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V02
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveMint() (gas: 341443)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransfer() (gas: 792790)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransferFrom() (gas: 636043)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V03
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveMint() (gas: 354905)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransfer() (gas: 833176)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransferFrom() (gas: 662967)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K2_e1_V04
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveMint() (gas: 292519)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransfer() (gas: 645994)
+[FAIL: next call did not revert as expected] test_revokedKycCannotReceiveTransferFrom() (gas: 540683)
+
+Encountered a total of 44 failing tests, 296 tests succeeded
+
+Tip: Run `forge test --rerun` to retry only the 44 failed tests
+Tip: Run `forge test --debug --match-test <TEST_NAME>` to inspect one failing test in the debugger
+

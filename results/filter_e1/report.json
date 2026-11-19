@@ -1,0 +1,194 @@
+{
+  "summary": {
+    "tests": 20,
+    "KEEP": 15,
+    "VACUOUS": 5,
+    "REJECT": 0,
+    "valid_not_rejected": 20,
+    "valid_and_non_vacuous": 15,
+    "executor_seconds": 69.5,
+    "wall_seconds": 69.8
+  },
+  "rows": [
+    {
+      "contract": "Cand_K2_e1",
+      "test": "test_revocationOfBobDoesNotBlockAliceWallets",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K2_e1",
+      "test": "test_revokedKycCannotReceiveMint",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K2_e1",
+      "test": "test_revokedKycCannotReceiveTransfer",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K2_e1",
+      "test": "test_revokedKycCannotReceiveTransferFrom",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J2_e1",
+      "test": "test_J2_allowedCountryTransferStillWorks",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J2_e1",
+      "test": "test_J2_restoringAllowedCountryReenablesReceiving",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J2_e1",
+      "test": "test_J2_restrictedCountryUpdateBlocksMint",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J2_e1",
+      "test": "test_J2_restrictedCountryUpdateBlocksTransfer",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J3_e1",
+      "test": "test_J3_allowedCountryStillReceivesTokens",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J3_e1",
+      "test": "test_J3_restrictedCountriesAreConfiguredInModule",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J3_e1",
+      "test": "test_J3_restrictedCountryMintBlockedWhileModuleBound",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J3_e1",
+      "test": "test_J3_transferIntoRestrictedCountryBlocked",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H2_e1",
+      "test": "test_H2_fullIdentityDoesNotBlockOtherIdentity",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H2_e1",
+      "test": "test_H2_mintToSecondWalletCountsAgainstIdentityCap",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H2_e1",
+      "test": "test_H2_transferIntoSecondWalletCountsAgainstIdentityCap",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H2_e1",
+      "test": "test_H2_walletsOfSameIdentityCanFillSharedCapExactly",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H4_e1",
+      "test": "test_H4_capIsNotMaxUint256",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H4_e1",
+      "test": "test_H4_capIsNotZero",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H4_e1",
+      "test": "test_H4_capMatchesPolicyNumber",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V13",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H4_e1",
+      "test": "test_H4_normalMintWithinCapWorks",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    }
+  ]
+}

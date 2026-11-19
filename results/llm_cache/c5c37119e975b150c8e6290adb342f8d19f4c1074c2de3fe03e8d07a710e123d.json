@@ -1,0 +1,12 @@
+{
+ "text": "```solidity\npragma solidity ^0.8.17;\nimport \"../../test/ComplyFixture.sol\";\n\ncontract Cand_H4_e1 is ComplyFixture {\n\n    // Policy: the cap must not be 0. A one-unit holding must be allowed.\n    function test_H4_capIsNotZero() public {\n        uint256 held = _idBalance(idM);\n        assertTrue(held < CAP);\n        assertTrue(CAP > 0);\n        assertTrue(\n            maxBalanceModule.moduleCheck(address(0), m, 1, address(compliance)),\n            \"a one-unit holding must fit under the policy cap\"\n        );\n    }\n\n    // Policy: the cap must not be the maximum uint256. A holding of max must be refused.\n    function test_H4_capIsNotMaxUint256() public {\n        assertTrue(CAP < type(uint256).max);\n        uint256 held = _idBalance(idM);\n        assertTrue(held == 0, \"precondition: Mallory holds nothing\");\n        assertFalse(\n            maxBalanceModule.moduleCheck(address(0), m, type(uint256).max, address(compliance)),\n            \"a max-uint256 holding must be refused\"\n        );\n    }\n\n    // Policy: the cap equals the issuer's number. Filling exactly up to CAP is allowed, one more is not.\n    function test_H4_capMatchesPolicyNumber() public {\n        uint256 held = _idBalance(idM);\n        assertTrue(held < CAP);\n        uint256 room = CAP - held;\n        assertTrue(\n            maxBalanceModule.moduleCheck(address(0), m, room, address(compliance)),\n            \"filling exactly up to the policy cap must be allowed\"\n        );\n        assertFalse(\n            maxBalanceModule.moduleCheck(address(0), m, room + 1, address(compliance)),\n            \"one unit above the policy cap must be refused\"\n        );\n    }\n\n    // Normal allowed case: a small mint well within the cap succeeds and updates the balance.\n    function test_H4_normalMintWithinCapWorks() public {\n        uint256 heldB = _idBalance(idB);\n        assertTrue(heldB < CAP);\n        uint256 before = token.balanceOf(b);\n        _mint(b, 1);\n        assertEq(token.balanceOf(b), before + 1);\n    }\n}\n```",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 6020,
+  "output_tokens": 4632
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.002918,
+ "tag": "generator:H4:e1",
+ "created": "2026-11-20 02:15:16"
+}

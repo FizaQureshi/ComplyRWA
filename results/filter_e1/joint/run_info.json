@@ -1,0 +1,11 @@
+{
+  "tests": [
+    "candidates/e1/Cand_K2_e1.sol:Cand_K2_e1",
+    "candidates/e1/Cand_J2_e1.sol:Cand_J2_e1",
+    "candidates/e1/Cand_J3_e1.sol:Cand_J3_e1",
+    "candidates/e1/Cand_H2_e1.sol:Cand_H2_e1",
+    "candidates/e1/Cand_H4_e1.sol:Cand_H4_e1"
+  ],
+  "wrappers": 85,
+  "seconds": 69.53
+}

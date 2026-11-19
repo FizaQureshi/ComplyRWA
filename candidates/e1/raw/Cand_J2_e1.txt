@@ -1,0 +1,79 @@
+```solidity
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_J2_e1 is ComplyFixture {
+    // Policy: once a wallet's country is updated to a restricted one, it can no
+    // longer receive tokens. Tests below use fixture variables only (RESTRICTED, CAP).
+
+    function test_J2_restrictedCountryUpdateBlocksTransfer() public {
+        _mint(a1, CAP / 4);
+        assertTrue(countryModule.isCountryRestricted(address(compliance), RESTRICTED));
+
+        vm.prank(agent);
+        ir.updateCountry(b, RESTRICTED);
+
+        uint256 bBefore = token.balanceOf(b);
+        uint256 aBefore = token.balanceOf(a1);
+
+        vm.prank(a1);
+        vm.expectRevert(bytes("Transfer not possible"));
+        token.transfer(b, CAP / 10);
+
+        assertEq(token.balanceOf(b), bBefore);
+        assertEq(token.balanceOf(a1), aBefore);
+    }
+
+    function test_J2_restrictedCountryUpdateBlocksMint() public {
+        assertTrue(countryModule.isCountryRestricted(address(compliance), RESTRICTED));
+
+        vm.prank(agent);
+        ir.updateCountry(b, RESTRICTED);
+
+        uint256 bBefore = token.balanceOf(b);
+
+        vm.prank(agent);
+        vm.expectRevert(bytes("Compliance not followed"));
+        token.mint(b, CAP / 10);
+
+        assertEq(token.balanceOf(b), bBefore);
+    }
+
+    function test_J2_allowedCountryTransferStillWorks() public {
+        _mint(a1, CAP / 4);
+
+        uint256 bBefore = token.balanceOf(b);
+        uint256 aBefore = token.balanceOf(a1);
+
+        vm.prank(a1);
+        assertTrue(token.transfer(b, CAP / 10));
+
+        assertEq(token.balanceOf(b), bBefore + CAP / 10);
+        assertEq(token.balanceOf(a1), aBefore - CAP / 10);
+    }
+
+    function test_J2_restoringAllowedCountryReenablesReceiving() public {
+        _mint(a1, CAP / 4);
+
+        uint16 originalCountry = ir.investorCountry(b);
+        assertTrue(originalCountry != RESTRICTED);
+
+        vm.prank(agent);
+        ir.updateCountry(b, RESTRICTED);
+
+        uint256 bBefore = token.balanceOf(b);
+
+        vm.prank(a1);
+        vm.expectRevert(bytes("Transfer not possible"));
+        token.transfer(b, CAP / 10);
+        assertEq(token.balanceOf(b), bBefore);
+
+        vm.prank(agent);
+        ir.updateCountry(b, originalCountry);
+
+        vm.prank(a1);
+        assertTrue(token.transfer(b, CAP / 10));
+        assertEq(token.balanceOf(b), bBefore + CAP / 10);
+    }
+}
+```
