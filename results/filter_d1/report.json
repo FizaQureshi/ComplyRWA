@@ -1,0 +1,158 @@
+{
+  "summary": {
+    "tests": 16,
+    "KEEP": 13,
+    "VACUOUS": 3,
+    "REJECT": 0,
+    "valid_not_rejected": 16,
+    "valid_and_non_vacuous": 13,
+    "executor_seconds": 77.1,
+    "wall_seconds": 77.6
+  },
+  "rows": [
+    {
+      "contract": "Cand_K1_d1",
+      "test": "test_mintToUnverifiedWalletReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_d1",
+      "test": "test_transferToUnverifiedWalletReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_d1",
+      "test": "test_transferToVerifiedInvestorWorks",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_d1",
+      "test": "test_transferToWalletWithRevokedClaimReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K3_d1",
+      "test": "test_K3_mintToUnclaimedWalletRejected",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K3_d1",
+      "test": "test_K3_requiredTopicsNonEmptyAndIncludeKyc",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K3_d1",
+      "test": "test_K3_transferToKycWalletWorks",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K3_d1",
+      "test": "test_K3_transferToUnclaimedWalletRejected",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J1_d1",
+      "test": "test_mintToRestrictedCountryIsBlocked",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J1_d1",
+      "test": "test_transferFromToRestrictedCountryIsBlocked",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J1_d1",
+      "test": "test_transferToAllowedCountryStillWorks",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_J1_d1",
+      "test": "test_transferToRestrictedCountryIsBlocked",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V05 V06 V07 V08",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H3_d1",
+      "test": "test_H3_rejectedTransferDoesNotDrift",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04 V09 V10",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H3_d1",
+      "test": "test_H3_sameIdentityTransferKeepsTrackedTotal",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H3_d1",
+      "test": "test_H3_trackedMatchesRealAfterBurnAndForcedTransfer",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10 V12",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_H3_d1",
+      "test": "test_H3_trackedMatchesRealAfterMintAndTransfers",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V09 V10",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    }
+  ]
+}

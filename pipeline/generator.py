@@ -36,7 +36,7 @@ def main():
     ap.add_argument("--n", type=int, default=4, help="tests asked per rule")
     ap.add_argument("--model", default=cfg.get("default_model", "haiku"))
     ap.add_argument("--mode", default=cfg.get("default_mode", "mock"), choices=["mock", "replay", "live"])
-    ap.add_argument("--max-tokens", type=int, default=6000)
+    ap.add_argument("--max-tokens", type=int, default=12000)
     ap.add_argument("--cap", type=float, default=None)
     ap.add_argument("--no-filter", action="store_true")
     a = ap.parse_args()

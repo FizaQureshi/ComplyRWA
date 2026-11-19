@@ -1,0 +1,90 @@
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_J1_d1 is ComplyFixture {
+    // Policy: an investor registered in a restricted country may not receive tokens.
+    // Each test moves Bob (b, KYC-verified, INDIA in the baseline) into a restricted
+    // country through the agent's country update, then tries to deliver tokens to him.
+
+    function test_transferToRestrictedCountryIsBlocked() public {
+        uint256 amt = CAP / 10;
+
+        // Put Alice's wallet a1 in a position to send tokens.
+        _mint(a1, amt);
+
+        // Move the receiver into a restricted country.
+        vm.prank(agent);
+        ir.updateCountry(b, RESTRICTED);
+
+        uint256 aBefore = token.balanceOf(a1);
+        uint256 bBefore = token.balanceOf(b);
+
+        vm.prank(a1);
+        vm.expectRevert(bytes("Transfer not possible"));
+        token.transfer(b, amt);
+
+        // Policy outcome: no tokens moved to the restricted-country investor.
+        assertEq(token.balanceOf(a1), aBefore, "sender balance changed on blocked transfer");
+        assertEq(token.balanceOf(b), bBefore, "restricted-country investor received tokens");
+    }
+
+    function test_mintToRestrictedCountryIsBlocked() public {
+        uint256 amt = CAP / 10;
+
+        vm.prank(agent);
+        ir.updateCountry(b, RESTRICTED);
+
+        uint256 supplyBefore = token.totalSupply();
+        uint256 bBefore = token.balanceOf(b);
+
+        vm.prank(agent);
+        vm.expectRevert(bytes("Compliance not followed"));
+        token.mint(b, amt);
+
+        // Policy outcome: no new tokens were created for the restricted-country investor.
+        assertEq(token.balanceOf(b), bBefore, "restricted-country investor was minted tokens");
+        assertEq(token.totalSupply(), supplyBefore, "supply grew for a restricted-country receiver");
+    }
+
+    function test_transferToAllowedCountryStillWorks() public {
+        uint256 amt = CAP / 10;
+
+        // Alice (INDIA, KYC) mints to herself, then sends to Bob (INDIA, KYC).
+        _mint(a1, amt);
+
+        uint256 aBefore = token.balanceOf(a1);
+        uint256 bBefore = token.balanceOf(b);
+
+        vm.prank(a1);
+        bool ok = token.transfer(b, amt);
+
+        assertTrue(ok, "transfer to an allowed-country investor returned false");
+        assertEq(token.balanceOf(a1), aBefore - amt, "sender balance wrong after allowed transfer");
+        assertEq(token.balanceOf(b), bBefore + amt, "allowed-country investor did not receive tokens");
+    }
+
+    function test_transferFromToRestrictedCountryIsBlocked() public {
+        uint256 amt = CAP / 10;
+
+        _mint(a1, amt);
+
+        // Bob is moved into a restricted country and approved as a spender of Alice's tokens.
+        vm.prank(agent);
+        ir.updateCountry(b, RESTRICTED);
+
+        vm.prank(a1);
+        token.approve(b, amt);
+        assertEq(token.allowance(a1, b), amt, "approval not set up");
+
+        uint256 aBefore = token.balanceOf(a1);
+        uint256 bBefore = token.balanceOf(b);
+
+        vm.prank(b);
+        vm.expectRevert(bytes("Transfer not possible"));
+        token.transferFrom(a1, b, amt);
+
+        // Policy outcome: a delegated transfer into a restricted country is also blocked.
+        assertEq(token.balanceOf(a1), aBefore, "sender balance changed on blocked transferFrom");
+        assertEq(token.balanceOf(b), bBefore, "restricted-country investor received tokens via transferFrom");
+    }
+}

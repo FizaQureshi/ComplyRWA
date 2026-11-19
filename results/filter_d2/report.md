@@ -1,0 +1,6 @@
+| contract | test | outcome | reason | notes |
+|---|---|---|---|---|
+| Cand_H1_d2 | test_mintPastCapIsRefused | KEEP | fails on variants: V09 V13 | ran on 5/8 clean, 12/13 variants |
+| Cand_H1_d2 | test_mintWithinCapSucceeds | KEEP | fails on variants: V09 V10 | ran on 5/8 clean, 12/13 variants |
+| Cand_H1_d2 | test_transferToSecondWalletCannotExceedIdentityCap | KEEP | fails on variants: V09 V10 V13 | ran on 5/8 clean, 12/13 variants |
+| Cand_H1_d2 | test_transferWithinIdentityCapSucceeds | KEEP | fails on variants: V09 V10 | ran on 5/8 clean, 12/13 variants |

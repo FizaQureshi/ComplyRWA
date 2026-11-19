@@ -1,0 +1,608 @@
+Compiling 9 files with Solc 0.8.17
+Solc 0.8.17 finished in 68.65s
+Compiler run successful with warnings:
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:34:9:
+   |
+34 |         IIdentity _identity,
+   |         ^^^^^^^^^^^^^^^^^^^
+
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:35:9:
+   |
+35 |         uint256 claimTopic,
+   |         ^^^^^^^^^^^^^^^^^^
+
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:36:9:
+   |
+36 |         bytes memory sig,
+   |         ^^^^^^^^^^^^^^^^
+
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:37:9:
+   |
+37 |         bytes memory data)
+   |         ^^^^^^^^^^^^^^^^^
+
+Warning (2018): Function state mutability can be restricted to pure
+   --> T-REX/contracts/compliance/modular/modules/CountryRestrictModule.sol:207:5:
+    |
+207 |     function canComplianceBind(address /*_compliance*/) external view override returns (bool) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to pure
+   --> test/ComplyFixture.sol:205:5:
+    |
+205 |     function _rsvFor(uint256 key, Identity id, uint256 topic, bytes memory data)
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to pure
+  --> variants/ClaimIssuerV02.sol:33:5:
+   |
+33 |     function isClaimValid(
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_C01
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 725732)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 643601)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 940682)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1274576)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 91.27ms (7.81ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V02
+[FAIL: next call did not revert as expected] test_H3_rejectedTransferDoesNotDrift() (gas: 690806)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 611385)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 908466)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1210144)
+Suite result: FAILED. 3 passed; 1 failed; 0 skipped; finished in 88.95ms (15.38ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V08
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 725732)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 643601)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 940682)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1274576)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 90.93ms (7.98ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_C01
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 235527)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 541801)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 516762)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 483611)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 89.12ms (6.05ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_C01
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 376824)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 499531)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 499842)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 89.08ms (6.07ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_C01
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 516654)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 378895)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 89.18ms (6.26ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_C08
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 708632)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 592301)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 906482)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1223276)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 92.38ms (7.89ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V04
+[FAIL: next call did not revert as expected] test_H3_rejectedTransferDoesNotDrift() (gas: 592922)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 513513)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 810594)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1014400)
+Suite result: FAILED. 3 passed; 1 failed; 0 skipped; finished in 105.28ms (5.90ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V09
+[FAIL: idB tracked != real: 0 != 100] test_H3_rejectedTransferDoesNotDrift() (gas: 270332)
+[FAIL: idA tracked != real: 0 != 100] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 486751)
+[FAIL: idA tracked != real: 0 != 100] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 243516)
+[FAIL: idA tracked != real: 0 != 100] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 418627)
+Suite result: FAILED. 0 passed; 4 failed; 0 skipped; finished in 33.97ms (14.17ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_C02
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 130864)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 483231)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 664420)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 606246)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 37.25ms (9.02ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V01
+[FAIL: next call did not revert as expected] test_H3_rejectedTransferDoesNotDrift() (gas: 770387)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 646521)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 943602)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1280416)
+Suite result: FAILED. 3 passed; 1 failed; 0 skipped; finished in 38.03ms (9.54ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_C02
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 133091)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 13406)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 652299)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 485302)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 25.99ms (10.38ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V03
+[FAIL: next call did not revert as expected] test_H3_rejectedTransferDoesNotDrift() (gas: 717730)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 638309)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 935390)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1263992)
+Suite result: FAILED. 3 passed; 1 failed; 0 skipped; finished in 42.86ms (11.68ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_C02
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 802880)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 808490)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 1076327)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1545866)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 32.34ms (11.57ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V10
+[FAIL: idB tracked != real: 0 != 100] test_H3_rejectedTransferDoesNotDrift() (gas: 308119)
+[FAIL: idA tracked != real: 0 != 100] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 570230)
+[FAIL: idA tracked != real: 0 != 100] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 281303)
+[FAIL: idA tracked != real: 0 != 100] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 496701)
+Suite result: FAILED. 0 passed; 4 failed; 0 skipped; finished in 10.70ms (3.36ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_C05
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 516654)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 378895)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.26ms (2.52ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_C05
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 376824)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 499531)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 499842)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.46ms (3.89ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V04
+[FAIL: next call did not revert as expected] test_mintToUnverifiedWalletReverts() (gas: 194674)
+[FAIL: next call did not revert as expected] test_transferToUnverifiedWalletReverts() (gas: 381151)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 369443)
+[FAIL: next call did not revert as expected] test_transferToWalletWithRevokedClaimReverts() (gas: 476800)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 9.93ms (2.90ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_C05
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 725732)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 643601)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 940682)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1274576)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 14.33ms (7.58ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_C08
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 342624)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 448231)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 465642)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.46ms (4.75ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V05
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 725732)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 643601)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 940682)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1274576)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 24.69ms (17.78ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_C06
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 516654)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 378895)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.86ms (2.68ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_C06
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 376824)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 499531)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 499842)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.21ms (3.88ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_C02
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 288727)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 677446)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 652407)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 619256)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 60.49ms (7.16ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V05
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 376824)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 499531)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 499842)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 19.08ms (12.84ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_C06
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 725732)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 643601)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 940682)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1274576)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 20.12ms (9.64ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V12
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 725732)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 643601)
+[FAIL: idA tracked != real: 75 != 50] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 787983)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1274576)
+Suite result: FAILED. 3 passed; 1 failed; 0 skipped; finished in 25.47ms (18.44ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V06
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 725732)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 643601)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 940682)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1274576)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 14.83ms (7.59ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V01
+[FAIL: next call did not revert as expected] test_mintToUnverifiedWalletReverts() (gas: 261178)
+[FAIL: next call did not revert as expected] test_transferToUnverifiedWalletReverts() (gas: 514159)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 502451)
+[FAIL: next call did not revert as expected] test_transferToWalletWithRevokedClaimReverts() (gas: 651753)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 26.62ms (11.37ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V06
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 376824)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 499531)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 499842)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.88ms (4.59ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_C05
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 235527)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 541801)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 516762)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 483611)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 14.00ms (4.71ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V10
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 369285)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 503399)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 492303)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.30ms (3.59ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V13
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 725732)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 643601)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 940682)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1274576)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 14.32ms (7.51ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V08
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 376824)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 499531)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 499842)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 29.90ms (3.87ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V02
+[FAIL: next call did not revert as expected] test_mintToUnverifiedWalletReverts() (gas: 243610)
+[FAIL: next call did not revert as expected] test_transferToUnverifiedWalletReverts() (gas: 479023)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 467315)
+[FAIL: next call did not revert as expected] test_transferToWalletWithRevokedClaimReverts() (gas: 572160)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 11.90ms (4.44ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_C08
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 487254)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 344695)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 38.54ms (30.68ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V04
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 170483)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 411713)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 386674)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 353523)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.95ms (2.51ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V07
+[PASS] test_H3_rejectedTransferDoesNotDrift() (gas: 704885)
+[PASS] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 601866)
+[PASS] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 894107)
+[PASS] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 1191106)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 25.57ms (18.10ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_C06
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 235527)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 541801)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 516762)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 483611)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 19.67ms (12.36ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V09
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 328998)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 417420)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 452016)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.33ms (3.28ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V07
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 355977)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 457796)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 478995)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.51ms (3.54ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V12
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 376824)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 499531)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 499842)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 21.68ms (14.68ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V03
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 374178)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 494239)
+[FAIL: next call did not revert as expected] test_transferToWalletWithRevokedClaimReverts() (gas: 599084)
+Suite result: FAILED. 3 passed; 1 failed; 0 skipped; finished in 10.55ms (4.10ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V01
+[FAIL: next call did not revert as expected] test_K3_mintToUnclaimedWalletRejected() (gas: 263450)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 13406)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 519574)
+[FAIL: next call did not revert as expected] test_K3_transferToUnclaimedWalletRejected() (gas: 516366)
+Suite result: FAILED. 2 passed; 2 failed; 0 skipped; finished in 12.33ms (3.58ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V08
+[FAIL: next call did not revert as expected] test_mintToRestrictedCountryIsBlocked() (gas: 324095)
+[FAIL: next call did not revert as expected] test_transferFromToRestrictedCountryIsBlocked() (gas: 626755)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 516762)
+[FAIL: next call did not revert as expected] test_transferToRestrictedCountryIsBlocked() (gas: 561229)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 12.18ms (4.86ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_C08
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 235527)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 507601)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 487362)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 449411)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.76ms (4.40ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V02
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 219419)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 509585)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 484546)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 451395)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 13.34ms (6.97ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V05
+[FAIL: next call did not revert as expected] test_mintToRestrictedCountryIsBlocked() (gas: 324095)
+[FAIL: next call did not revert as expected] test_transferFromToRestrictedCountryIsBlocked() (gas: 626755)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 516762)
+[FAIL: next call did not revert as expected] test_transferToRestrictedCountryIsBlocked() (gas: 561229)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 18.62ms (5.40ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V02
+[FAIL: next call did not revert as expected] test_K3_mintToUnclaimedWalletRejected() (gas: 245882)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 484438)
+[FAIL: next call did not revert as expected] test_K3_transferToUnclaimedWalletRejected() (gas: 481230)
+Suite result: FAILED. 2 passed; 2 failed; 0 skipped; finished in 10.67ms (2.75ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V06
+[FAIL: next call did not revert as expected] test_mintToRestrictedCountryIsBlocked() (gas: 309406)
+[FAIL: next call did not revert as expected] test_transferFromToRestrictedCountryIsBlocked() (gas: 612066)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 516762)
+[FAIL: next call did not revert as expected] test_transferToRestrictedCountryIsBlocked() (gas: 546540)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 15.45ms (8.02ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V01
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 236987)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 544721)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 519682)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 486531)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.94ms (4.59ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V08
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 516654)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 378895)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.13ms (2.67ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V10
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 235527)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 534262)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 495930)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 476072)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.54ms (4.21ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V04
+[FAIL: next call did not revert as expected] test_K3_mintToUnclaimedWalletRejected() (gas: 196946)
+[FAIL: assertion failed] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 11115)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 386566)
+[FAIL: next call did not revert as expected] test_K3_transferToUnclaimedWalletRejected() (gas: 383358)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 11.24ms (4.19ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V12
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 235527)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 541801)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 516762)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 483611)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.16ms (4.62ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V07
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 474919)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 358048)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.42ms (2.28ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V07
+[FAIL: next call did not revert as expected] test_mintToRestrictedCountryIsBlocked() (gas: 303248)
+[FAIL: next call did not revert as expected] test_transferFromToRestrictedCountryIsBlocked() (gas: 585020)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 475027)
+[FAIL: next call did not revert as expected] test_transferToRestrictedCountryIsBlocked() (gas: 519494)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 16.92ms (4.60ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V09
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 235527)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 493975)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 414751)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 435785)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 27.35ms (10.60ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V03
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 511362)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 376249)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 18.80ms (9.49ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V09
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 414643)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 331069)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.55ms (2.08ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V05
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 516654)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 378895)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.83ms (2.77ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V10
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 495822)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 371356)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.13ms (6.08ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V12
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 516654)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 378895)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.08ms (3.68ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V13
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 235527)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 541801)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 516762)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 483611)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 13.08ms (4.44ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V13
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 516654)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 378895)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.09ms (4.24ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V03
+[PASS] test_mintToRestrictedCountryIsBlocked() (gas: 232881)
+[PASS] test_transferFromToRestrictedCountryIsBlocked() (gas: 536509)
+[PASS] test_transferToAllowedCountryStillWorks() (gas: 511470)
+[PASS] test_transferToRestrictedCountryIsBlocked() (gas: 478319)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 46.70ms (5.06ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V06
+[PASS] test_K3_mintToUnclaimedWalletRejected() (gas: 109129)
+[PASS] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 10903)
+[PASS] test_K3_transferToKycWalletWorks() (gas: 516654)
+[PASS] test_K3_transferToUnclaimedWalletRejected() (gas: 378895)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 26.18ms (3.33ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V13
+[PASS] test_mintToUnverifiedWalletReverts() (gas: 106902)
+[PASS] test_transferToUnverifiedWalletReverts() (gas: 376824)
+[PASS] test_transferToVerifiedInvestorWorks() (gas: 499531)
+[PASS] test_transferToWalletWithRevokedClaimReverts() (gas: 499842)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 43.89ms (4.11ms CPU time)
+
+Ran 68 test suites in 276.99ms (1.87s CPU time): 230 tests passed, 42 failed, 0 skipped (272 total tests)
+
+Failing tests:
+Encountered 1 failing test in test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V01
+[FAIL: next call did not revert as expected] test_H3_rejectedTransferDoesNotDrift() (gas: 770387)
+
+Encountered 1 failing test in test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V02
+[FAIL: next call did not revert as expected] test_H3_rejectedTransferDoesNotDrift() (gas: 690806)
+
+Encountered 1 failing test in test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V03
+[FAIL: next call did not revert as expected] test_H3_rejectedTransferDoesNotDrift() (gas: 717730)
+
+Encountered 1 failing test in test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V04
+[FAIL: next call did not revert as expected] test_H3_rejectedTransferDoesNotDrift() (gas: 592922)
+
+Encountered 4 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V09
+[FAIL: idB tracked != real: 0 != 100] test_H3_rejectedTransferDoesNotDrift() (gas: 270332)
+[FAIL: idA tracked != real: 0 != 100] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 486751)
+[FAIL: idA tracked != real: 0 != 100] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 243516)
+[FAIL: idA tracked != real: 0 != 100] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 418627)
+
+Encountered 4 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V10
+[FAIL: idB tracked != real: 0 != 100] test_H3_rejectedTransferDoesNotDrift() (gas: 308119)
+[FAIL: idA tracked != real: 0 != 100] test_H3_sameIdentityTransferKeepsTrackedTotal() (gas: 570230)
+[FAIL: idA tracked != real: 0 != 100] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 281303)
+[FAIL: idA tracked != real: 0 != 100] test_H3_trackedMatchesRealAfterMintAndTransfers() (gas: 496701)
+
+Encountered 1 failing test in test/generated/Wrappers.t.sol:Gen_Cand_H3_d1_V12
+[FAIL: idA tracked != real: 75 != 50] test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() (gas: 787983)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V05
+[FAIL: next call did not revert as expected] test_mintToRestrictedCountryIsBlocked() (gas: 324095)
+[FAIL: next call did not revert as expected] test_transferFromToRestrictedCountryIsBlocked() (gas: 626755)
+[FAIL: next call did not revert as expected] test_transferToRestrictedCountryIsBlocked() (gas: 561229)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V06
+[FAIL: next call did not revert as expected] test_mintToRestrictedCountryIsBlocked() (gas: 309406)
+[FAIL: next call did not revert as expected] test_transferFromToRestrictedCountryIsBlocked() (gas: 612066)
+[FAIL: next call did not revert as expected] test_transferToRestrictedCountryIsBlocked() (gas: 546540)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V07
+[FAIL: next call did not revert as expected] test_mintToRestrictedCountryIsBlocked() (gas: 303248)
+[FAIL: next call did not revert as expected] test_transferFromToRestrictedCountryIsBlocked() (gas: 585020)
+[FAIL: next call did not revert as expected] test_transferToRestrictedCountryIsBlocked() (gas: 519494)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_J1_d1_V08
+[FAIL: next call did not revert as expected] test_mintToRestrictedCountryIsBlocked() (gas: 324095)
+[FAIL: next call did not revert as expected] test_transferFromToRestrictedCountryIsBlocked() (gas: 626755)
+[FAIL: next call did not revert as expected] test_transferToRestrictedCountryIsBlocked() (gas: 561229)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V01
+[FAIL: next call did not revert as expected] test_mintToUnverifiedWalletReverts() (gas: 261178)
+[FAIL: next call did not revert as expected] test_transferToUnverifiedWalletReverts() (gas: 514159)
+[FAIL: next call did not revert as expected] test_transferToWalletWithRevokedClaimReverts() (gas: 651753)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V02
+[FAIL: next call did not revert as expected] test_mintToUnverifiedWalletReverts() (gas: 243610)
+[FAIL: next call did not revert as expected] test_transferToUnverifiedWalletReverts() (gas: 479023)
+[FAIL: next call did not revert as expected] test_transferToWalletWithRevokedClaimReverts() (gas: 572160)
+
+Encountered 1 failing test in test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V03
+[FAIL: next call did not revert as expected] test_transferToWalletWithRevokedClaimReverts() (gas: 599084)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K1_d1_V04
+[FAIL: next call did not revert as expected] test_mintToUnverifiedWalletReverts() (gas: 194674)
+[FAIL: next call did not revert as expected] test_transferToUnverifiedWalletReverts() (gas: 381151)
+[FAIL: next call did not revert as expected] test_transferToWalletWithRevokedClaimReverts() (gas: 476800)
+
+Encountered 2 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V01
+[FAIL: next call did not revert as expected] test_K3_mintToUnclaimedWalletRejected() (gas: 263450)
+[FAIL: next call did not revert as expected] test_K3_transferToUnclaimedWalletRejected() (gas: 516366)
+
+Encountered 2 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V02
+[FAIL: next call did not revert as expected] test_K3_mintToUnclaimedWalletRejected() (gas: 245882)
+[FAIL: next call did not revert as expected] test_K3_transferToUnclaimedWalletRejected() (gas: 481230)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_K3_d1_V04
+[FAIL: next call did not revert as expected] test_K3_mintToUnclaimedWalletRejected() (gas: 196946)
+[FAIL: assertion failed] test_K3_requiredTopicsNonEmptyAndIncludeKyc() (gas: 11115)
+[FAIL: next call did not revert as expected] test_K3_transferToUnclaimedWalletRejected() (gas: 383358)
+
+Encountered a total of 42 failing tests, 230 tests succeeded
+
+Tip: Run `forge test --rerun` to retry only the 42 failed tests
+Tip: Run `forge test --debug --match-test <TEST_NAME>` to inspect one failing test in the debugger
+

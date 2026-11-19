@@ -1,0 +1,71 @@
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_K3_d1 is ComplyFixture {
+    // Policy K3: at least one KYC claim topic must be required.
+    // Checks that the required topics list is non-empty and includes KYC_TOPIC,
+    // and that a wallet with no KYC claim cannot receive tokens.
+
+    function test_K3_requiredTopicsNonEmptyAndIncludeKyc() public view {
+        uint256[] memory topics = ctr.getClaimTopics();
+        assertTrue(topics.length > 0);
+
+        bool found = false;
+        for (uint256 i = 0; i < topics.length; i++) {
+            if (topics[i] == KYC_TOPIC) {
+                found = true;
+            }
+        }
+        assertTrue(found);
+    }
+
+    function test_K3_mintToUnclaimedWalletRejected() public {
+        // Mallory is registered but holds no KYC claim, so the policy forbids minting to her.
+        uint256 amt = CAP / 10;
+        assertTrue(amt > 0);
+
+        uint256 before = token.balanceOf(m);
+
+        vm.prank(agent);
+        vm.expectRevert(bytes("Identity is not verified."));
+        token.mint(m, amt);
+
+        assertEq(token.balanceOf(m), before);
+    }
+
+    function test_K3_transferToUnclaimedWalletRejected() public {
+        // Alice (KYC) funds herself, then tries to send to Mallory (no KYC). Policy: rejected.
+        uint256 amt = CAP / 10;
+        assertTrue(amt > 0);
+
+        _mint(a1, amt);
+
+        uint256 aBefore = token.balanceOf(a1);
+        uint256 mBefore = token.balanceOf(m);
+
+        vm.prank(a1);
+        vm.expectRevert(bytes("Transfer not possible"));
+        token.transfer(m, amt);
+
+        assertEq(token.balanceOf(a1), aBefore);
+        assertEq(token.balanceOf(m), mBefore);
+    }
+
+    function test_K3_transferToKycWalletWorks() public {
+        // Normal case: Alice (KYC, INDIA) sends to Bob (KYC, INDIA). Must succeed.
+        uint256 amt = CAP / 10;
+        assertTrue(amt > 0);
+
+        _mint(a1, amt);
+
+        uint256 aBefore = token.balanceOf(a1);
+        uint256 bBefore = token.balanceOf(b);
+
+        vm.prank(a1);
+        bool ok = token.transfer(b, amt);
+        assertTrue(ok);
+
+        assertEq(token.balanceOf(a1), aBefore - amt);
+        assertEq(token.balanceOf(b), bBefore + amt);
+    }
+}

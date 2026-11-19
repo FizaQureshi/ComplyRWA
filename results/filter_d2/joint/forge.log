@@ -1,0 +1,188 @@
+Compiling 6 files with Solc 0.8.17
+Solc 0.8.17 finished in 19.73s
+Compiler run successful with warnings:
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:34:9:
+   |
+34 |         IIdentity _identity,
+   |         ^^^^^^^^^^^^^^^^^^^
+
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:35:9:
+   |
+35 |         uint256 claimTopic,
+   |         ^^^^^^^^^^^^^^^^^^
+
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:36:9:
+   |
+36 |         bytes memory sig,
+   |         ^^^^^^^^^^^^^^^^
+
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> variants/ClaimIssuerV02.sol:37:9:
+   |
+37 |         bytes memory data)
+   |         ^^^^^^^^^^^^^^^^^
+
+Warning (2018): Function state mutability can be restricted to pure
+   --> T-REX/contracts/compliance/modular/modules/CountryRestrictModule.sol:207:5:
+    |
+207 |     function canComplianceBind(address /*_compliance*/) external view override returns (bool) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to pure
+   --> test/ComplyFixture.sol:205:5:
+    |
+205 |     function _rsvFor(uint256 key, Identity id, uint256 topic, bytes memory data)
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to pure
+  --> variants/ClaimIssuerV02.sol:33:5:
+   |
+33 |     function isClaimValid(
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V02
+[PASS] test_mintPastCapIsRefused() (gas: 196866)
+[PASS] test_mintWithinCapSucceeds() (gas: 301848)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 645190)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 554491)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 39.43ms (6.01ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_C05
+[PASS] test_mintPastCapIsRefused() (gas: 212974)
+[PASS] test_mintWithinCapSucceeds() (gas: 317944)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 693478)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 586683)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 43.31ms (4.09ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V08
+[PASS] test_mintPastCapIsRefused() (gas: 212974)
+[PASS] test_mintWithinCapSucceeds() (gas: 317956)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 693514)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 586707)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 43.49ms (4.39ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_C01
+[PASS] test_mintPastCapIsRefused() (gas: 212974)
+[PASS] test_mintWithinCapSucceeds() (gas: 317956)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 693514)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 586707)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 43.50ms (4.41ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V06
+[PASS] test_mintPastCapIsRefused() (gas: 212974)
+[PASS] test_mintWithinCapSucceeds() (gas: 317956)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 693514)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 586707)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 43.66ms (4.59ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V04
+[PASS] test_mintPastCapIsRefused() (gas: 147930)
+[PASS] test_mintWithinCapSucceeds() (gas: 252912)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 498382)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 456619)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 43.95ms (2.66ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_C08
+[PASS] test_mintPastCapIsRefused() (gas: 212974)
+[PASS] test_mintWithinCapSucceeds() (gas: 300856)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 659314)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 535407)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 45.26ms (5.10ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V03
+[PASS] test_mintPastCapIsRefused() (gas: 210328)
+[PASS] test_mintWithinCapSucceeds() (gas: 315310)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 685576)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 581415)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.21ms (4.58ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V07
+[PASS] test_mintPastCapIsRefused() (gas: 193981)
+[PASS] test_mintWithinCapSucceeds() (gas: 297109)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 634827)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 544972)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 10.75ms (3.78ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V05
+[PASS] test_mintPastCapIsRefused() (gas: 212974)
+[PASS] test_mintWithinCapSucceeds() (gas: 317956)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 693514)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 586707)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.40ms (4.29ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_C06
+[PASS] test_mintPastCapIsRefused() (gas: 212974)
+[PASS] test_mintWithinCapSucceeds() (gas: 317956)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 693514)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 586707)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.85ms (4.50ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V09
+[FAIL: assertion failed] test_mintPastCapIsRefused() (gas: 231392)
+[FAIL: assertion failed: 0 != 500] test_mintWithinCapSucceeds() (gas: 253946)
+[FAIL: assertion failed] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 591429)
+[FAIL: assertion failed: 0 != 500] test_transferWithinIdentityCapSucceeds() (gas: 473311)
+Suite result: FAILED. 0 passed; 4 failed; 0 skipped; finished in 12.85ms (7.63ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V10
+[PASS] test_mintPastCapIsRefused() (gas: 212974)
+[FAIL: assertion failed: 0 != 500] test_mintWithinCapSucceeds() (gas: 294233)
+[FAIL: assertion failed] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 717695)
+[FAIL: assertion failed: 0 != 500] test_transferWithinIdentityCapSucceeds() (gas: 559290)
+Suite result: FAILED. 1 passed; 3 failed; 0 skipped; finished in 9.08ms (4.28ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V01
+[PASS] test_mintPastCapIsRefused() (gas: 214434)
+[PASS] test_mintWithinCapSucceeds() (gas: 319416)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 697894)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 589627)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 13.92ms (4.72ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V12
+[PASS] test_mintPastCapIsRefused() (gas: 212974)
+[PASS] test_mintWithinCapSucceeds() (gas: 317956)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 693514)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 586707)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 9.75ms (4.74ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V13
+[FAIL: assertion failed] test_mintPastCapIsRefused() (gas: 279218)
+[PASS] test_mintWithinCapSucceeds() (gas: 317956)
+[FAIL: assertion failed] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 728966)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 586707)
+Suite result: FAILED. 2 passed; 2 failed; 0 skipped; finished in 6.76ms (4.86ms CPU time)
+
+Ran 4 tests for test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_C02
+[PASS] test_mintPastCapIsRefused() (gas: 266174)
+[PASS] test_mintWithinCapSucceeds() (gas: 371156)
+[PASS] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 911602)
+[PASS] test_transferWithinIdentityCapSucceeds() (gas: 722351)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 65.16ms (6.63ms CPU time)
+
+Ran 17 test suites in 78.56ms (466.34ms CPU time): 59 tests passed, 9 failed, 0 skipped (68 total tests)
+
+Failing tests:
+Encountered 4 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V09
+[FAIL: assertion failed] test_mintPastCapIsRefused() (gas: 231392)
+[FAIL: assertion failed: 0 != 500] test_mintWithinCapSucceeds() (gas: 253946)
+[FAIL: assertion failed] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 591429)
+[FAIL: assertion failed: 0 != 500] test_transferWithinIdentityCapSucceeds() (gas: 473311)
+
+Encountered 3 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V10
+[FAIL: assertion failed: 0 != 500] test_mintWithinCapSucceeds() (gas: 294233)
+[FAIL: assertion failed] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 717695)
+[FAIL: assertion failed: 0 != 500] test_transferWithinIdentityCapSucceeds() (gas: 559290)
+
+Encountered 2 failing tests in test/generated/Wrappers.t.sol:Gen_Cand_H1_d2_V13
+[FAIL: assertion failed] test_mintPastCapIsRefused() (gas: 279218)
+[FAIL: assertion failed] test_transferToSecondWalletCannotExceedIdentityCap() (gas: 728966)
+
+Encountered a total of 9 failing tests, 59 tests succeeded
+
+Tip: Run `forge test --rerun` to retry only the 9 failed tests
+Tip: Run `forge test --debug --match-test <TEST_NAME>` to inspect one failing test in the debugger
+

@@ -1,0 +1,10 @@
+{
+  "tests": [
+    "candidates/d1/Cand_K1_d1.sol:Cand_K1_d1",
+    "candidates/d1/Cand_K3_d1.sol:Cand_K3_d1",
+    "candidates/d1/Cand_J1_d1.sol:Cand_J1_d1",
+    "candidates/d1/Cand_H3_d1.sol:Cand_H3_d1"
+  ],
+  "wrappers": 68,
+  "seconds": 77.09
+}

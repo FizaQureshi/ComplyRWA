@@ -1,0 +1,78 @@
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_H3_d1 is ComplyFixture {
+    // Policy H3: for every identity, the MaxBalanceModule's tracked balance must equal
+    // the real token balance of that identity's wallets.
+    function assertTrackedEqualsReal() internal view {
+        assertEq(_idBalance(idA), token.balanceOf(a1) + token.balanceOf(a2), "idA tracked != real");
+        assertEq(_idBalance(idB), token.balanceOf(b), "idB tracked != real");
+        assertEq(_idBalance(idC), token.balanceOf(c), "idC tracked != real");
+        assertEq(_idBalance(idM), token.balanceOf(m), "idM tracked != real");
+    }
+
+    // Normal flow: mints and wallet-to-wallet transfers keep the trackers in step.
+    function test_H3_trackedMatchesRealAfterMintAndTransfers() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+        _mint(b, amt);
+        assertTrackedEqualsReal();
+
+        uint256 bBefore = token.balanceOf(b);
+        _transfer(a1, b, amt / 2);
+        assertEq(token.balanceOf(b), bBefore + amt / 2, "b did not receive tokens");
+        assertTrackedEqualsReal();
+
+        _transfer(a1, a2, amt / 4);
+        assertTrackedEqualsReal();
+    }
+
+    // Break attempt: burn and forced transfer must update the trackers as well as the real balances.
+    function test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+        assertTrackedEqualsReal();
+
+        vm.prank(agent);
+        token.burn(a1, amt / 4);
+        assertTrackedEqualsReal();
+
+        vm.prank(agent);
+        token.forcedTransfer(a1, b, amt / 4);
+        assertTrackedEqualsReal();
+    }
+
+    // Break attempt: a rejected transfer must leave both the real and the tracked balances untouched.
+    function test_H3_rejectedTransferDoesNotDrift() public {
+        uint256 amt = CAP / 10;
+        _mint(b, amt);
+        assertTrackedEqualsReal();
+
+        // Recipient's KYC is revoked, so the transfer to a1 must be refused.
+        _revokeClaim(idA);
+
+        uint256 bBefore = token.balanceOf(b);
+        vm.prank(b);
+        vm.expectRevert(bytes("Transfer not possible"));
+        token.transfer(a1, amt / 2);
+
+        assertEq(token.balanceOf(b), bBefore, "rejected transfer moved tokens");
+        assertTrackedEqualsReal();
+    }
+
+    // Allowed case: a transfer between two wallets of the same identity moves no tracked balance
+    // between identities, and the identity total stays the same.
+    function test_H3_sameIdentityTransferKeepsTrackedTotal() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+
+        uint256 idaBefore = _idBalance(idA);
+        uint256 a2Before = token.balanceOf(a2);
+
+        _transfer(a1, a2, amt / 2);
+
+        assertEq(_idBalance(idA), idaBefore, "same-identity transfer changed tracked total");
+        assertEq(token.balanceOf(a2), a2Before + amt / 2, "a2 did not receive tokens");
+        assertTrackedEqualsReal();
+    }
+}
