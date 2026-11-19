@@ -1,0 +1,27 @@
+{
+  "default_mode": "mock",
+  "default_model": "haiku",
+  "aliases": {
+    "haiku": "claude-haiku-5-5",
+    "sonnet": "claude-sonnet-5-5"
+  },
+  "temperature": null,
+  "session_cap_usd": 15,
+  "budget_usd": {
+    "planned": 100,
+    "soft_limit": 80,
+    "hard_stop": 115,
+    "absolute_max": 120
+  },
+  "models": {
+    "claude-haiku-5-5": {
+      "input_per_mtok_usd": 0.10,
+      "output_per_mtok_usd": 0.50
+    },
+    "claude-sonnet-5-5": {
+      "input_per_mtok_usd": 2.00,
+      "output_per_mtok_usd": 10.00
+    }
+  },
+  "prices_note": "USD per 1 million tokens, checked against Anthropic's pricing page and two other sources on 2026-11-18. Haiku 5.5 has higher prices for prompts over 100K tokens, which we never reach. If the API rejects the temperature setting for a model, set temperature to null. session_cap_usd is the most this machine may spend through llm.py in total (the current API credit is $20, so 15 leaves a buffer)."
+}

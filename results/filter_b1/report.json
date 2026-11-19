@@ -1,0 +1,59 @@
+{
+  "summary": {
+    "tests": 5,
+    "KEEP": 4,
+    "VACUOUS": 1,
+    "REJECT": 0,
+    "valid_not_rejected": 5,
+    "valid_and_non_vacuous": 4,
+    "executor_seconds": 31.0,
+    "wall_seconds": 31.5
+  },
+  "rows": [
+    {
+      "contract": "Cand_K1_b1",
+      "test": "test_mintToUnverifiedWalletReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_b1",
+      "test": "test_transferFromToUnverifiedWalletReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_b1",
+      "test": "test_transferToRevokedKycHolderReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V03 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_b1",
+      "test": "test_transferToUnverifiedWalletReverts",
+      "outcome": "KEEP",
+      "reason": "fails on variants: V01 V02 V04",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    },
+    {
+      "contract": "Cand_K1_b1",
+      "test": "test_transferToVerifiedInvestorSucceeds",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    }
+  ]
+}

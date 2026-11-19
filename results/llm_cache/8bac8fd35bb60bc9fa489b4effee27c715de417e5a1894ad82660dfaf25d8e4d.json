@@ -1,0 +1,12 @@
+{
+ "text": "```solidity\npragma solidity ^0.8.17;\nimport \"../../test/ComplyFixture.sol\";\n\ncontract Cand_K3_d1 is ComplyFixture {\n    // Policy K3: at least one KYC claim topic must be required.\n    // Checks that the required topics list is non-empty and includes KYC_TOPIC,\n    // and that a wallet with no KYC claim cannot receive tokens.\n\n    function test_K3_requiredTopicsNonEmptyAndIncludeKyc() public view {\n        uint256[] memory topics = ctr.getClaimTopics();\n        assertTrue(topics.length > 0);\n\n        bool found = false;\n        for (uint256 i = 0; i < topics.length; i++) {\n            if (topics[i] == KYC_TOPIC) {\n                found = true;\n            }\n        }\n        assertTrue(found);\n    }\n\n    function test_K3_mintToUnclaimedWalletRejected() public {\n        // Mallory is registered but holds no KYC claim, so the policy forbids minting to her.\n        uint256 amt = CAP / 10;\n        assertTrue(amt > 0);\n\n        uint256 before = token.balanceOf(m);\n\n        vm.prank(agent);\n        vm.expectRevert(bytes(\"Identity is not verified.\"));\n        token.mint(m, amt);\n\n        assertEq(token.balanceOf(m), before);\n    }\n\n    function test_K3_transferToUnclaimedWalletRejected() public {\n        // Alice (KYC) funds herself, then tries to send to Mallory (no KYC). Policy: rejected.\n        uint256 amt = CAP / 10;\n        assertTrue(amt > 0);\n\n        _mint(a1, amt);\n\n        uint256 aBefore = token.balanceOf(a1);\n        uint256 mBefore = token.balanceOf(m);\n\n        vm.prank(a1);\n        vm.expectRevert(bytes(\"Transfer not possible\"));\n        token.transfer(m, amt);\n\n        assertEq(token.balanceOf(a1), aBefore);\n        assertEq(token.balanceOf(m), mBefore);\n    }\n\n    function test_K3_transferToKycWalletWorks() public {\n        // Normal case: Alice (KYC, INDIA) sends to Bob (KYC, INDIA). Must succeed.\n        uint256 amt = CAP / 10;\n        assertTrue(amt > 0);\n\n        _mint(a1, amt);\n\n        uint256 aBefore = token.balanceOf(a1);\n        uint256 bBefore = token.balanceOf(b);\n\n        vm.prank(a1);\n        bool ok = token.transfer(b, amt);\n        assertTrue(ok);\n\n        assertEq(token.balanceOf(a1), aBefore - amt);\n        assertEq(token.balanceOf(b), bBefore + amt);\n    }\n}\n```",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 7545,
+  "output_tokens": 3340
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0024245,
+ "tag": "generator:K3:d1",
+ "created": "2026-11-20 02:00:02"
+}

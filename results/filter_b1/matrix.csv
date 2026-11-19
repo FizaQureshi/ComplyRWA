@@ -1,0 +1,6 @@
+contract,test,outcome,C01,C02,C03,C04,C05,C06,C07,C08,V01,V02,V03,V04,V05,V06,V07,V08,V09,V10,V11,V12,V13
+Cand_K1_b1,test_mintToUnverifiedWalletReverts,KEEP,P,P,-,-,P,P,-,P,F,F,P,F,P,P,P,P,P,P,-,P,P
+Cand_K1_b1,test_transferFromToUnverifiedWalletReverts,KEEP,P,P,-,-,P,P,-,P,F,F,P,F,P,P,P,P,P,P,-,P,P
+Cand_K1_b1,test_transferToRevokedKycHolderReverts,KEEP,P,P,-,-,P,P,-,P,F,F,F,F,P,P,P,P,P,P,-,P,P
+Cand_K1_b1,test_transferToUnverifiedWalletReverts,KEEP,P,P,-,-,P,P,-,P,F,F,P,F,P,P,P,P,P,P,-,P,P
+Cand_K1_b1,test_transferToVerifiedInvestorSucceeds,VACUOUS,P,P,-,-,P,P,-,P,P,P,P,P,P,P,P,P,P,P,-,P,P

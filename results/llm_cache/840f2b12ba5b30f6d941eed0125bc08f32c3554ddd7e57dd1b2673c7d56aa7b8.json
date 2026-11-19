@@ -1,0 +1,12 @@
+{
+ "text": "ok",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 28,
+  "output_tokens": 4
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 4.800000000000001e-06,
+ "tag": "smoke",
+ "created": "2026-11-20 01:46:21"
+}

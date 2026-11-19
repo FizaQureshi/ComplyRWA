@@ -1,0 +1,92 @@
+```solidity
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_K1_b1 is ComplyFixture {
+    // Mallory is registered in the registry but holds no KYC claim.
+    // Mint to an unverified wallet must fail.
+    function test_mintToUnverifiedWalletReverts() public {
+        uint256 amt = CAP / 10;
+        uint256 mBefore = token.balanceOf(m);
+
+        vm.prank(agent);
+        vm.expectRevert("Identity is not verified.");
+        token.mint(m, amt);
+
+        assertEq(token.balanceOf(m), mBefore);
+    }
+
+    // A direct transfer from a verified holder to Mallory (no KYC claim) must fail,
+    // and the sender's balance must not change.
+    function test_transferToUnverifiedWalletReverts() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+
+        uint256 senderBefore = token.balanceOf(a1);
+        uint256 recipientBefore = token.balanceOf(m);
+
+        vm.prank(a1);
+        vm.expectRevert("Transfer not possible");
+        token.transfer(m, amt);
+
+        assertEq(token.balanceOf(a1), senderBefore);
+        assertEq(token.balanceOf(m), recipientBefore);
+    }
+
+    // The same rule through transferFrom: a spender moves tokens from a verified
+    // holder to Mallory, who has no KYC claim. This must fail.
+    function test_transferFromToUnverifiedWalletReverts() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+
+        vm.prank(a1);
+        token.approve(b, amt);
+
+        uint256 senderBefore = token.balanceOf(a1);
+        uint256 recipientBefore = token.balanceOf(m);
+
+        vm.prank(b);
+        vm.expectRevert("Transfer not possible");
+        token.transferFrom(a1, m, amt);
+
+        assertEq(token.balanceOf(a1), senderBefore);
+        assertEq(token.balanceOf(m), recipientBefore);
+    }
+
+    // Bob's KYC claim is revoked after he was verified. A holder must no longer be
+    // able to send to him, because his investor has lost a valid KYC claim.
+    function test_transferToRevokedKycHolderReverts() public {
+        uint256 amt = CAP / 10;
+        _mint(a1, amt);
+        _revokeClaim(idB);
+
+        uint256 senderBefore = token.balanceOf(a1);
+        uint256 recipientBefore = token.balanceOf(b);
+
+        vm.prank(a1);
+        vm.expectRevert("Transfer not possible");
+        token.transfer(b, amt);
+
+        assertEq(token.balanceOf(a1), senderBefore);
+        assertEq(token.balanceOf(b), recipientBefore);
+    }
+
+    // Normal allowed case: a verified holder (Alice) sends to a verified investor (Bob).
+    // The transfer must succeed and the balances must move by the sent amount.
+    function test_transferToVerifiedInvestorSucceeds() public {
+        uint256 amt = CAP / 10;
+        uint256 senderStart = token.balanceOf(a1);
+        _mint(a1, amt);
+
+        uint256 senderBefore = token.balanceOf(a1);
+        uint256 recipientBefore = token.balanceOf(b);
+        assertEq(senderBefore, senderStart + amt);
+
+        vm.prank(a1);
+        assertTrue(token.transfer(b, amt));
+
+        assertEq(token.balanceOf(a1), senderBefore - amt);
+        assertEq(token.balanceOf(b), recipientBefore + amt);
+    }
+}
+```
