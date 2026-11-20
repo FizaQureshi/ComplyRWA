@@ -2,17 +2,17 @@
 
 **Goal of Phase 4:** build the pipeline that turns an issuer's plain-English policy into executable Foundry tests, filters them, runs them on every configuration, and explains what failed.
 
-**Status so far:** steps 4.0 to 4.3 are COMPLETE. Steps 4.4 to 4.7 are not started.
+**Status so far:** steps 4.0 to 4.6 are COMPLETE. Steps 4.7 and 4.8 are not started.
 
 Pinned system: T-REX tag `4.1.6`, commit `a09cfd38aa257d56db7ff9c90f30e65f125a141b`, Solidity `0.8.17`, Foundry `1.8.7`, Halmos `0.3.3` (see `environment.md`).
 
-> **How to read this file.** Section 1 is the step list. Section 2 covers step 4.0, section 3 step 4.1, section 4 step 4.2, section 5 step 4.3. Section 6 records design decisions. Section 7 is the status and what comes next. Steps are added here as they close.
+> **How to read this file.** Section 1 is the step list. Section 2 covers step 4.0, section 3 step 4.1, section 4 step 4.2, section 5 step 4.3. Section 6 covers step 4.4, section 7 step 4.5, section 8 step 4.6. Section 9 records design decisions. Section 10 is the status and what comes next. Steps are added here as they close.
 
 ---
 
 ## 1. Phase 4 build order
 
-Everything that needs no LLM comes first, so the LLM choice can wait until step 4.4.
+Everything that needs no LLM came first. Steps 4.4 to 4.6 were built with Haiku 5.5 as the default model.
 
 | Step | What | Needs LLM? | State |
 |---|---|---|---|
@@ -20,10 +20,11 @@ Everything that needs no LLM comes first, so the LLM choice can wait until step 
 | 4.1 | Executor: run any test file on every configuration, same table | No | **Done** |
 | 4.2 | Validity filter: reject tests that do not compile, fail on clean, or are vacuous | No | **Done** |
 | 4.3 | Code slicer | No | **Done** |
-| 4.4 | LLM interface and prompts (mock/replay first) | Yes | |
-| 4.5 | Generator: policy text to candidate tests, then the filter | Yes | |
-| 4.6 | Explainer (template fallback) | Yes | |
+| 4.4 | LLM interface and prompts (mock/replay first) | Yes | **Done** |
+| 4.5 | Generator: policy text to candidate tests, then the filter | Yes | **Done** |
+| 4.6 | Explainer (template fallback) | Yes | **Done** |
 | 4.7 | End-to-end demo script | Yes | |
+| 4.8 | LLM-only review baseline (for the three-way benchmark) | Yes | |
 
 ---
 
@@ -348,7 +349,178 @@ A slice is 11% to 35% of the full source files. H3 is the largest because it nee
 
 ---
 
-## 6. Design decisions for Phase 4 (agreed)
+## 6. Step 4.4: LLM interface and prompts
+
+**Goal:** one place where the pipeline talks to an LLM, with a spending cap, saved answers and a cost record, plus the prompts.
+
+**Status: COMPLETE.** Commit `68b6df9` (together with the first K1 run). Files: `pipeline/llm.py`, `pipeline/llm_config.json`, `pipeline/prompts.py`, `pipeline/prompts/generator.md`, `pipeline/prompts/explainer.md`, `pipeline/mock/`, `pipeline/prompt_size.py`, `pipeline/test_llm_interface.py`.
+
+### 6.1 How it works
+
+| Part | What it does |
+|---|---|
+| Modes | **mock** (no network, no cost, answer from `pipeline/mock/<task>.txt`), **replay** (answers only from the saved cache, a miss is an error), **live** (cache first, a miss calls the API and saves the answer) |
+| Cache | `results/llm_cache/<hash>.json`, one file per answer (text, tokens, cost, stop reason). The key covers model, prompts, token limit and temperature. These files are committed, so the benchmark can be replayed for free |
+| Ledger | `results/llm_ledger.jsonl`, one line per call: tag, model, tokens, `cost_usd` (money paid), `original_cost_usd` (cost when the answer was first made, used for the benchmark), stop reason, seconds |
+| Budget guard | Before every live call the worst-case cost is checked against `session_cap_usd` (15) and the hard stop (115). Worst case uses input tokens x 1.7 and the full output limit |
+| Key | Read only from the environment variable `ANTHROPIC_API_KEY`. Never stored in a file. `grep -rl "sk-ant" pipeline results candidates` found nothing. A key that was shown once in a chat during setup was revoked and replaced |
+| Prompts | `llm.render(task, **values)` fills `pipeline/prompts/<task>.md` (system part, a `---USER---` line, user part). A missing `{{NAME}}` is an error, so a typo is never sent to the model |
+| Config | `pipeline/llm_config.json`: aliases `haiku` = `claude-haiku-5-5` and `sonnet` = `claude-sonnet-5-5`, prices, `temperature`, budget (planned 100, soft limit 80, hard stop 115, absolute max 120, session cap 15) |
+
+Prices (USD per million tokens): Haiku 5.5 is 0.10 in and 0.50 out. Sonnet 5.5 is 2.00 in and 10.00 out. These come from public pages and one confirmation on Anthropic's pricing page. Check them again before the final report.
+
+### 6.2 What happened
+
+1. **Environment.** The `python` in Git Bash was MSYS2's and had no `pip`. A separate venv was built: `~/.venvs/complyrwa` (Python 3.11.9, `anthropic` 2.8.0). Use `PY=~/.venvs/complyrwa/Scripts/python.exe`.
+2. **Two designs were merged.** An earlier design (2026-11-18: `llm_config.json`, `prompts/`, `mock/`, `prompt_size.py`) and a second one (2026-11-20) overlapped. The earlier prompt design was kept because its rules avoid false alarms on clean configurations (use `CAP` and `RESTRICTED`, never assume zero balances). A first version of the prompt told the model to use the numbers 408 and 1000, which would have failed on clean configuration C05 (cap 500).
+3. **Live smoke test.** Haiku answered "ok" for $0.000005. Haiku 5.5 **rejects the temperature setting**, so `temperature` is `null` in the config. Because of this, a repeated call can give a different answer. The saved cache makes `--mode replay` exact.
+4. **Token estimate.** Characters / 4 under-counts. K1's real input was 9,316 tokens against an estimate of about 6,000, so the worst-case factor was raised from 1.3 to 1.7.
+5. **Prompt size.** `prompt_size.py` estimates 4,083 to 7,036 tokens per rule (average about 5,150). Real input is about 1.5 times higher.
+
+### 6.3 Proof
+
+`test_llm_interface.py`: 8 offline checks pass (cost math, aliases, template rendering, mock file choice, replay miss and hit, budget block, answer parser, fixture-name clash).
+
+### 6.4 Limits
+
+1. Prices must be re-checked against the official page.
+2. The ledger is per machine. Spending on other machines is not added up.
+3. With `temperature` off, new live calls are not repeatable. Use the cache.
+
+---
+
+## 7. Step 4.5: Generator
+
+**Goal:** policy rule text to candidate Foundry tests, then the validity filter (step 4.2).
+
+**Status: COMPLETE.** Commits `68b6df9`, `eaefdc6`, `474cad1`. The Sonnet batch and the benchmark summary were committed by the project owner (hash not recorded here). Files: `pipeline/generator.py`, `pipeline/benchmark_summary.py`, `candidates/<batch>/`, `results/filter_<batch>/`, `results/benchmark_generated.md` and `.json`.
+
+### 7.1 How it works
+
+1. For each rule, `prompts.generator_prompt` fills `generator.md` with the rule text, the code slice, the fixture API and the fixture facts, and asks for 4 tests. The generator never sees the variants or the gold tests.
+2. One model call per rule. The raw answer is saved to `candidates/<batch>/raw/`.
+3. `prompts.extract_solidity` pulls out the code and renames the contract to `Cand_<rule>_<batch>`. A file is **skipped before running** if it defines `setUp`, an `invariant_` function, a function name that already exists in the fixture, a test with arguments, `vm.ffi`, or has no test or no code block. Skipped files go to `candidates/<batch>/rejected/` and count as invalid.
+4. All usable files of the batch go through `pipeline/validity_filter.py`. Output: `results/filter_<batch>/report.md`.
+
+The rule ID for each policy line is **chosen by the issuer** (decision 9). There is no automatic matching of free text to rule IDs.
+
+```
+python pipeline/generator.py --mode live --model haiku --rules default --batch d1
+python pipeline/generator.py --mode replay --rules K1 K2 --batch d1      (free)
+python pipeline/benchmark_summary.py --group Haiku=d1,d2,e1 --group Sonnet=s1
+```
+
+### 7.2 Batches
+
+| Batch | Model | Rules | Result |
+|---|---|---|---|
+| mock1 | mock | K1 | 4 judged: 3 KEEP, 1 VACUOUS (checks the whole chain for free) |
+| b1 | Haiku | K1 | 5 judged: 4 KEEP, 1 VACUOUS. $0.0028 (first real run) |
+| d1 | Haiku | K1 K3 J1 H1 H3 | 16 judged: 13 KEEP, 3 VACUOUS. **H1 gave an empty answer** (6,000 output tokens used, stop reason `max_tokens`, file size 0) |
+| d2 | Haiku | H1 (retry, limit 12,000) | 4 judged: 4 KEEP |
+| e1 | Haiku | K2 J2 J3 H2 H4 | 20 judged: 15 KEEP, 5 VACUOUS |
+| s1 | Sonnet | the same 10 rules | First run: 5 of 10 files skipped by an over-strict name check (helpers like `_amt`). After the fix, a free replay judged all 10 files |
+
+K4 and K5 were not generated: stock T-REX violates them, so a correct test fails on clean configurations and would be REJECT. J4 is a known-exception trap, not an audit rule.
+
+### 7.3 Benchmark (10 rules, same prompt, `results/benchmark_generated.md`)
+
+| Measure | Haiku 5.5 (d1, d2, e1) | Sonnet 5.5 (s1) |
+|---|---|---|
+| Tests judged | 40 | 40 |
+| KEEP / VACUOUS / REJECT | 32 / 8 / 0 | 32 / 8 / 0 |
+| Valid and non-vacuous | 80% | 80% |
+| Variants killed by a generated test | 12 of 13 (not V11) | 12 of 13 (not V11) |
+| LLM calls (failed = cut off) | 11 (1 failed) | 10 (0 failed) |
+| Input / output tokens | 88,231 / 52,594 | 80,278 / 22,454 |
+| Cost, all calls | $0.0351 | $0.3851 |
+| Cost per rule | $0.0035 | $0.0385 |
+| Model time (seconds) | 236 | 163 |
+
+- **Clearance criterion** (at least 70% valid and non-vacuous): met by both. If Haiku's lost first H1 attempt counts as 4 invalid tests, Haiku is 32 of 44 = 73%, still met.
+- **False positives:** 0 REJECT among 80 tests. They ran on 5 of the 8 clean configurations (scenario tests skip C03, C04, C07), so this evidence is a little weaker than for the gold set.
+- **Cost:** Sonnet is about 11 times more expensive and scored the same. **Haiku is the default model.** Sonnet stays as the comparison column.
+- All numbers come from one run per model with one prompt.
+
+### 7.4 Fixes made along the way
+
+| Problem | Fix |
+|---|---|
+| Haiku answer empty after 6,000 output tokens | Default output limit raised to 12,000. Probable cause: hidden reasoning uses the tokens (evidence: an empty file, and 1,500 to 1,900 output tokens for about 300 visible words later; not proven) |
+| Check rejected any helper function starting with `_` (5 Sonnet files wasted) | Replaced by a check for a name that already exists in the fixture API |
+| Token estimate too low | Worst-case factor 1.3 changed to 1.7 |
+
+### 7.5 Observations
+
+1. **VACUOUS tests are mostly "normal case still works" tests.** Each rule has one or two. They guard against over-blocking and cannot kill a seeded bug. Two are unproven rather than useless (for example `H4_capIsNotZero`, because no variant sets the cap to 0).
+2. **"Kills a variant" is not "kills its own rule's variant".** The J1 tests use `ir.updateCountry(b, RESTRICTED)` as setup, so they also fail on V06 (a J2 bug). Three of the four H3 tests fail only on V09 and V10 (H1 and H2 bugs). A stricter rule-specific measure would score lower.
+3. **V11 is not reachable** by scenario tests (it starts with balances). The human gold set found it only through random-sequence property tests.
+4. **K3 test is stricter than the policy.** `test_K3_requiredTopicsNonEmptyAndIncludeKyc` demands the KYC topic specifically, but the policy says only "at least one topic". It passes on all clean configurations, but could raise a false alarm on a correct configuration that requires a different topic.
+5. **H1 "normal case" tests read the module's own counter** (`_idBalance` calls `maxBalanceModule.getIDBalance`), so they mix an H3-style check into H1.
+6. The prompt's rules were followed well: tests use `CAP`, compare balances with their starting values, check real balances and use the fixture helpers.
+
+### 7.6 Limits
+
+1. The filter shows that a test runs and kills a variant, not that it checks the right thing. The independent evaluator (Phase 5) covers this.
+2. 13 variants chosen by the author, 8 clean configurations (Phase 3 limits still apply).
+3. Live results are not repeatable (temperature off). Replay from the cache is.
+
+---
+
+## 8. Step 4.6: Explainer
+
+**Goal:** turn failing generated tests into short audit findings for an issuer who is not a Solidity expert.
+
+**Status: COMPLETE, with the known limits in 8.5.** Files: `pipeline/explainer.py`, `pipeline/prompts/explainer.md` (version 2), `pipeline/mock/explainer.txt`, `results/explain_<batches>_<mode>/`. The 4.6 files and result folders are not committed yet (the previous commit step covered 4.5).
+
+### 8.1 How it works
+
+1. It reads `results/filter_<batch>/joint/forge.log` and finds which generated test failed on which configuration.
+2. **One finding per (configuration, rule).** All failing tests of one rule on one configuration go into one call, so three failing tests with one cause give one finding.
+3. The model sees: the policy text, the failing test functions plus the helper functions in the file, the fixture facts, the `[FAIL: reason]` lines, and the known exceptions (an agent's `forcedTransfer` to a restricted country; the same-identity cap rejection). It does not see the code slice. K4 and K5 are not listed as known exceptions because Phase 2 gave them no severity.
+4. Scenario tests give only a one-line reason (for example `next call did not revert as expected` or `idA tracked != real: 75 != 50`), no call sequence. The reproduction steps come from the test source.
+5. **Blind mode (default):** the model is not told what the configuration changes, which is all a real audit knows. **Reveal mode** (`--reveal-config`) adds the true description from `configs.json`. It leaks the cause and is only for comparison.
+6. **Automatic checks** on every answer, shown as warnings: a severity on the first line, the five headings in order, at most 250 words, and every backticked function name must appear in the input given to the model.
+
+```
+python pipeline/explainer.py --mode live --model haiku --batch d1 e1 --configs V04 V05 V09 V12 V13
+python pipeline/explainer.py --mode live --model haiku --batch d1 --configs V05 V12 --reveal-config
+```
+
+### 8.2 Runs
+
+| Run | Prompt | Result |
+|---|---|---|
+| V05 and V12, blind and reveal | v1 | All four answers over the word limit (284, 290, 300, 303 words). Steps used code names (`ir`, `CAP`). The model never learned the real amounts |
+| V04, V05, V09, V12, V13, blind (batches d1, e1) | v2 | 12 findings, **12 pass both automatic checks**, cost $0.0163 (about $0.0014 each), 1,553 to 4,359 output tokens each |
+
+Prompt v2 changes: the first line is exactly `Severity: X`; at most 6 reproduction steps with one representative test written out; the fixture facts are added with an instruction to use real names and amounts; word target 200; the revert-message rule is one sentence.
+
+### 8.3 What was checked by hand
+
+| Check | Result |
+|---|---|
+| Blind V05 | Says the cause is not known. It does not name the wrong country code |
+| Reveal V05 | Says 410 instead of 408 is the likely cause and admits the constant is not shown |
+| V12 | Tracked 75 against real 50 after `forcedTransfer`: matches the test source (mint `CAP/10`, burn a quarter, `forcedTransfer` a quarter). Blind infers that the tracker was not updated, reveal says `forcedTransfer` does not call `transferred`, which matches V12 |
+| V05 J1 steps | The report says `ir.updateCountry(b, RESTRICTED)`. The source has exactly that call at lines 17, 35 and 73 |
+
+### 8.4 Cost
+
+About $0.0014 per finding on Haiku. All 13 variants once would cost a few cents.
+
+### 8.5 Known limits
+
+1. **The automatic checks catch format and invented function names, not wrong reasoning.** Only two reports were compared with the test source by hand.
+2. **Code names remain** in most findings (for example `CAP / 10`, `ir.updateCountry`, helper functions such as `_revokeClaim` or `_idBalance` listed as affected functions), although the prompt asks for real names. Several findings say a cap value "is not given". Keeping code names in the reproduction steps does help a developer reproduce the finding.
+3. **No root-cause grouping.** V04 (empty topic list) gives four findings (H3, K1, K2, K3) with one cause. A finding for a rule is sometimes a side effect (the V04 H3 finding is really a KYC problem).
+4. **Every finding is HIGH.** No seeded variant produces a MEDIUM (token unusable) case, and the INFO path (known exceptions) is not exercised because those tests pass.
+5. **The explainer sees only tests that failed**, with no call sequence for scenario tests.
+6. Output is 1,500 to 2,400 tokens for about 200 to 300 visible words, which again suggests hidden reasoning (not proven).
+
+---
+
+## 9. Design decisions for Phase 4 (agreed)
 
 1. **Kind detection is automatic** (invariants or scenarios), so scenario tests skip C03, C04, C07 and V11.
 2. **Wrappers are deleted after each run**, so Phase 3 counts stay valid.
@@ -361,16 +533,30 @@ A slice is 11% to 35% of the full source files. H3 is the largest because it nee
 6. **VACUOUS means unproven, not wrong.** A correct test for a rule that none of the 13 variants breaks is labelled VACUOUS and listed separately for review.
 7. **"No visible assertion" is a note, not an outcome.** An assertion inside a handler in another contract cannot be seen from the test source, so it would give wrong labels if it decided the outcome.
 8. **The generator sees only the clean pinned code** (slices, fixture summary and facts), never the variants or the gold tests.
+9. **The issuer picks the rule ID** for each policy line (a list in the CLI or web page, text pre-filled and editable). No classifier in the MVP.
+10. **Haiku 5.5 is the default model.** Sonnet 5.5 is the comparison column.
+11. **Generated tests are plain `test_` functions with no arguments.** No fuzz tests, no invariant functions, no handlers.
+12. **The explainer is blind by default.** Reveal mode is for comparison only.
+13. **One finding per (configuration, rule).**
+14. **Spending is capped** at `session_cap_usd` 15 per machine, within the team plan of 100 (hard stop 115).
+15. **Step 4.8 is added:** an LLM-only vulnerability review baseline, to complete the three-way benchmark.
 
 ---
 
-## 7. Status and next
+## 10. Status and next
 
 - [x] 4.0 Cfg contracts importable, manifest written and checked
 - [x] 4.1 Executor reproduces the Phase 3 table
 - [x] 4.2 Validity filter: gold 16 KEEP / 2 VACUOUS / 0 REJECT, bad tests rejected
 - [x] 4.3 Code slicer: 13 rule slices, no comments, 11% to 35% of the full source
-- [ ] 4.4 LLM interface and prompts (next)
-- [ ] 4.5 to 4.7
+- [x] 4.4 LLM interface and prompts: mock, replay, live, cache, ledger, cap
+- [x] 4.5 Generator: 10 rules, Haiku and Sonnet each 32 of 40 KEEP (80%), 12 of 13 variants, 0 REJECT
+- [x] 4.6 Explainer: 12 findings pass the automatic checks (known limits in 8.5)
+- [ ] 4.7 End-to-end demo script: policy input, generated property, executed test, counterexample, audit report
+- [ ] 4.8 LLM-only review baseline: Haiku and Sonnet read the same slices and policy rules and list vulnerabilities without running tests; score against the 13 variants; time and token cost
 
-Commits: step 4.0 `c9763d9`, step 4.1 `35ad477`, step 4.2 `bc193dd`, step 4.3 `ff80f4a`.
+**To commit before 4.7:** `pipeline/explainer.py`, `pipeline/prompts/explainer.md`, `pipeline/mock/explainer.txt`, `results/explain_*`, `results/llm_cache`, `results/llm_ledger.jsonl`.
+
+**Ideas for 4.7:** run the whole chain for the 5 default rules on one chosen configuration; group findings by cause; show a MEDIUM or INFO case in the demo if a suitable configuration can be built (for example `forcedTransfer` to a restricted country).
+
+**Total spent through 4.6 (ledger on the owner's machine):** $0.4435 of the $20 credit (ledger summary printed after the 12-finding explainer run).

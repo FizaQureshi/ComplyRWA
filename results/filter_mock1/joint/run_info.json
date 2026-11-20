@@ -1,0 +1,7 @@
+{
+  "tests": [
+    "candidates/mock1/Cand_K1_mock1.sol:Cand_K1_mock1"
+  ],
+  "wrappers": 17,
+  "seconds": 34.41
+}

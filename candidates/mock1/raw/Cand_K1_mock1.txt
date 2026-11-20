@@ -1,0 +1,42 @@
+```solidity
+pragma solidity ^0.8.17;
+import "../../test/ComplyFixture.sol";
+
+contract Cand_K1_mock is ComplyFixture {
+    // Mallory is registered but holds no claim: she must not receive by transfer.
+    function test_K1_mock_unverifiedWalletCannotReceiveByTransfer() public {
+        _mint(a1, 100);
+        uint256 before = token.balanceOf(m);
+        vm.expectRevert(bytes("Transfer not possible"));
+        _transfer(a1, m, 10);
+        assertEq(token.balanceOf(m), before);
+    }
+
+    // The agent's mint must also refuse an unverified receiver.
+    function test_K1_mock_unverifiedWalletCannotReceiveByMint() public {
+        uint256 before = token.balanceOf(m);
+        vm.prank(agent);
+        vm.expectRevert(bytes("Identity is not verified."));
+        token.mint(m, 10);
+        assertEq(token.balanceOf(m), before);
+    }
+
+    // forcedTransfer still checks the receiver's KYC.
+    function test_K1_mock_unverifiedWalletCannotReceiveByForcedTransfer() public {
+        _mint(a1, 100);
+        uint256 before = token.balanceOf(m);
+        vm.prank(agent);
+        vm.expectRevert(bytes("Transfer not possible"));
+        token.forcedTransfer(a1, m, 10);
+        assertEq(token.balanceOf(m), before);
+    }
+
+    // Normal allowed case: a verified investor can still receive.
+    function test_K1_mock_verifiedWalletCanReceive() public {
+        _mint(a1, 100);
+        uint256 before = token.balanceOf(b);
+        _transfer(a1, b, 10);
+        assertEq(token.balanceOf(b), before + 10);
+    }
+}
+```
