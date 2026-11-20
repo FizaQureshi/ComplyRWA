@@ -1,0 +1,7 @@
+{
+  "tests": [
+    "candidates/probe/ProbeJ4.sol:Probe_J4"
+  ],
+  "wrappers": 17,
+  "seconds": 30.68
+}

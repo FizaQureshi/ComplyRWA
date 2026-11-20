@@ -1,0 +1,23 @@
+{
+  "summary": {
+    "tests": 1,
+    "KEEP": 0,
+    "VACUOUS": 1,
+    "REJECT": 0,
+    "valid_not_rejected": 1,
+    "valid_and_non_vacuous": 0,
+    "executor_seconds": 30.7,
+    "wall_seconds": 31.1
+  },
+  "rows": [
+    {
+      "contract": "Probe_J4",
+      "test": "test_J4_forcedTransferToRestrictedCountrySucceeds",
+      "outcome": "VACUOUS",
+      "reason": "passes on all 12 variants it ran on",
+      "notes": [
+        "ran on 5/8 clean, 12/13 variants"
+      ]
+    }
+  ]
+}
