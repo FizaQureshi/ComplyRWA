@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nK1: Only investors with a valid KYC claim from a trusted issuer may receive tokens.\n\nWhat went wrong\nUnder V04, the agent could mint to Mallory, and Alice and Bob could transfer to Mallory and to Bob after his claim was revoked. Mallory holds no KYC claim, and Bob's claim was revoked, so these transfers should have been refused. The change V04 makes is not provided, so the cause is not known.\n\nAffected functions\n- token.mint\n- token.transfer\n\nHow to reproduce\nClearest test: test_mintToUnverifiedWalletReverts\n1. Record Mallory's token balance.\n2. As agent, call token.mint(Mallory's wallet, 1), expecting revert \"Identity is not verified.\"\n3. The call succeeded instead of reverting, so the test failed.\n\nAlso failing: test_transferToUnverifiedWalletReverts and test_transferToWalletWithRevokedClaimReverts.\n\nThe expected \"Transfer not possible\" revert never happened in the transfer tests, so it cannot be told whether a KYC or compliance check was meant to fail.\n\nSuggested fix\nCompare V04 with C01 for the KYC claim topic, the trusted issuer and the identity checks. The output does not show which setting is responsible.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3042,
+  "output_tokens": 1553
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0010807,
+ "tag": "explainer:K1:V04:d1:blind",
+ "created": "2026-11-20 12:28:47"
+}

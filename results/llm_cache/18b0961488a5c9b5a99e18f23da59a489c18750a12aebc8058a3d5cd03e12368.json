@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\n**Violated policy**\nK3: At least one KYC claim topic must be required.\n\n**What went wrong**\nMint and transfer to Mallory's wallet succeeded. Mallory is registered but holds no KYC claim, so both calls should have reverted. The required-topics test also failed, which suggests KYC_TOPIC is not required in V04. The failure output does not show the topic list. The configuration change is not provided, so the cause is not known. The transfer test expected \"Transfer not possible\", but the call did not revert, so it cannot be told whether a KYC or a rule check applies.\n\n**Affected functions**\ntoken.mint, token.transfer, ctr.getClaimTopics\n\n**How to reproduce** (from test_K3_mintToUnclaimedWalletRejected and test_K3_transferToUnclaimedWalletRejected)\n1. Agent calls token.mint(Mallory's wallet, CAP / 10). Expected revert: \"Identity is not verified.\" Observed: no revert.\n2. Agent calls token.mint(Alice's first wallet, CAP / 10).\n3. Alice's first wallet calls token.transfer(Mallory's wallet, CAP / 10). Expected revert: \"Transfer not possible.\" Observed: no revert.\n\nThe topics test (test_K3_requiredTopicsNonEmptyAndIncludeKyc) also failed. It only reads ctr.getClaimTopics().\n\n**Suggested fix**\nMake KYC_TOPIC a required claim topic in V04, for example with ctr.addClaimTopic(KYC_TOPIC). Then re-run the three tests.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 2965,
+  "output_tokens": 1996
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0012945,
+ "tag": "explainer:K3:V04:d1:blind",
+ "created": "2026-11-20 12:29:05"
+}

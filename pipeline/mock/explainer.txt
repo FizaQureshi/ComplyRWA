@@ -1,0 +1,16 @@
+HIGH (a rule is bypassed)
+
+## Violated policy
+MOCK ANSWER (no model was called). This text is the same for every finding and only tests the pipeline.
+
+## What went wrong
+The failing test expected a call to be refused, but the call succeeded. The cause is not known from this mock.
+
+## Affected functions
+- `transfer`
+
+## How to reproduce
+1. Run the failing test on the configuration named above.
+
+## Suggested fix
+Check the configuration against the written policy.

@@ -1,0 +1,12 @@
+{
+ "text": "**Severity: HIGH**\n\n**Violated policy**\nTwo wallets under the same identity share one cap (H2).\n\n**What went wrong**\nIn configuration V13, both tests expect a transfer that would push Alice's identity past the cap to be rejected. Both calls succeeded instead, so the shared cap was not enforced. The configuration change was not provided, so the cause is not known. The test expects a bare revert, so the revert message is not shown. It cannot be told whether a KYC or compliance rule applies, and in these tests no revert happened at all.\n\n**Affected functions**\n`token.mint` (agent minting to Alice's second wallet) and `token.transfer` (Bob to Alice's second wallet). The identity balance is tracked by the MaxBalanceModule.\n\n**How to reproduce**\nMint test, the clearest one:\n1. Read Alice's identity balance and work out the remaining room under the cap.\n2. Agent mints half of that room to Alice's first wallet.\n3. Agent calls `token.mint` for Alice's second wallet with an amount that exceeds the remaining room.\n4. Expected: revert.\n5. Actual: the call succeeds.\n\nThe transfer test (Bob sends into Alice's second wallet) fails the same way.\n\n**Suggested fix**\nCheck the V13 settings against the policy: the cap value, and whether the MaxBalanceModule is bound to `compliance`. Then check that the identity-level cap is enforced on both mint and transfer. The cause cannot be confirmed from the output given.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 2994,
+  "output_tokens": 1686
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0011424,
+ "tag": "explainer:H2:V13:e1:blind",
+ "created": "2026-11-20 12:30:22"
+}

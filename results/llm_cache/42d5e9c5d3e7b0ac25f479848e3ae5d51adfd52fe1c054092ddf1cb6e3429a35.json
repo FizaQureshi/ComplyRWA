@@ -1,0 +1,12 @@
+{
+ "text": "**Severity: HIGH**\n\n**Violated policy**\nH2: Two wallets under the same identity share one cap.\n\n**What went wrong**\nAlice's identity balance (idA) reads 0 after her wallets receive tokens, so the shared cap is not enforced. In the clearest test, the agent minted to Alice's second wallet past the cap and the mint succeeded. Three other tests fail on the same 0 reading. The output does not show which line or module causes it. The configuration change for V09 was not provided.\n\n**Affected functions**\n- `token.mint`: confirmed by the mint test.\n- `token.transfer`: not confirmed. The transfer test stops before its transfer step. The output does not show whether the revert was a KYC or a compliance failure.\n- `_idBalance` / MaxBalanceModule tracking: reads 0.\n\n**How to reproduce**\nTest: `test_H2_mintToSecondWalletCountsAgainstIdentityCap`\n1. Starting from an empty identity, the room under the cap is 1000 tokens.\n2. The agent mints 500 tokens to Alice's first wallet (a1).\n3. The agent mints 501 tokens to Alice's second wallet (a2), with a revert expected.\n4. The mint does not revert. The test fails with \"next call did not revert as expected.\"\n\nThe tests `test_H2_fullIdentityDoesNotBlockOtherIdentity`, `test_H2_transferIntoSecondWalletCountsAgainstIdentityCap` and `test_H2_walletsOfSameIdentityCanFillSharedCapExactly` fail on the identity balance reading 0.\n\n**Suggested fix**\nCheck how the identity balance is updated on mint and transfer. Make sure the cap check reads the same combined total for both wallets of one identity. Re-run the four H2 tests on V09 to confirm.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3684,
+  "output_tokens": 4359
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0025479,
+ "tag": "explainer:H2:V09:e1:blind",
+ "created": "2026-11-20 12:29:54"
+}

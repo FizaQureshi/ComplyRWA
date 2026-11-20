@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\n**Violated policy**\nJ3: a country restriction is only real if the country module is bound to compliance and has the right countries set.\n\n**What went wrong**\nThe module does not mark the restricted country (RESTRICTED) as restricted. The bound check passed, so the module is connected but its country settings are wrong. As a result, a transfer and a mint into Carol's wallet were not blocked. The V05 configuration change is not provided, so the cause is not known.\n\n**Affected functions**\ncountryModule.isCountryRestricted (settings check), token.transfer and token.mint (the restriction that should block them).\n\n**How to reproduce**\nTest 3 is written out in full. Tests 1 and 2 fail for the same reason.\n1. Agent mints one tenth of the cap to Alice's first wallet (a1).\n2. Alice's first wallet transfers that same amount to Carol's wallet (c).\n3. Expected: the transfer reverts. Actual: it did not revert.\n\nTest 1 fails because RESTRICTED is not set as restricted. Test 2 fails because minting to Carol did not revert.\n\nThe revert reason cannot be told, because the test uses an expected revert with no message and the call did not revert.\n\n**Suggested fix**\nSet RESTRICTED (and RESTRICTED2 if it is not 0) as restricted in the country module, using the `_restrictCountry` helper through `compliance.callModuleFunction`. Then rerun the three J3 tests.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3229,
+  "output_tokens": 1839
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0012424,
+ "tag": "explainer:J3:V05:e1:blind",
+ "created": "2026-11-20 12:29:33"
+}

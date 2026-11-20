@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nRule J1: investors registered in a restricted country may not receive tokens.\n\nWhat went wrong\nIn configuration V05, three ways of sending tokens to a restricted-country investor succeeded when they should have been blocked. Each test expected a revert, and none happened. The tests target the rule failure, not KYC, since Bob holds a KYC claim. The cause in V05 is not known, because the audit tool did not describe the configuration change.\n\nAffected functions\ntoken.mint, token.transfer, token.transferFrom\n\nHow to reproduce\nSteps from test_mintToRestrictedCountryIsBlocked:\n1. Agent calls ir.updateCountry(b, RESTRICTED), so Bob is in the restricted country.\n2. The test records total supply and Bob's balance.\n3. Agent calls token.mint(b, CAP / 10). In C01 that is 100 tokens. V05's cap is not given.\n4. The test expects the revert \"Compliance not followed\". The call did not revert.\n5. Bob received new tokens and supply grew, so the balance checks fail.\n\nThe other two tests, test_transferFromToRestrictedCountryIsBlocked and test_transferToRestrictedCountryIsBlocked, failed the same way: the expected \"Transfer not possible\" revert did not occur.\n\nSuggested fix\nIn V05, check that the country restriction module is bound to compliance and that the restricted-country variable is set as intended. The output does not confirm the cause.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3355,
+  "output_tokens": 1635
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.001153,
+ "tag": "explainer:J1:V05:d1:blind",
+ "created": "2026-11-20 12:29:14"
+}

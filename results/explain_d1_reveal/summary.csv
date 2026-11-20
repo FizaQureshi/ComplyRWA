@@ -1,0 +1,3 @@
+config,rule,batch,failing_tests,severity,format_problems,ungrounded,out_tokens,cost_usd
+V05,J1,d1,3,HIGH,284 words (limit 250),,1963,0.001158
+V12,H3,d1,1,HIGH,303 words (limit 250),,1709,0.000972

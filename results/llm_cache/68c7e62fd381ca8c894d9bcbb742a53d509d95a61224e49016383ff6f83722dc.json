@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nH3: the holding-limit module's balance records must match the real token balances. The test also expects a transfer to a recipient with revoked KYC to be refused.\n\nWhat went wrong\nBob's transfer to Alice's first wallet succeeded after Alice's KYC claim was revoked. The test expected \"Transfer not possible\". Because the call did not revert, the test stopped before the balance check, so it is not known whether the tracked balances also drifted. The test intends a KYC failure, but since nothing reverted, the output cannot show which check applies. The configuration change for V04 is not provided, so its cause is not known.\n\nAffected functions\n- `token.transfer` (recipient KYC check)\n- `_revokeClaim` (revokes the claim that should block the transfer)\n\nHow to reproduce\n1. The agent mints CAP / 10 tokens to Bob's wallet. The CAP value for V04 is not given.\n2. Revoke the KYC claim for Alice's identity with `_revokeClaim(idA)`.\n3. Bob calls `token.transfer` to Alice's first wallet for half that amount.\n4. Expected: revert \"Transfer not possible\". Actual: the call did not revert.\n\nNo other failing tests are listed.\n\nSuggested fix\nCompare V04 with the clean configuration C01 to find the setting that lets a transfer to a revoked recipient succeed. Check the recipient KYC check, the required claim topic and the trusted issuer. Re-run the test on V04 after the fix.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 2812,
+  "output_tokens": 1901
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0012317,
+ "tag": "explainer:H3:V04:d1:blind",
+ "created": "2026-11-20 12:28:40"
+}

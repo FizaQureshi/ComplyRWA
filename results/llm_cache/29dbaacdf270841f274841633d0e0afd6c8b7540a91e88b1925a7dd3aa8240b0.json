@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nRule K2: if an investor's KYC is revoked, the wallet can no longer receive tokens.\n\nWhat went wrong\nAfter Bob's KYC claim was revoked, all three ways of sending him tokens still succeeded. Each test expected a revert and forge reported that none occurred. The cause in V04 is not known, because the audit tool did not say what this configuration changes. For transfer and transferFrom, the expected message \"Transfer not possible\" covers both KYC and rule failures, so the output cannot show which check was skipped.\n\nAffected functions\ntoken.mint, token.transfer, token.transferFrom\n\nHow to reproduce\n1. The agent mints one tenth of the holding cap to Alice's first wallet.\n2. Alice's first wallet transfers half of that amount to Bob's wallet. This succeeds (control).\n3. Revoke Bob's KYC claim.\n4. Alice's first wallet transfers a quarter of the mint amount to Bob's wallet.\n5. Expected: revert with \"Transfer not possible\". Actual: no revert.\n\nThe mint test (expects \"Identity is not verified.\") and the transferFrom test fail the same way.\n\nSuggested fix\nMake the receive-side KYC check apply to mint, transfer and transferFrom for revoked identities. Then rerun the three tests on V04 and review the configuration's change list to find what disables the check.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3183,
+  "output_tokens": 1744
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0011903,
+ "tag": "explainer:K2:V04:e1:blind",
+ "created": "2026-11-20 12:28:56"
+}

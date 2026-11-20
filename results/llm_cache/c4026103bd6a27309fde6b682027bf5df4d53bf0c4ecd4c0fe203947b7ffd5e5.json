@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\n**Violated policy**\nJ2: If a wallet's country is updated to a restricted country, it can no longer receive tokens.\n\n**What went wrong**\nIn `test_J2_restoringAllowedCountryReenablesReceiving`, Bob's country was changed to the restricted country, but Alice's first wallet could still transfer one tenth of the cap to Bob. The test expected \"Transfer not possible\" and no revert occurred. The configuration change for V05 is not given, so the cause is not known. The other two tests fail with an assertion error and the output gives no line number. They likely fail at the first check that the country is restricted, before any transfer, but this cannot be confirmed from the output.\n\n**Affected functions**\n- `ir.updateCountry`\n- `token.transfer`\n- `countryModule.isCountryRestricted` (likely, from the other two failures)\n\n**How to reproduce**\n1. The agent mints one quarter of the cap to Alice's first wallet.\n2. The agent calls `ir.updateCountry` to set Bob's wallet to `RESTRICTED`.\n3. Alice's first wallet calls `token.transfer` to Bob's wallet for one tenth of the cap.\n4. The test expects a revert. No revert occurs, so the transfer succeeds.\n\nThe tests `test_J2_restrictedCountryUpdateBlocksMint` and `test_J2_restrictedCountryUpdateBlocksTransfer` also fail, both on an assertion.\n\n**Suggested fix**\nCheck V05's restricted-country setting and confirm that the country module is bound to `compliance` and applies to transfers. Then rerun the three tests.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3166,
+  "output_tokens": 1982
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0013076,
+ "tag": "explainer:J2:V05:e1:blind",
+ "created": "2026-11-20 12:29:24"
+}
