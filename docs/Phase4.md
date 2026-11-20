@@ -23,7 +23,7 @@ Everything that needs no LLM came first. Steps 4.4 to 4.6 were built with Haiku 
 | 4.4 | LLM interface and prompts (mock/replay first) | Yes | **Done** |
 | 4.5 | Generator: policy text to candidate tests, then the filter | Yes | **Done** |
 | 4.6 | Explainer (template fallback) | Yes | **Done** |
-| 4.7 | End-to-end demo script | Yes | |
+| 4.7 | End-to-end demo script | Yes | **Done** |
 | 4.8 | LLM-only review baseline (for the three-way benchmark) | Yes | |
 
 ---
