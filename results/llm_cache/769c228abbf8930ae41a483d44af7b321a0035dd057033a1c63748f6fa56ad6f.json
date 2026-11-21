@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H1\",\"where\":\"Deployment._addModules (setup override) with MaxBalanceModule.batchPreSetModuleState\",\"severity\":\"HIGH\",\"why\":\"The override mints 800 tokens to b before the modules are bound, so the holding-limit module never counts them. It then presets idB's recorded balance to 0. Later transfers to b are checked only against that 0, so b can receive up to the full cap on top of the 800 it already holds, going over 1000.\",\"steps\":\"1) setUp: mint 800 to b (no module records). 2) batchPreSetModuleState sets idB balance to 0. 3) mint 1000 to a1 (idA records 1000, within cap). 4) a1 transfers 1000 to b: moduleCheck sees 0+1000 <= 1000 and passes. 5) b now holds 1800 tokens.\"},{\"rule\":\"H3\",\"where\":\"Deployment._addModules (setup override) with MaxBalanceModule.batchPreSetModuleState\",\"severity\":\"HIGH\",\"why\":\"The module's records for idB are set to 0 while the real balance of b is 800. The records therefore do not match the token's balances, and every later cap check for idB is wrong.\",\"steps\":\"1) mint 800 to b before modules are bound. 2) batchPreSetModuleState(idB, 0). 3) getIDBalance(idB) returns 0 while balanceOf(b) returns 800.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 16060,
+  "output_tokens": 1862
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.002537,
+ "tag": "reviewer:V11:r1",
+ "created": "2026-11-21 17:53:30"
+}

@@ -1,0 +1,1 @@
+{"findings":[{"rule":"K3","where":"ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer","severity":"HIGH","why":"The required claim topics list can end up empty, so isVerified returns true for any registered wallet.","steps":"1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."}]}

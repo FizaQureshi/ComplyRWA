@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.isClaimValid / ClaimIssuer.revokeClaim / Identity.addClaim, read through IdentityRegistry.isVerified\",\"severity\":\"HIGH\",\"why\":\"Revocation is keyed on the exact signature bytes, but getRecoveredAddress accepts high-s ECDSA signatures (no s-range check). A revoked signature (r, s, v) has a malleated twin (r, n-s, v flipped) that recovers the same issuer signer and is not in revokedClaims. The investor can re-add that twin as its claim, and isVerified then passes again, so a revoked wallet can receive tokens.\",\"steps\":\"1) Issuer calls claimIssuer.revokeClaim(claimId, idA), which sets revokedClaims[sigOrig]=true. 2) a1 calls idA.addClaim(1, 1, claimIssuer, malleatedSig, KYC-OK, \\\"\\\") with s'=n-s and v'=55-v. addClaim accepts it because isClaimValid recovers the signer and the malleated bytes are not revoked, and it overwrites the stored claim. 3) b calls token.transfer(a1, 10); isVerified(a1) now returns true and the transfer succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15988,
+  "output_tokens": 7133
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0051653,
+ "tag": "reviewer:C07:r1b",
+ "created": "2026-11-22 00:50:25"
+}

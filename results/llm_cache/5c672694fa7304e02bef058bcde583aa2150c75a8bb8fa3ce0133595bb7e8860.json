@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"J1\",\"where\":\"Deployment._configureModules (overrides BaseSetup._configureModules)\",\"severity\":\"HIGH\",\"why\":\"The override only calls _setCap and never calls _restrictCountry(RESTRICTED), so country 408 is never added to CountryRestrictModule. Wallet c is registered with country 408 and has a valid KYC claim, so isVerified(c) is true and CountryRestrictModule.moduleCheck returns true. A normal transfer to c therefore succeeds.\",\"steps\":\"1) Agent mints or any holder calls transfer(c, amount) (c is registered with country 408 and has a valid claim). 2) isVerified(c) returns true and compliance.canTransfer returns true because the country module has no restriction for 408. 3) The transfer succeeds and c receives tokens.\"},{\"rule\":\"J3\",\"where\":\"Deployment._configureModules (overrides BaseSetup._configureModules); BaseSetup._configureModules skipped\",\"severity\":\"HIGH\",\"why\":\"The country module is bound to the compliance contract, but the restricted-country list is empty. The override drops the base step that sets country 408 (and RESTRICTED2 if set), so the country restriction is not in effect.\",\"steps\":\"1) Deploy with the Deployment override, so only _setCap runs. 2) CountryRestrictModule.isCountryRestricted(compliance, 408) returns false. 3) Tokens can be sent to wallets whose country is 408.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15959,
+  "output_tokens": 1511
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0023514,
+ "tag": "reviewer:V08:r1",
+ "created": "2026-11-21 17:52:52"
+}

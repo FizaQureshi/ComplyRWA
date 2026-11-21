@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H1\",\"where\":\"Deployment._configureModules\",\"severity\":\"HIGH\",\"why\":\"The override calls super (which sets the 1000-token cap) and then removes maxBalanceModule from the compliance contract. With the module unbound, ModularCompliance.canTransfer and created no longer run the cap check, so an investor can receive or hold more than 1000 tokens.\",\"steps\":\"1. setUp runs _configureModules: setMaxBalance(1000) is applied, then compliance.removeModule(maxBalanceModule). 2. agent calls token.mint(a1, 5000). mint passes isVerified and canTransfer (only the country module is left), so it succeeds. a1 now holds 5000 tokens, above the 1000 limit.\"},{\"rule\":\"H2\",\"where\":\"Deployment._configureModules (removeModule of MaxBalanceModule)\",\"severity\":\"HIGH\",\"why\":\"The cap is shared across wallets of one identity, but the only code that enforces it is MaxBalanceModule. With that module removed, wallets a1 and a2 (both mapped to idA) can together hold any amount above 1000.\",\"steps\":\"1. agent calls token.mint(a1, 600). 2. agent calls token.mint(a2, 600). Both succeed. Identity idA now holds 1200 tokens, above the shared 1000 cap.\"},{\"rule\":\"H3\",\"where\":\"Deployment._configureModules (removeModule of MaxBalanceModule)\",\"severity\":\"HIGH\",\"why\":\"MaxBalanceModule's _IDBalance records are only updated through moduleMintAction, moduleTransferAction and moduleBurnAction. Once the module is unbound, those hooks stop running, so the stored identity balances no longer match the real token balances.\",\"steps\":\"1. agent calls token.mint(a1, 300). The module is unbound, so moduleMintAction never runs and getIDBalance(compliance, idA) stays 0. 2. Real balanceOf(a1) is 300, so the records and balances disagree.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15979,
+  "output_tokens": 1525
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0023604,
+ "tag": "reviewer:V09:r1b",
+ "created": "2026-11-22 00:52:36"
+}

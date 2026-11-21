@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.isClaimValid (used by IdentityRegistry.isVerified)\",\"severity\":\"HIGH\",\"why\":\"revokeClaim and revokeClaimBySignature only set revokedClaims[sig]. isClaimValid never reads that mapping and returns true whenever the signer key is still valid. A holder whose KYC claim was revoked therefore still passes isVerified and can keep receiving tokens.\",\"steps\":\"1) mint 100 to b (b is verified). 2) issuerAdmin calls claimIssuer.revokeClaim(keccak256(abi.encode(claimIssuer, 1)), idB). 3) a1 calls token.transfer(b, 10). The call succeeds because isVerified(b) is still true.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16650,
+  "output_tokens": 1553
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.04883,
+ "tag": "reviewer:V03:r2",
+ "created": "2026-11-22 00:38:12"
+}

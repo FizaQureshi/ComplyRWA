@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.isClaimValid (ClaimIssuer.sol), reached from IdentityRegistry.isVerified and Token.transfer\",\"severity\":\"HIGH\",\"why\":\"revokeClaim and revokeClaimBySignature write to revokedClaims, but isClaimValid never reads that mapping. A revoked KYC claim still passes the signature and signer-key check, so isVerified stays true and the revoked wallet can still receive tokens.\",\"steps\":\"1. Setup: a1/b hold a valid KYC claim from claimIssuer (base _registerInvestors). 2. issuerAdmin calls claimIssuer.revokeClaim(claimId, address(idB)), which sets revokedClaims[sig] = true. 3. Agent or any sender calls token.transfer(b, amount). isVerified(b) still returns true, canTransfer passes, and the transfer succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 16650,
+  "output_tokens": 2604
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.002967,
+ "tag": "reviewer:V03:r2",
+ "created": "2026-11-22 00:44:45"
+}

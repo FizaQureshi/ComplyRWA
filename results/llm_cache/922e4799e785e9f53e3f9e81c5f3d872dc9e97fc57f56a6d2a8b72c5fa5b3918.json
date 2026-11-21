@@ -1,0 +1,12 @@
+{
+ "text": "```json\n{\"findings\":[{\"rule\":\"H2\",\"where\":\"MaxBalanceModule._getIdentity / moduleMintAction / moduleTransferAction / moduleCheck (used by the base setup, which registers a1 and a2 under the same identity idA)\",\"severity\":\"HIGH\",\"why\":\"_getIdentity returns the wallet address, not the identity, so the cap is tracked per wallet. Wallets a1 and a2 share idA but each gets its own 1000-token cap.\",\"steps\":\"agent.mint(a1, 1000) succeeds; agent.mint(a2, 1000) succeeds (moduleMintAction and canTransfer each see 0 + 1000, which is not above 1000). The idA identity now holds 2000 tokens across a1 and a2 with one cap of 1000 expected.\"},{\"rule\":\"H1\",\"where\":\"MaxBalanceModule._getIdentity (base setup registers a1 and a2 under idA)\",\"severity\":\"HIGH\",\"why\":\"Because the cap is applied per wallet, one investor identity can hold far more than the 1000-token maximum by spreading tokens across its wallets.\",\"steps\":\"agent.mint(a1, 1000); agent.mint(a2, 1000); the investor behind idA holds 2000 tokens, above the 1000 maximum. The same total can be reached through transfers, e.g. a1 transfers 1000 to a2 after a2 has already received 1000 from another source.\"}]}\n```",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15864,
+  "output_tokens": 4457
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0038149,
+ "tag": "reviewer:V10:r1",
+ "created": "2026-11-21 17:53:20"
+}

@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K1\",\"where\":\"IdentityRegistry.isVerified\",\"severity\":\"HIGH\",\"why\":\"isVerified returns true as soon as ONE required topic has a valid claim, instead of requiring a valid claim for EVERY required topic. This deployment requires topics 1 and 2. Wallet m is registered and has only a topic-1 claim, yet it counts as verified and can receive tokens.\",\"steps\":\"agent calls token.mint(m, 100). isVerified(m) passes on topic 1 alone, so the mint succeeds. Or a1 calls transfer(m, 10) and it succeeds.\"}, {\"rule\":\"K2\",\"where\":\"IdentityRegistry.isVerified\",\"severity\":\"HIGH\",\"why\":\"Revoking one claim does not stop a wallet from receiving tokens, because any other still-valid required-topic claim makes isVerified return true. a1, b and c each hold a valid topic-2 claim, so revoking only their KYC (topic 1) claim leaves them verified.\",\"steps\":\"issuerAdmin calls claimIssuer.revokeClaim(KYC claimId, idB). The topic-2 claim is still valid. A holder then calls transfer(b, x) and it succeeds.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15974,
+  "output_tokens": 1240
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.044348,
+ "tag": "reviewer:V01:r1b:retry",
+ "created": "2026-11-22 01:08:23"
+}

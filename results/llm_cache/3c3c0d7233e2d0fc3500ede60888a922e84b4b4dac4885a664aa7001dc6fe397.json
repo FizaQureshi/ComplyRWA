@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"J2\",\"where\":\"IdentityRegistry.updateCountry\",\"severity\":\"HIGH\",\"why\":\"updateCountry only emits CountryUpdated and never writes the new country to the identity storage. The country module reads investorCountry from that storage, so the wallet still looks like it is in its old, unrestricted country and can keep receiving tokens.\",\"steps\":\"1) Agent registers wallet b in country 356 (India). 2) Agent calls ir.updateCountry(b, 408). 3) ir.investorCountry(b) still returns 356. 4) A holder calls token.transfer(b, x) or an agent calls mint(b, x); CountryRestrictModule.moduleCheck passes and the transfer succeeds.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16694,
+  "output_tokens": 1345
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.046838,
+ "tag": "reviewer:V06:r2",
+ "created": "2026-11-22 00:38:40"
+}

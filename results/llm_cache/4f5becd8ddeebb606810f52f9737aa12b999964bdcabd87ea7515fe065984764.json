@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.isClaimValid\",\"severity\":\"HIGH\",\"why\":\"isClaimValid always returns true and never checks the signature or the revokedClaims mapping. A revoked KYC claim therefore still passes IdentityRegistry.isVerified, so the wallet can keep receiving tokens.\",\"steps\":\"1) Mint tokens to b. 2) issuerAdmin calls claimIssuer.revokeClaim(claimId, idB). 3) a1 calls token.transfer(b, x). isVerified(b) is still true, so the transfer succeeds.\"}},{\"rule\":\"K1\",\"where\":\"ClaimIssuer.isClaimValid and Deployment._registerInvestors\",\"severity\":\"HIGH\",\"why\":\"Because isClaimValid accepts any signature, Identity.addClaim accepts claims the issuer never signed, and isVerified accepts them too. The override issues m's KYC claim with 'second-key', which is not the issuer's signer key, yet m is treated as verified and can receive tokens.\",\"steps\":\"1) Deployment._registerInvestors adds a claim to idM signed with an arbitrary key. 2) Agent calls token.mint(m, 100), or a1 calls transfer(m, 100). isVerified(m) is true and the call succeeds without a genuine issuer signature.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16577,
+  "output_tokens": 1213
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.045284,
+ "tag": "reviewer:V02:r2",
+ "created": "2026-11-22 00:37:48"
+}

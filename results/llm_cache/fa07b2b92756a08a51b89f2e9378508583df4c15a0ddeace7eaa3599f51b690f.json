@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"J3\",\"where\":\"Deployment._configureModules (setup override)\",\"severity\":\"HIGH\",\"why\":\"The override restricts country 410 instead of 408 and never calls super. The country module therefore has no restriction on 408, the issuer's restricted country, so the country restriction does nothing for the intended country.\",\"steps\":\"Deploy with Deployment.setUp -> countryModule holds only 410 for this compliance -> isCountryRestricted(compliance, 408) returns false.\"}},{\"rule\":\"J1\",\"where\":\"Deployment._configureModules / CountryRestrictModule.moduleCheck\",\"severity\":\"HIGH\",\"why\":\"Wallet c is registered with country 408 and holds a valid KYC claim. Because 408 is not in the restricted set, moduleCheck passes and c can receive tokens.\",\"steps\":\"agent mint(b, 100) -> b calls transfer(c, 50) -> isVerified(c) is true and the country module allows 408 -> the transfer succeeds. mint(c, 10) also succeeds.\"}},{\"rule\":\"J2\",\"where\":\"Deployment._configureModules / IdentityRegistry.updateCountry\",\"severity\":\"HIGH\",\"why\":\"Updating a wallet's country to 408 does not block it from receiving tokens, because 408 is not restricted in the country module.\",\"steps\":\"agent ir.updateCountry(b, 408) -> a1 calls transfer(b, 10) -> the transfer succeeds.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15971,
+  "output_tokens": 845
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.040392,
+ "tag": "reviewer:V05:r1b",
+ "created": "2026-11-22 01:09:03"
+}

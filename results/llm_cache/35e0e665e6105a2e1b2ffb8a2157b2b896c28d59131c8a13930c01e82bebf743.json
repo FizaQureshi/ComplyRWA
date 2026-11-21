@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K1\",\"where\":\"IdentityRegistry.isVerified (with Deployment._registerInvestors)\",\"severity\":\"HIGH\",\"why\":\"isVerified returns true as soon as one required topic has a valid claim, instead of requiring every topic. Wallet m has only the KYC_TOPIC claim, not the required TOPIC_2 claim, yet it passes verification and can receive tokens.\",\"steps\":\"1) agent calls token.mint(m, 100) (or another wallet transfers to m). 2) isVerified(m) returns true because the topic-1 claim is valid, so the call succeeds.\"},{\"rule\":\"K2\",\"where\":\"IdentityRegistry.isVerified / _topicOk (with Deployment._registerInvestors and _revokeClaim)\",\"severity\":\"HIGH\",\"why\":\"After the KYC (topic 1) claim of an investor is revoked, the wallet is still treated as verified because its separately signed TOPIC_2 claim is still valid and the OR-logic accepts it. The revoked wallet can still receive tokens.\",\"steps\":\"1) issuerAdmin calls claimIssuer.revokeClaim(claimId for KYC_TOPIC, idA). 2) Holder a1 (or another wallet of idA) is still verified via the TOPIC_2 claim. 3) transfer(a1, amount) from any holder succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15974,
+  "output_tokens": 2603
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0028989000000000003,
+ "tag": "reviewer:V01:r1b",
+ "created": "2026-11-22 00:50:59"
+}

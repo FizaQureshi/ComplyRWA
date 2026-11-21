@@ -31,6 +31,7 @@ import slicer  # noqa: E402
 
 POLICY_FILE = PIPE / "review_policy.json"
 MANIFEST_FILE = PIPE / "configs.json"
+EXTRA_UNITS_FILE = PIPE / "review_extra_units.json"
 
 # Code-copy variants: (stock contract name, copied file, copied contract name, fixture hook that swaps it in).
 # The swap hook is left out of the setup text: the reviewer sees the deployed contract under its stock name.
@@ -132,10 +133,15 @@ def build_policy(tid):
     return "\n".join(lines)
 
 
-def build_code(tid, smap, rules):
+def build_code(tid, smap, rules, code_set=None):
     swap = SWAPS.get(tid)
     parts, problems, swapped = [], [], False
-    for (file, contract), m in union_units(smap, rules).items():
+    units = union_units(smap, rules)
+    if code_set:   # extra functions for a later batch, see review_extra_units.json
+        for spec in load_json(EXTRA_UNITS_FILE)[code_set]:
+            d = units.setdefault((spec["file"], spec["contract"]), {"functions": [], "state": True})
+            d["functions"] += [f for f in spec["functions"] if f not in d["functions"]]
+    for (file, contract), m in units.items():
         f, c = file, contract
         if swap and contract == swap[0]:
             f, c, swapped = swap[1], swap[2], True
@@ -199,17 +205,17 @@ def comment_hits(text):
     return re.findall(r"//|/\*", body)
 
 
-def build_target(tid):
-    """Everything the runner needs for one target."""
+def build_target(tid, code_set=None):
+    """Everything the runner needs for one target. code_set: None (batch r1) or a key of review_extra_units.json."""
     smap = slicer.load_map(ROOT)
     pol = load_json(POLICY_FILE)
     policy = build_policy(tid)
-    code, p1 = build_code(tid, smap, pol["rules"])
+    code, p1 = build_code(tid, smap, pol["rules"], code_set)
     setup, p2 = build_setup(tid)
     system, user = llm.render("reviewer", POLICY=policy, CODE=code, SETUP=setup)
     full = system + "\n" + user
     return {
-        "id": tid, "kind": entry(tid)["kind"], "system": system, "user": user,
+        "id": tid, "kind": entry(tid)["kind"], "code_set": code_set, "system": system, "user": user,
         "problems": p1 + p2,
         "leaks": leak_hits(full),
         "comments": comment_hits(code) + comment_hits(setup),
@@ -219,7 +225,7 @@ def build_target(tid):
 
 
 # ------------------------------------------------------------------ commands
-def check():
+def check(code_set=None):
     problems = 0
     smap = slicer.load_map(ROOT)
     pol = load_json(POLICY_FILE)
@@ -232,7 +238,7 @@ def check():
         print(f"  SWAPS {sorted(SWAPS)} does not match code-copy variants in configs.json {sorted(code_variants)}")
         problems += 1
     for tid in all_target_ids():
-        t = build_target(tid)
+        t = build_target(tid, code_set)
         bad = t["problems"] + t["leaks"] + (["comment markers found"] if t["comments"] else [])
         print(f"  {tid} ({t['kind']}): ~{t['est_tokens']} tokens" + ("  OK" if not bad else "  PROBLEM"))
         for b in bad:
@@ -244,13 +250,13 @@ def check():
     return 1 if problems else 0
 
 
-def sizes():
+def sizes(code_set=None):
     cfg = llm.load_config()
     rows = []
     tot = {}
     print(f"{'target':<7}{'policy':>8}{'code':>8}{'setup':>8}{'~tokens':>9}{'~real in':>10}   (characters; real = estimate x {REAL_FACTOR})")
     for tid in all_target_ids():
-        t = build_target(tid)
+        t = build_target(tid, code_set)
         real_in = int(t["est_tokens"] * REAL_FACTOR)
         c = t["chars"]
         print(f"{tid:<7}{c['policy']:>8}{c['code']:>8}{c['setup']:>8}{t['est_tokens']:>9}{real_in:>10}")
@@ -270,13 +276,14 @@ def main():
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--sizes", action="store_true")
     ap.add_argument("--show", metavar="TARGET")
+    ap.add_argument("--code-set", default=None, help="extra code view, e.g. r2 (see review_extra_units.json)")
     a = ap.parse_args()
     if a.check:
-        return check()
+        return check(a.code_set)
     if a.sizes:
-        return sizes()
+        return sizes(a.code_set)
     if a.show:
-        t = build_target(a.show)
+        t = build_target(a.show, a.code_set)
         print("===== SYSTEM =====\n" + t["system"] + "\n===== USER =====\n" + t["user"])
         for k in ("problems", "leaks", "comments"):
             if t[k]:

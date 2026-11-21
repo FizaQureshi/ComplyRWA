@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.getRecoveredAddress / ClaimIssuer.isClaimValid / ClaimIssuer.revokeClaim (used by IdentityRegistry.isVerified via Identity.addClaim)\",\"severity\":\"HIGH\",\"why\":\"Revocation is keyed on the exact signature bytes, but ecrecover accepts high-s signatures and getRecoveredAddress does not reject them. The issuer's revoked signature (r, s, v) can be rewritten as (r, n-s, v^1), which recovers to the same signer but has different bytes, so it is not in revokedClaims. The wallet holder, who has a management key on its identity, can add that malleated claim and make the revoked wallet verified again, so it can receive tokens.\",\"steps\":\"1) Issuer calls claimIssuer.revokeClaim(claimId, idB), so revokedClaims[sig] is true. 2) b (management key on idB) computes sig' = (r, n-s, v^1) for the same claim. 3) b calls idB.addClaim(1, 1, claimIssuer, sig', data, ''). isClaimValid passes because sig' is not revoked and recovers to the issuer signer. 4) The claim slot is overwritten. 5) IdentityRegistry.isVerified(b) returns true. 6) A normal transfer(b, amount) from any holder succeeds even though KYC was revoked.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15931,
+  "output_tokens": 7029
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0051076,
+ "tag": "reviewer:C01:r1",
+ "created": "2026-11-21 17:36:00"
+}

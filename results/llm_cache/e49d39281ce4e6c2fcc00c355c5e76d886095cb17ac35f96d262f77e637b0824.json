@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.isClaimValid (used by IdentityRegistry.isVerified)\",\"severity\":\"HIGH\",\"why\":\"ClaimIssuer.isClaimValid only checks that the recovered signer has a purpose-3 key. It never reads `revokedClaims`, so revokeClaim and revokeClaimBySignature have no effect on isVerified. A wallet whose KYC claim was revoked still passes isVerified and can keep receiving tokens, which also defeats K1's requirement for a valid claim.\",\"steps\":\"1) Mint tokens to a1 or b; both have valid claims. 2) issuerAdmin calls claimIssuer.revokeClaim(claimId, idB). 3) a1 calls token.transfer(b, x). isVerified(b) is still true, so the transfer succeeds. Agent mint(b, x) also succeeds.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15850,
+  "output_tokens": 2021
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.05191,
+ "tag": "reviewer:V03:r1",
+ "created": "2026-11-21 18:11:16"
+}

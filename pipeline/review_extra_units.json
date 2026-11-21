@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "note": "Step 4.8, batch r2 only (--code-set r2). Extra functions added to the reviewer's code view, because the r1 run showed that Token.init and setCompliance were missing: Haiku reported a false alarm on C04 ('the setup never calls bindToken') that these functions answer. Everything else in the prompt is unchanged.",
+  "r2": [
+    {"file": "T-REX/contracts/token/Token.sol", "contract": "Token",
+     "functions": ["init", "setCompliance", "setIdentityRegistry"]},
+    {"file": "T-REX/contracts/compliance/modular/ModularCompliance.sol", "contract": "ModularCompliance",
+     "functions": ["bindToken", "getTokenBound"]}
+  ]
+}

@@ -216,6 +216,60 @@ def stock_gap_only_applies_to_k2():
     assert not rs.is_stock_gap(fnd("K2", "HIGH", "isClaimValid", "revocation ignored"))
 
 
+# ------------------------------------------------------------------ invalid JSON and retry (V08 of the Sonnet r1 run)
+V08_BROKEN = ('{"findings":[{"rule":"J3","where":"Deployment._configureModules","severity":"HIGH","why":"y","steps":"z"}},'
+              '{"rule":"J1","where":"x","severity":"HIGH","why":"y","steps":"z"}}]}')
+
+
+@check
+def stray_brace_is_not_valid_json():
+    """The real V08 answer had an extra closing brace after each finding. It must count as no valid answer."""
+    st, f, n = rs.parse_answer(V08_BROKEN)
+    assert st == "no_valid_answer" and f == [] and "invalid JSON" in n[0], (st, n)
+
+
+@check
+def retry_answer_replaces_invalid_first_answer():
+    import tempfile
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        (d / "raw").mkdir()
+        good = answer(fnd("J3", "HIGH", "Deployment._configureModules", "no country is restricted"))
+        (d / "raw" / "V08.retry1.txt").write_text(good, encoding="utf-8")
+        (d / "raw" / "V01.retry1.txt").write_text(good, encoding="utf-8")   # V01's first answer is valid: must be ignored
+        (d / "calls_retry.json").write_text(json.dumps({"V08": {"input_tokens": 10, "output_tokens": 5, "cost_usd": 0.5,
+                                                                "seconds": 2.0, "truncated": False}}), encoding="utf-8")
+        answers = empty_answers()
+        answers["V08"] = {"text": V08_BROKEN, "truncated": False}
+        calls = {"V08": {"input_tokens": 100, "output_tokens": 50, "cost_usd": 1.0, "seconds": 3.0, "truncated": False}}
+        new_answers, new_calls, retried = rs.apply_retries(d, ENTRIES, answers, calls)
+        assert retried == ["V08"], retried
+        assert new_calls["V08"]["input_tokens"] == 110 and abs(new_calls["V08"]["cost_usd"] - 1.5) < 1e-9
+        rows, _, _ = rs.score_all(new_answers, KW, ENTRIES, RULES)
+        r = {x["target"]: x for x in rows}
+        assert r["V08"]["status"] == "ok" and r["V08"]["official"] and r["V08"]["strict"], r["V08"]
+        assert r["V01"]["findings"] == 0, "a valid first answer must not be replaced"
+        before, _, _ = rs.score_all(answers, KW, ENTRIES, RULES)
+        assert {x["target"]: x for x in before}["V08"]["status"] == "no_valid_answer", "the first-run scoring must stay unchanged"
+
+
+@check
+def extra_units_file_is_well_formed():
+    data = rs.load_json(PIPE / "review_extra_units.json")
+    assert data["r2"], "r2 must list extra units"
+    for spec in data["r2"]:
+        assert spec["file"] and spec["contract"] and spec["functions"], spec
+
+
+@check
+def s04_v_byte_wording_is_a_stock_gap():
+    """The real C02 finding of the Haiku r1 run (v byte changed from 27/28 to 0/1) is the S04 gap, confirmed by a Foundry test."""
+    why = ("getRecoveredAddress accepts v in {0,1} as well as {27,28}. A revoked signature can be re-encoded with a "
+           "different v byte, giving different bytes that recover to the same signer and are not in revokedClaims.")
+    assert rs.is_stock_gap(fnd("K2", "HIGH", "ClaimIssuer.revokeClaim / isClaimValid / getRecoveredAddress", why))
+    assert not rs.is_stock_gap(fnd("K2", "HIGH", "ClaimIssuer.isClaimValid", "isClaimValid never checks isClaimRevoked"))
+
+
 def main():
     failed = 0
     for fn in CHECKS:

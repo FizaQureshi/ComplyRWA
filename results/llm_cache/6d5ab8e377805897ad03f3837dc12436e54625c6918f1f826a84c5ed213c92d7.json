@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H2\",\"where\":\"MaxBalanceModule._getIdentity (used by moduleCheck, moduleTransferAction, moduleMintAction, moduleBurnAction)\",\"severity\":\"HIGH\",\"why\":\"_getIdentity returns the wallet address and never looks up the identity in the registry. Wallets a1 and a2 both belong to idA but are tracked and capped separately, so the identity does not share one cap.\",\"steps\":\"setUp as given (a1 and a2 both registered to idA, cap 1000). Agent mints 1000 to a1, then mints 1000 to a2. Both calls pass moduleCheck, because each wallet's own balance is counted. idA now holds 2000.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16664,
+  "output_tokens": 1032
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.043648,
+ "tag": "reviewer:V10:r2",
+ "created": "2026-11-22 00:39:22"
+}

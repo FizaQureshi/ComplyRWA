@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[\n{\"rule\":\"H1\",\"where\":\"Deployment._configureModules (calls compliance.removeModule(maxBalanceModule) after super)\",\"severity\":\"HIGH\",\"why\":\"The override unbinds MaxBalanceModule right after the cap is set, so ModularCompliance.canTransfer no longer calls it. No holding limit applies to mint, transfer, transferFrom or batchTransfer.\",\"steps\":\"Setup runs. Agent calls token.mint(b, 5000), which passes because only CountryRestrictModule is checked. The same happens with transfer(b, amount) for any amount.\"}\n,\n{\"rule\":\"H2\",\"where\":\"Deployment._configureModules (removeModule of MaxBalanceModule)\",\"severity\":\"HIGH\",\"why\":\"With the module unbound, no per-identity cap exists. Wallets a1 and a2, which share identity idA, can together hold far more than 1000.\",\"steps\":\"Agent mints 1000 to a1 and then 1000 to a2. Both succeed and idA holds 2000.\"}\n,\n{\"rule\":\"H3\",\"where\":\"Deployment._configureModules / ModularCompliance.transferred, created, destroyed\",\"severity\":\"MEDIUM\",\"why\":\"The unbound module no longer receives moduleMintAction, moduleTransferAction or moduleBurnAction. Its _IDBalance records stay at 0 while real balances change, so the records do not match the token balances.\",\"steps\":\"Agent mints 500 to b. Then call maxBalanceModule.getIDBalance(compliance, idB), which returns 0 while token.balanceOf(b) is 500.\"}\n]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15979,
+  "output_tokens": 885
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.040808,
+ "tag": "reviewer:V09:r1",
+ "created": "2026-11-21 18:12:07"
+}

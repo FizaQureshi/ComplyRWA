@@ -13,7 +13,7 @@ Definitions (the same text is in review_keywords.json):
   false positive      a clean target with at least one HIGH or MEDIUM finding
   no valid answer     empty, cut off, or not valid JSON. Never counted as "no findings".
   stock-gap finding   a K2 finding that describes the twin-signature gap (S03 in Phase 3: a revoked claim can be
-                      re-added with signature (r, n-s, v^1)). It is a real gap of the ONCHAINID dependency, not a seeded
+                      re-added with signature (r, n-s, v^1); S04: re-added with the v byte written as 0 or 1). It is a real gap of the ONCHAINID dependency, not a seeded
                       variant, and Phase 3 kept it out of the detection and false-positive measures. The report therefore
                       shows every number twice: as defined above, and "adjusted", which ignores stock-gap findings.
                       This rule was fixed after the first real answer (C01) and before the other 20 answers existed.
@@ -40,8 +40,11 @@ SERIOUS = ("HIGH", "MEDIUM")
 SEV_ALIAS = {"CRITICAL": "HIGH", "MED": "MEDIUM", "INFO": "LOW", "INFORMATIONAL": "LOW"}
 
 # Words that mark a K2 finding as the known twin-signature stock gap (S03). Lower case, searched in where + why + steps.
+# S04 (v byte written as 0 or 1) was confirmed by test/StockGapsVByte.t.sol after the first runs; its words were added then
+# and apply to every run in the same way. S03 and S04 are the same family: revocation is keyed on exact signature bytes.
 STOCK_GAP_WORDS = ("malleab", "high-s", "high s", "n-s", "n - s", "n\u2212s", "twin signature", "twin sig",
-                   "different signature", "alternate signature", "second signature", "alternative signature")
+                   "different signature", "alternate signature", "second signature", "alternative signature",
+                   "v byte", "v-byte", "v = 0", "v=0", "v in {0", "from 27 to 0", "0 or 1", "re-encod", "reencod")
 
 
 def is_stock_gap(f):
@@ -143,6 +146,29 @@ def score_all(answers, kw, entries, rules):
     return rows, notes, found
 
 
+def apply_retries(d, entries, answers, calls):
+    """Replace each invalid first answer by its saved retry answer (raw/<TARGET>.retry1.txt).
+    Tokens, cost and time of the retry are added to the target's call record. Returns (answers, calls, retried_ids)."""
+    d = Path(d)
+    retry_calls = load_json(d / "calls_retry.json") if (d / "calls_retry.json").exists() else {}
+    answers, calls, retried = dict(answers), dict(calls), []
+    for e in entries:
+        tid = e["id"]
+        a = answers.get(tid)
+        status = parse_answer(a["text"], a.get("truncated", False))[0] if a else "no_valid_answer"
+        f = d / "raw" / f"{tid}.retry1.txt"
+        if status != "ok" and f.exists():
+            rc = retry_calls.get(tid, {})
+            answers[tid] = {"text": f.read_text(encoding="utf-8"), "truncated": bool(rc.get("truncated"))}
+            base = dict(calls.get(tid, {}))
+            for k in ("input_tokens", "output_tokens", "cost_usd", "seconds"):
+                base[k] = base.get(k, 0) + rc.get(k, 0)
+            base["truncated"] = bool(rc.get("truncated"))
+            calls[tid] = base
+            retried.append(tid)
+    return answers, calls, retried
+
+
 def summarize(rows):
     var = [r for r in rows if r["kind"] == "variant"]
     cln = [r for r in rows if r["kind"] == "clean"]
@@ -176,7 +202,7 @@ def pct(x):
     return f"{x:.0%}"
 
 
-def write_report(out, name, rows, notes, s, calls):
+def write_report(out, name, rows, notes, s, calls, suffix=""):
     L = [f"# LLM-only review: {name}", ""]
     L += ["| measure | value |", "|---|---|",
           f"| variants detected (official) | {s['official']} of {s['variants']} = {pct(s['detection_rate'])} |",
@@ -230,11 +256,11 @@ def write_report(out, name, rows, notes, s, calls):
           "- Stock-gap findings describe the twin-signature gap (S03 in Phase 3), a real gap of the ONCHAINID dependency that is not a seeded variant. "
           "Phase 3 kept it out of the detection and false-positive measures, so the adjusted rows ignore these findings. "
           "The rule was fixed after the first real answer and before the other answers existed. A finding that mixes S03 with a real bug would be dropped from the adjusted rows, which is the cautious direction."]
-    Path(out, "report.md").write_text("\n".join(L) + "\n", encoding="utf-8")
+    Path(out, f"report{suffix}.md").write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
-def write_csv(out, rows, calls):
-    with open(Path(out, "scores.csv"), "w", newline="", encoding="utf-8") as f:
+def write_csv(out, rows, calls, suffix=""):
+    with open(Path(out, f"scores{suffix}.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["target", "kind", "status", "findings", "serious", "official", "strict", "flagged_any",
                     "false_positive", "rules_flagged", "official_adj", "strict_adj", "false_positive_adj", "stock_gap_findings", "input_tokens", "output_tokens", "cost_usd", "seconds"])
@@ -251,6 +277,7 @@ def main():
     ap.add_argument("--dir", required=True, help="run folder, e.g. results/review_r1_haiku")
     ap.add_argument("--keywords", default=str(KEYWORDS_FILE))
     ap.add_argument("--manifest", default=str(MANIFEST_FILE))
+    ap.add_argument("--with-retry", action="store_true", help="use the retry answer where the first answer was invalid")
     a = ap.parse_args()
     d = Path(a.dir)
     if not (d / "raw").is_dir():
@@ -265,16 +292,20 @@ def main():
         if f.exists():
             answers[e["id"]] = {"text": f.read_text(encoding="utf-8"),
                                 "truncated": bool(calls.get(e["id"], {}).get("truncated"))}
+    suffix, name = "", d.name
+    if a.with_retry:
+        answers, calls, retried = apply_retries(d, entries, answers, calls)
+        suffix, name = "_after_retry", f"{d.name} (after one retry of invalid answers: {' '.join(retried) or 'none needed'})"
     rows, notes, found = score_all(answers, kw, entries, rules)
     s = summarize(rows)
-    write_report(d, d.name, rows, notes, s, calls)
-    write_csv(d, rows, calls)
-    Path(d, "findings.json").write_text(json.dumps(
+    write_report(d, name, rows, notes, s, calls, suffix)
+    write_csv(d, rows, calls, suffix)
+    Path(d, f"findings{suffix}.json").write_text(json.dumps(
         {r["target"]: {"status": r["status"], "notes": notes[r["target"]], "findings": found[r["target"]]} for r in rows},
         indent=1), encoding="utf-8")
     print(f"{d.name}: variants official {s['official']}/{s['variants']}, strict {s['strict']}/{s['variants']}; "
           f"clean false positives {s['false_positives']}/{s['clean']}; no valid answer: {len(s['no_valid_answer'])}")
-    print(f"wrote {d}/report.md, scores.csv, findings.json")
+    print(f"wrote {d}/report{suffix}.md, scores{suffix}.csv, findings{suffix}.json")
     return 0
 
 

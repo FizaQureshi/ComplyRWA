@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"J1\",\"where\":\"Deployment._configureModules\",\"severity\":\"HIGH\",\"why\":\"The override restricts country 410 instead of 408, and it never calls super, so 408 is never added to the CountryRestrictModule. Investor c is registered in 408 and holds a valid KYC claim, so isVerified and the country module both pass and c can receive tokens.\",\"steps\":\"agent mint(b, 100); b transfer(c, 50) succeeds. Agent mint(c, 10) also succeeds.\"}, {\"rule\":\"J3\",\"where\":\"Deployment._configureModules\",\"severity\":\"HIGH\",\"why\":\"The module is bound to the compliance contract, but the restricted set holds the wrong country (410, not 408), so the country restriction does not match the policy.\",\"steps\":\"Call countryModule.isCountryRestricted(compliance, 408), which returns false. Then call transfer to a wallet registered in 408; it succeeds.\"}, {\"rule\":\"J2\",\"where\":\"Deployment._configureModules\",\"severity\":\"HIGH\",\"why\":\"Because 408 is not in the restricted set, updating a wallet's country to 408 does not stop it from receiving tokens.\",\"steps\":\"agent ir.updateCountry(b, 408); a1 transfer(b, 10) succeeds.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15971,
+  "output_tokens": 1004
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.041982,
+ "tag": "reviewer:V05:r1",
+ "created": "2026-11-21 18:11:32"
+}

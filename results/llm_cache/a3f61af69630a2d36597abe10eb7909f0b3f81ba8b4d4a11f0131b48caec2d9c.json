@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H4\",\"where\":\"Deployment._configureModules\",\"severity\":\"HIGH\",\"why\":\"The override calls _setCap(type(uint256).max) instead of the issuer's cap of 1000. The cap is set to the forbidden maximum uint256 value.\",\"steps\":\"Run setUp, which calls Deployment._configureModules, and the cap becomes 2^256-1. Then maxBalanceModule.setMaxBalance is effectively disabled.\"}},{\"rule\":\"H1\",\"where\":\"Deployment._configureModules (MaxBalanceModule cap = uint256.max)\",\"severity\":\"HIGH\",\"why\":\"With the cap at uint256 max, MaxBalanceModule.moduleCheck and the post-transfer checks never reject. An investor identity can hold far more than 1000 tokens.\",\"steps\":\"agent mint(a1, 1_000_000) succeeds. Or mint(b, 1000) twice, then transfer; every call passes the cap check.\"}},{\"rule\":\"H2\",\"where\":\"Deployment._configureModules (MaxBalanceModule cap = uint256.max)\",\"severity\":\"HIGH\",\"why\":\"The shared cap per identity is not enforced. a1 and a2 share idA, and together they can hold more than 1000 tokens.\",\"steps\":\"mint(a1, 900), then mint(a2, 900). Both succeed, so idA holds 1800 tokens.\"}}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16781,
+  "output_tokens": 743
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.040992,
+ "tag": "reviewer:V13:r2",
+ "created": "2026-11-22 00:39:54"
+}

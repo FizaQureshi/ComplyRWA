@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K1\",\"where\":\"IdentityRegistry.isVerified\",\"severity\":\"HIGH\",\"why\":\"isVerified returns true as soon as any one required topic has a valid claim, instead of requiring every required topic. This deployment requires topics 1 and 2, and idM holds only a topic-1 claim, so wallet m passes verification without the topic-2 claim.\",\"steps\":\"1. Setup registers m with idM and issues only the topic-1 claim. 2. Agent calls token.mint(m, 10), or b calls transfer(m, 10). 3. isVerified(m) is true because topic 1 is valid, so the call succeeds although the topic-2 claim is missing.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15974,
+  "output_tokens": 1058
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.042528,
+ "tag": "reviewer:V01:r1",
+ "created": "2026-11-21 18:10:43"
+}

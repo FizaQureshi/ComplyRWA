@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K1\",\"where\":\"ClaimIssuer.isClaimValid (used by IdentityRegistry.isVerified) and Deployment._registerInvestors\",\"severity\":\"HIGH\",\"why\":\"isClaimValid always returns true and never checks the signature, the issuer key, or the revocation list. In the override, wallet m receives a KYC claim 'signed' with an unrelated key (secondKey), and it still counts as verified. Any identity owner can also add a forged claim.\",\"steps\":\"1) Setup runs the override, so idM holds a claim signed with secondKey. 2) The agent calls token.mint(m, 100), or b calls token.transfer(m, 10). 3) isVerified(m) returns true, so the transfer succeeds even though no trusted issuer signed m's KYC.\"}, {\"rule\":\"K2\",\"where\":\"ClaimIssuer.isClaimValid / ClaimIssuer.revokeClaim\",\"severity\":\"HIGH\",\"why\":\"revokeClaim only sets revokedClaims[sig], but isClaimValid ignores that mapping and always returns true. A revoked investor still passes isVerified and can keep receiving tokens.\",\"steps\":\"1) issuerAdmin calls claimIssuer.revokeClaim(claimId, idB). 2) a1 calls token.transfer(b, 10). 3) isVerified(b) is still true and the transfer succeeds.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15777,
+  "output_tokens": 1212
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.043674,
+ "tag": "reviewer:V02:r1b",
+ "created": "2026-11-22 01:08:34"
+}

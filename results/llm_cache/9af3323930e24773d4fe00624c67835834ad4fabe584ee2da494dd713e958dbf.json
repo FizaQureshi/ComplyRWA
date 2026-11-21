@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H4\",\"where\":\"Deployment._configureModules\",\"severity\":\"HIGH\",\"why\":\"The override sets the holding cap to type(uint256).max, which the policy forbids. The cap is therefore effectively disabled, and the cap no longer matches the issuer's number of 1000.\",\"steps\":\"Deployment.setUp() -> _configureModules() calls _setCap(type(uint256).max) -> MaxBalanceModule._maxBalance[compliance] = 2^256-1\"},{\"rule\":\"H1\",\"where\":\"Deployment._configureModules / MaxBalanceModule.moduleCheck and moduleMintAction\",\"severity\":\"HIGH\",\"why\":\"Because the cap is uint256 max, the MaxBalanceModule never rejects a transfer or mint for size. An investor identity can therefore receive or be minted far more than 1000 tokens through normal calls.\",\"steps\":\"agent: token.mint(a1, 5000) (identity idA passes isVerified and canTransfer, since the cap check never fails) -> idA now holds 5000 tokens, above the 1000 limit\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15981,
+  "output_tokens": 1669
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0024326000000000005,
+ "tag": "reviewer:V13:r1b",
+ "created": "2026-11-22 00:53:32"
+}

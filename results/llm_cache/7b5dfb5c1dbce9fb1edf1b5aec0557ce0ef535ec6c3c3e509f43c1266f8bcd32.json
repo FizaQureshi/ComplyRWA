@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.revokeClaim / ClaimIssuer.isClaimRevoked / ClaimIssuer.getRecoveredAddress, reached via Identity.addClaim and IdentityRegistry.isVerified\",\"severity\":\"HIGH\",\"why\":\"Revocation is stored by the raw signature bytes, but ecrecover accepts high-s (malleated) signatures. A revoked investor can flip s to n-s and flip v, which recovers the same issuer signer and yields a new byte string that is not in revokedClaims. The investor can re-attach that claim to their identity and become verified again, so the revoked wallet can receive tokens.\",\"steps\":\"1) Issuer calls claimIssuer.revokeClaim(claimId, idA), which sets revokedClaims[sig]=true. 2) isVerified(a1) now returns false. 3) The investor (management key of idA) computes sig' = (r, n-s, v^1) and calls idA.addClaim(1, 1, claimIssuer, sig', data, \\\"\\\"). addClaim accepts it because isClaimValid(sig') recovers the same signer and the bytes are not in revokedClaims. 4) isVerified(a1) returns true. 5) transfer(a1, amount) from any holder succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15931,
+  "output_tokens": 4368
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0037771000000000002,
+ "tag": "reviewer:C01:r1b",
+ "created": "2026-11-22 00:47:12"
+}

@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.revokeClaim / ClaimIssuer.isClaimValid / ClaimIssuer.getRecoveredAddress (used by IdentityRegistry.isVerified via Identity.addClaim)\",\"severity\":\"HIGH\",\"why\":\"Revocation is keyed on the raw signature bytes, and getRecoveredAddress has no low-s check, so the same signer's malleated signature (s replaced by n-s, v flipped) recovers the same signer but has different bytes and is not in revokedClaims. The investor can re-add the claim with that variant and isVerified will pass again, so a revoked wallet can receive tokens.\",\"steps\":\"1) Issuer calls claimIssuer.revokeClaim(claimId, idA), so the KYC signature S is revoked. 2) a1 computes S' = (r, n-s, flipped v) for the same signer. 3) a1 calls idA.addClaim(1, 1, claimIssuer, S', data, \\\"\\\"). isClaimValid(S') returns true because S' is not revoked, so the claim is stored. 4) transfer(a1 or a2, amount) from any sender now passes isVerified and succeeds, even though the KYC was revoked.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 16014,
+  "output_tokens": 8422
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0058124,
+ "tag": "reviewer:C03:r1b",
+ "created": "2026-11-22 00:48:29"
+}

@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"J2\",\"where\":\"IdentityRegistry.updateCountry\",\"severity\":\"HIGH\",\"why\":\"updateCountry only emits CountryUpdated and never writes the country into _tokenIdentityStorage, and IdentityRegistryStorage exposes no setter. The stored country stays at its old value, so CountryRestrictModule keeps checking the old country and a wallet moved to restricted country 408 can still receive tokens.\",\"steps\":\"Setup: wallet b is registered with INDIA (356). Agent calls ir.updateCountry(b, 408). Holder a1 calls token.transfer(b, amount). isVerified(b) is true and countryModule.moduleCheck reads investorCountry(b)=356, which is not restricted, so the transfer succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15894,
+  "output_tokens": 4039
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0036089,
+ "tag": "reviewer:V06:r1",
+ "created": "2026-11-21 17:52:36"
+}

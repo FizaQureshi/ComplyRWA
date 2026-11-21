@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.revokeClaim / ClaimIssuer.revokeClaimBySignature / ClaimIssuer.getRecoveredAddress / ClaimIssuer.isClaimValid (used by IdentityRegistry.isVerified and Identity.addClaim)\",\"severity\":\"HIGH\",\"why\":\"Revocation is stored by the raw signature bytes, but signature verification normalizes v (v < 27 gets +27). A revoked signature with v=27 or 28 can be rewritten with v=0 or 1. The rewritten bytes are not in revokedClaims, yet they recover to the same signer, so the claim passes isClaimValid again. The investor wallet can re-add that claim, and isVerified then accepts the wallet, so a revoked wallet can receive tokens again.\",\"steps\":\"1) Investor a1 holds a valid KYC claim (topic 1) from claimIssuer, stored in idA with signature S (v=27). 2) claimIssuer's admin calls claimIssuer.revokeClaim(claimId, idA), which sets revokedClaims[S]=true. 3) a1 calls idA.addClaim(1, 1, claimIssuer, S' , KYC_DATA, \\\"\\\") where S' is S with the last byte changed from 27 to 0. addClaim passes because isClaimValid normalizes v and the recovered signer is unchanged. S' is not in revokedClaims. 4) a1 (or a2 under idA) calls token.transfer(x, amount) to a verified receiver, and it succeeds, even though the KYC was revoked.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 17249,
+  "output_tokens": 6179
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0048144,
+ "tag": "reviewer:C02:r2:retry",
+ "created": "2026-11-22 00:41:55"
+}

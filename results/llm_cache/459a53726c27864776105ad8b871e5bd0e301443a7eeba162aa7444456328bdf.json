@@ -1,0 +1,12 @@
+{
+ "text": "",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 17249,
+  "output_tokens": 12000
+ },
+ "stop_reason": "max_tokens",
+ "cost_usd": 0.0077249,
+ "tag": "reviewer:C02:r2",
+ "created": "2026-11-22 00:41:27"
+}
