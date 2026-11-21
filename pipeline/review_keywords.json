@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "status": "DRAFT until the project owner signs off. After sign-off, commit this file BEFORE the first live reviewer call and do not edit it afterwards.",
+  "note": "Step 4.8 scoring data, written without seeing any reviewer answer. linked_rules come from the linked_tests in configs.json (gold test prefix -> rule: G01 K1, G02 K3, G03 J1, G04 H1, G05 H3, G06 K2, G07 J2, G08 J3, G09 H2, G10 H4). strict_any_of: lower-case words; a finding passes the strict score if its 'where' + 'why' text contains at least one of them. The words name the changed code or setup call, not a full description of the bug.",
+  "scoring": {
+    "official_detected": "at least one finding with rule in linked_rules and severity HIGH or MEDIUM",
+    "strict_detected": "official_detected, and the same finding's where+why text contains one of strict_any_of (case-insensitive)",
+    "false_positive": "a clean target (C01 to C08) with at least one finding of severity HIGH or MEDIUM",
+    "no_valid_answer": "the answer was cut off, empty or not valid JSON: counted separately, never as 'no findings'",
+    "detection_rate": "official_detected / 13 variants",
+    "false_positive_rate": "false_positive / 8 clean targets"
+  },
+  "variants": {
+    "V01": {"linked_rules": ["K1"], "strict_any_of": ["isverified", "_topicok"]},
+    "V02": {"linked_rules": ["K1"], "strict_any_of": ["isclaimvalid", "claimissuer"]},
+    "V03": {"linked_rules": ["K2"], "strict_any_of": ["isclaimvalid", "revoke", "isclaimrevoked", "revokedclaims"]},
+    "V04": {"linked_rules": ["K3", "K1"], "strict_any_of": ["removeclaimtopic", "claimtopicsregistry", "no required", "no claim topic", "empty"]},
+    "V05": {"linked_rules": ["J1", "J3"], "strict_any_of": ["410", "wrong country", "wrong code", "_restrictcountry"]},
+    "V06": {"linked_rules": ["J2"], "strict_any_of": ["updatecountry"]},
+    "V07": {"linked_rules": ["J2", "J3"], "strict_any_of": ["removemodule", "removed", "not bound", "unbound"]},
+    "V08": {"linked_rules": ["J3", "J1"], "strict_any_of": ["no countr", "not configured", "unconfigured", "addcountryrestriction", "_configuremodules", "_restrictcountry"]},
+    "V09": {"linked_rules": ["H1", "H3"], "strict_any_of": ["removemodule", "removed", "not bound", "unbound"]},
+    "V10": {"linked_rules": ["H2", "H1"], "strict_any_of": ["_getidentity", "per wallet", "keyed by wallet", "wallet instead of identity", "wallet address", "each wallet"]},
+    "V11": {"linked_rules": ["H3", "H1"], "strict_any_of": ["preset", "batchpresetmodulestate"]},
+    "V12": {"linked_rules": ["H3"], "strict_any_of": ["forcedtransfer"]},
+    "V13": {"linked_rules": ["H1", "H2", "H4"], "strict_any_of": ["type(uint256).max", "uint256).max", "max uint", "setmaxbalance", "_setcap"]}
+  }
+}

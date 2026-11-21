@@ -592,8 +592,3 @@ The known-exception probe (`test_J4_forcedTransferToRestrictedCountrySucceeds`) 
 - [x] 4.7 End-to-end demo script: policy input, generated property, executed test, counterexample, audit report
 - [ ] 4.8 LLM-only review baseline: Haiku and Sonnet read the same slices and policy rules and list vulnerabilities without running tests; score against the 13 variants; time and token cost
 
-**To commit before 4.7:** `pipeline/explainer.py`, `pipeline/prompts/explainer.md`, `pipeline/mock/explainer.txt`, `results/explain_*`, `results/llm_cache`, `results/llm_ledger.jsonl`.
-
-**Ideas for 4.7:** run the whole chain for the 5 default rules on one chosen configuration; group findings by cause; show a MEDIUM or INFO case in the demo if a suitable configuration can be built (for example `forcedTransfer` to a restricted country).
-
-**Total spent through 4.6 (ledger on the owner's machine):** $0.4435 of the $20 credit (ledger summary printed after the 12-finding explainer run).
