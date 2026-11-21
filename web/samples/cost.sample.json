@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "is_sample": true,
+  "audit_id": "audit-2026-11-12-001",
+  "model": "claude-sonnet-5-5",
+  "price_usd_per_million_tokens": { "input": 2.0, "output": 10.0 },
+  "stages": [
+    { "stage": "slicer", "llm_calls": 2, "input_tokens": 20000, "output_tokens": 1500, "usd": 0.055, "seconds": 12 },
+    { "stage": "generator", "llm_calls": 8, "input_tokens": 210000, "output_tokens": 26000, "usd": 0.68, "seconds": 95 },
+    { "stage": "validity_filter", "llm_calls": 0, "input_tokens": 0, "output_tokens": 0, "usd": 0.0, "seconds": 40 },
+    { "stage": "executor", "llm_calls": 0, "input_tokens": 0, "output_tokens": 0, "usd": 0.0, "seconds": 55 },
+    { "stage": "explainer", "llm_calls": 1, "input_tokens": 6000, "output_tokens": 900, "usd": 0.021, "seconds": 8 }
+  ],
+  "totals": { "llm_calls": 11, "input_tokens": 236000, "output_tokens": 28400, "usd": 0.756, "seconds": 210 }
+}
