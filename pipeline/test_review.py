@@ -173,6 +173,49 @@ def policy_rules_have_text_and_slices():
     assert len(RULES) == 10
 
 
+# ------------------------------------------------------------------ stock-gap (S03) handling
+GAP_WHY = ("Revocation is keyed on the exact signature bytes, but ecrecover accepts high-s signatures. The revoked "
+           "signature (r, s, v) can be rewritten as (r, n-s, v^1), which recovers to the same signer but is not in revokedClaims.")
+
+
+def empty_answers():
+    return {e["id"]: {"text": answer(), "truncated": False} for e in ENTRIES}
+
+
+@check
+def stock_gap_on_clean_target_is_not_adjusted_false_positive():
+    a = empty_answers()
+    a["C01"]["text"] = answer(fnd("K2", "HIGH", "ClaimIssuer.getRecoveredAddress / isClaimValid", GAP_WHY))
+    a["C02"]["text"] = answer(fnd("K2", "HIGH", "ClaimIssuer.isClaimValid", "revoked claims are accepted"))
+    rows, _, _ = rs.score_all(a, KW, ENTRIES, RULES)
+    r = {x["target"]: x for x in rows}
+    assert r["C01"]["false_positive"] and not r["C01"]["false_positive_adj"] and r["C01"]["stock_gap_findings"] == 1
+    assert r["C02"]["false_positive"] and r["C02"]["false_positive_adj"] and r["C02"]["stock_gap_findings"] == 0
+    s = rs.summarize(rows)
+    assert s["false_positives"] == 2 and s["false_positives_adj"] == 1 and s["stock_gap_targets"] == ["C01"], s
+
+
+@check
+def stock_gap_does_not_credit_v03():
+    a = empty_answers()
+    a["V03"]["text"] = answer(fnd("K2", "HIGH", "ClaimIssuer.isClaimValid / revokeClaim", GAP_WHY))
+    rows, _, _ = rs.score_all(a, KW, ENTRIES, RULES)
+    r = {x["target"]: x for x in rows}["V03"]
+    assert r["official"] and r["strict"], "as defined in the frozen file, the finding would count"
+    assert not r["official_adj"] and not r["strict_adj"], "adjusted scores must not credit the twin-signature finding"
+    a["V03"]["text"] = answer(fnd("K2", "HIGH", "ClaimIssuer.isClaimValid", "isClaimValid never checks isClaimRevoked, so a revoked claim is accepted"))
+    rows, _, _ = rs.score_all(a, KW, ENTRIES, RULES)
+    r = {x["target"]: x for x in rows}["V03"]
+    assert r["official_adj"] and r["strict_adj"] and r["stock_gap_findings"] == 0
+
+
+@check
+def stock_gap_only_applies_to_k2():
+    assert rs.is_stock_gap(fnd("K2", "HIGH", "x", GAP_WHY))
+    assert not rs.is_stock_gap(fnd("K1", "HIGH", "x", GAP_WHY))
+    assert not rs.is_stock_gap(fnd("K2", "HIGH", "isClaimValid", "revocation ignored"))
+
+
 def main():
     failed = 0
     for fn in CHECKS:

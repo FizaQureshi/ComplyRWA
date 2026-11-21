@@ -12,6 +12,11 @@ Definitions (the same text is in review_keywords.json):
   strict detected     official, and that finding's where+why text holds one of the variant's strict words
   false positive      a clean target with at least one HIGH or MEDIUM finding
   no valid answer     empty, cut off, or not valid JSON. Never counted as "no findings".
+  stock-gap finding   a K2 finding that describes the twin-signature gap (S03 in Phase 3: a revoked claim can be
+                      re-added with signature (r, n-s, v^1)). It is a real gap of the ONCHAINID dependency, not a seeded
+                      variant, and Phase 3 kept it out of the detection and false-positive measures. The report therefore
+                      shows every number twice: as defined above, and "adjusted", which ignores stock-gap findings.
+                      This rule was fixed after the first real answer (C01) and before the other 20 answers existed.
 
 Outputs in the run folder: report.md, scores.csv, findings.json
 
@@ -33,6 +38,15 @@ POLICY_FILE = PIPE / "review_policy.json"
 SEVERITIES = ("HIGH", "MEDIUM", "LOW")
 SERIOUS = ("HIGH", "MEDIUM")
 SEV_ALIAS = {"CRITICAL": "HIGH", "MED": "MEDIUM", "INFO": "LOW", "INFORMATIONAL": "LOW"}
+
+# Words that mark a K2 finding as the known twin-signature stock gap (S03). Lower case, searched in where + why + steps.
+STOCK_GAP_WORDS = ("malleab", "high-s", "high s", "n-s", "n - s", "n\u2212s", "twin signature", "twin sig",
+                   "different signature", "alternate signature", "second signature", "alternative signature")
+
+
+def is_stock_gap(f):
+    text = (f["where"] + " " + f["why"] + " " + f["steps"]).lower()
+    return f["rule"] == "K2" and any(w in text for w in STOCK_GAP_WORDS)
 
 
 def load_json(path):
@@ -83,26 +97,34 @@ def parse_answer(text, truncated=False):
 def score_target(tid, kind, status, findings, kw, rules):
     r = {"target": tid, "kind": kind, "status": status, "findings": len(findings),
          "serious": 0, "official": False, "strict": False, "flagged_any": False,
-         "false_positive": False, "out_of_scope": 0, "rules_flagged": [], "matched": None}
+         "false_positive": False, "out_of_scope": 0, "rules_flagged": [], "matched": None,
+         "stock_gap_findings": 0, "official_adj": False, "strict_adj": False, "false_positive_adj": False}
     if status != "ok":
         return r
     serious = [f for f in findings if f["severity"] in SERIOUS]
+    gap = [f for f in serious if is_stock_gap(f)]
+    plain = [f for f in serious if not is_stock_gap(f)]
     r["serious"] = len(serious)
+    r["stock_gap_findings"] = len(gap)
     r["rules_flagged"] = sorted({f["rule"] for f in serious})
     r["flagged_any"] = bool(serious)
     if kind == "variant":
         spec = kw["variants"][tid]
         linked, words = set(spec["linked_rules"]), spec["strict_any_of"]
+
+        def strict_of(hits):
+            return [f for f in hits if any(w in (f["where"] + " " + f["why"]).lower() for w in words)]
+
         hits = [f for f in serious if f["rule"] in linked]
-        r["official"] = bool(hits)
-        strict = [f for f in hits if any(w in (f["where"] + " " + f["why"]).lower() for w in words)]
-        r["strict"] = bool(strict)
-        best = (strict or hits or [None])[0]
-        r["matched"] = best
+        hits_adj = [f for f in plain if f["rule"] in linked]
+        r["official"], r["official_adj"] = bool(hits), bool(hits_adj)
+        r["strict"], r["strict_adj"] = bool(strict_of(hits)), bool(strict_of(hits_adj))
+        r["matched"] = (strict_of(hits_adj) or hits_adj or strict_of(hits) or hits or [None])[0]
     else:
         r["false_positive"] = bool(serious)
+        r["false_positive_adj"] = bool(plain)
         r["out_of_scope"] = sum(1 for f in serious if f["rule"] not in rules)
-        r["matched"] = serious[0] if serious else None
+        r["matched"] = (plain or serious or [None])[0]
     return r
 
 
@@ -134,7 +156,13 @@ def summarize(rows):
         "false_positives": sum(r["false_positive"] for r in cln),
         "out_of_scope_findings": sum(r["out_of_scope"] for r in cln),
         "no_valid_answer": [r["target"] for r in rows if r["status"] != "ok"],
+        "official_adj": sum(r["official_adj"] for r in var), "strict_adj": sum(r["strict_adj"] for r in var),
+        "false_positives_adj": sum(r["false_positive_adj"] for r in cln),
+        "stock_gap_targets": [r["target"] for r in rows if r["stock_gap_findings"]],
     }
+    s["detection_rate_adj"] = s["official_adj"] / s["variants"] if s["variants"] else 0.0
+    s["strict_rate_adj"] = s["strict_adj"] / s["variants"] if s["variants"] else 0.0
+    s["false_positive_rate_adj"] = s["false_positives_adj"] / s["clean"] if s["clean"] else 0.0
     s["detection_rate"] = s["official"] / s["variants"] if s["variants"] else 0.0
     s["strict_rate"] = s["strict"] / s["variants"] if s["variants"] else 0.0
     s["false_positive_rate"] = s["false_positives"] / s["clean"] if s["clean"] else 0.0
@@ -153,8 +181,12 @@ def write_report(out, name, rows, notes, s, calls):
     L += ["| measure | value |", "|---|---|",
           f"| variants detected (official) | {s['official']} of {s['variants']} = {pct(s['detection_rate'])} |",
           f"| variants detected (strict, names the changed code) | {s['strict']} of {s['variants']} = {pct(s['strict_rate'])} |",
+          f"| variants detected (official, adjusted: ignoring stock-gap findings) | {s['official_adj']} of {s['variants']} = {pct(s['detection_rate_adj'])} |",
+          f"| variants detected (strict, adjusted) | {s['strict_adj']} of {s['variants']} = {pct(s['strict_rate_adj'])} |",
           f"| variants with any HIGH/MEDIUM finding | {s['flagged_any']} of {s['variants']} |",
           f"| clean targets with a false positive | {s['false_positives']} of {s['clean']} = {pct(s['false_positive_rate'])} |",
+          f"| clean targets with a false positive (adjusted: ignoring stock-gap findings) | {s['false_positives_adj']} of {s['clean']} = {pct(s['false_positive_rate_adj'])} |",
+          f"| targets with a stock-gap finding (twin signature, S03) | {len(s['stock_gap_targets'])} ({' '.join(s['stock_gap_targets']) or 'none'}) |",
           f"| false-positive findings on a rule outside the 10 listed | {s['out_of_scope_findings']} |",
           f"| targets with no valid answer | {len(s['no_valid_answer'])} ({' '.join(s['no_valid_answer']) or 'none'}) |"]
     if s["no_valid_answer"]:
@@ -194,7 +226,10 @@ def write_report(out, name, rows, notes, s, calls):
           "- The reviewer reads the code and setup of each target and lists rule breaks without running anything.",
           "- Official detection needs a HIGH or MEDIUM finding on a linked rule. Strict detection also needs a word that names the changed code.",
           "- A clean target with any HIGH or MEDIUM finding counts as a false positive.",
-          "- An empty, cut-off or invalid answer is never counted as 'no findings'."]
+          "- An empty, cut-off or invalid answer is never counted as 'no findings'.",
+          "- Stock-gap findings describe the twin-signature gap (S03 in Phase 3), a real gap of the ONCHAINID dependency that is not a seeded variant. "
+          "Phase 3 kept it out of the detection and false-positive measures, so the adjusted rows ignore these findings. "
+          "The rule was fixed after the first real answer and before the other answers existed. A finding that mixes S03 with a real bug would be dropped from the adjusted rows, which is the cautious direction."]
     Path(out, "report.md").write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
@@ -202,11 +237,12 @@ def write_csv(out, rows, calls):
     with open(Path(out, "scores.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["target", "kind", "status", "findings", "serious", "official", "strict", "flagged_any",
-                    "false_positive", "rules_flagged", "input_tokens", "output_tokens", "cost_usd", "seconds"])
+                    "false_positive", "rules_flagged", "official_adj", "strict_adj", "false_positive_adj", "stock_gap_findings", "input_tokens", "output_tokens", "cost_usd", "seconds"])
         for r in rows:
             c = calls.get(r["target"], {})
             w.writerow([r["target"], r["kind"], r["status"], r["findings"], r["serious"], int(r["official"]),
                         int(r["strict"]), int(r["flagged_any"]), int(r["false_positive"]), " ".join(r["rules_flagged"]),
+                        int(r["official_adj"]), int(r["strict_adj"]), int(r["false_positive_adj"]), r["stock_gap_findings"],
                         c.get("input_tokens", ""), c.get("output_tokens", ""), c.get("cost_usd", ""), c.get("seconds", "")])
 
 
