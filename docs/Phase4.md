@@ -23,7 +23,7 @@ Everything that needs no LLM came first. Steps 4.4 to 4.6 were built with Haiku 
 | 4.4 | LLM interface and prompts (mock/replay first) | Yes | **Done** |
 | 4.5 | Generator: policy text to candidate tests, then the filter | Yes | **Done** |
 | 4.6 | Explainer (template fallback) | Yes | **Done** |
-| 4.7 | End-to-end demo script | Yes | |
+| 4.7 | End-to-end demo script | Yes | **Done** |
 | 4.8 | LLM-only review baseline (for the three-way benchmark) | Yes | |
 
 ---
@@ -520,7 +520,44 @@ About $0.0014 per finding on Haiku. All 13 variants once would cost a few cents.
 
 ---
 
-## 9. Design decisions for Phase 4 (agreed)
+## 9. Step 4.7: End-to-end demo
+
+**Goal:** show policy input → generated property → executed test → counterexample → audit report in one command.
+
+**Status: COMPLETE.** Files: `pipeline/demo.py`, `pipeline/DEMO.md`, `candidates/probe/ProbeJ4.sol`, `results/demo_<config>/report.md` and `report.json`, `results/filter_probe/`.
+
+### How it works
+1. Policy input: the 5 default rules (K1, K3, J1, H1, H3), rule IDs chosen by the issuer.
+2. Generated properties: tests from the saved batches d1 and d2 (d2 replaces the empty H1 answer of d1).
+3. Executed tests: results on the target configuration are read from the saved filter matrices. They are not re-run live.
+4. Counterexamples: failing tests and reasons are read from the saved forge logs. The explainer writes one finding per failing rule. It only runs if a test failed.
+5. Report: rule status table, findings grouped by symptom (K, J or H rules), the reproducible test the explainer names, the INFO line, and cost.
+
+### Rules added in the report (all symptom-based, so the audit stays blind)
+- A failure message of the form "0 != N" on an H1 test is labelled a side effect (the module's counter did not move) and left out of the direct-evidence count.
+- If a KYC rule fails and an H3 test fails without a "tracked != real" message, it is labelled a side effect of the KYC failure.
+- If all tracked balances stay at 0 on every failing H3 test, a hint is printed to check `compliance.getModules()`.
+- The INFO line (forcedTransfer to a restricted country, agent-only) comes from a fixed probe test, not from the policy.
+
+### Results
+| Target | Rules failing | Groups | LLM cost this run |
+|---|---|---|---|
+| C01 (clean) | none | none | $0 |
+| V09 | H1, H3 | Holding limit (direct evidence H1 2 of 4, H3 4 of 4) | $0.0018 paid |
+| V04 | K1, K3, H3 | KYC, and H3 marked as a side effect (0 of 1 direct) | $0 (cached) |
+
+The known-exception probe (`test_J4_forcedTransferToRestrictedCountrySucceeds`) passes on all 12 variants it ran on (VACUOUS, as intended).
+
+### Limits
+1. Test results are reused, not re-run, so the demo shows the pipeline on saved evidence.
+2. Grouping is by rule category, tuned to the seeded bugs. An unknown bug could appear as a separate group.
+3. The explainer still says the cap value "is not given", because the audit is blind.
+4. The target must be one of the pinned configurations (C01 to C08, V01 to V13).
+5. Only 3 targets have been run. V11 is not reachable by generated scenario tests.
+
+
+
+## 10. Design decisions for Phase 4 (agreed)
 
 1. **Kind detection is automatic** (invariants or scenarios), so scenario tests skip C03, C04, C07 and V11.
 2. **Wrappers are deleted after each run**, so Phase 3 counts stay valid.
@@ -543,7 +580,7 @@ About $0.0014 per finding on Haiku. All 13 variants once would cost a few cents.
 
 ---
 
-## 10. Status and next
+## 11. Status and next
 
 - [x] 4.0 Cfg contracts importable, manifest written and checked
 - [x] 4.1 Executor reproduces the Phase 3 table
@@ -552,7 +589,7 @@ About $0.0014 per finding on Haiku. All 13 variants once would cost a few cents.
 - [x] 4.4 LLM interface and prompts: mock, replay, live, cache, ledger, cap
 - [x] 4.5 Generator: 10 rules, Haiku and Sonnet each 32 of 40 KEEP (80%), 12 of 13 variants, 0 REJECT
 - [x] 4.6 Explainer: 12 findings pass the automatic checks (known limits in 8.5)
-- [ ] 4.7 End-to-end demo script: policy input, generated property, executed test, counterexample, audit report
+- [x] 4.7 End-to-end demo script: policy input, generated property, executed test, counterexample, audit report
 - [ ] 4.8 LLM-only review baseline: Haiku and Sonnet read the same slices and policy rules and list vulnerabilities without running tests; score against the 13 variants; time and token cost
 
 **To commit before 4.7:** `pipeline/explainer.py`, `pipeline/prompts/explainer.md`, `pipeline/mock/explainer.txt`, `results/explain_*`, `results/llm_cache`, `results/llm_ledger.jsonl`.

@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nRule H1: No investor may hold more than the maximum allowed number of tokens.\n\nWhat went wrong\nIn V09, the holding cap appears not to be enforced. `test_mintPastCapIsRefused` expects a mint that takes Bob above the cap to be refused. The failure shows the call was not refused. `test_transferToSecondWalletCannotExceedIdentityCap` shows the same gap across Alice's two wallets. The two \"0 != 500\" failures do not show which line failed, so their cause cannot be told from the output.\n\nAffected functions\nToken.mint and Token.transfer, through the MaxBalanceModule cap check. The cause in V09 is not known, because the audit tool did not describe what the configuration changes.\n\nHow to reproduce (test_mintPastCapIsRefused)\n1. Read Bob's identity balance (idB) and compute room = CAP minus that balance.\n2. The agent mints room + 1 tokens to Bob.\n3. Expected: the call is refused. Observed: the call succeeds, so the assertFalse(ok) check fails.\n\nThe transfer test fails the same way on Alice's second wallet.\n\nSuggested fix\nCheck that MaxBalanceModule is bound to compliance in V09 and that its cap check runs on both mint and transfer. Confirm the cap value for V09, which is not given in the inputs. Rerun all four tests.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3570,
+  "output_tokens": 2827
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0017705,
+ "tag": "explainer:H1:V09:d2:blind",
+ "created": "2026-11-20 23:23:45"
+}
