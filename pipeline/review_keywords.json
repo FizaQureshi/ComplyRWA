@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "DRAFT until the project owner signs off. After sign-off, commit this file BEFORE the first live reviewer call and do not edit it afterwards.",
+  "status": "FROZEN: signed off by the project owner. Do not edit after the first live reviewer call.",
   "note": "Step 4.8 scoring data, written without seeing any reviewer answer. linked_rules come from the linked_tests in configs.json (gold test prefix -> rule: G01 K1, G02 K3, G03 J1, G04 H1, G05 H3, G06 K2, G07 J2, G08 J3, G09 H2, G10 H4). strict_any_of: lower-case words; a finding passes the strict score if its 'where' + 'why' text contains at least one of them. The words name the changed code or setup call, not a full description of the bug.",
   "scoring": {
     "official_detected": "at least one finding with rule in linked_rules and severity HIGH or MEDIUM",
