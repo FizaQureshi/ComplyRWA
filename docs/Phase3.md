@@ -39,7 +39,7 @@ Phase 3 started from three lists written in Phase 2:
 - **Default audit set (5 rules):** K1, K3, J1, H1, H3. These give the 9 default gold tests.
 - **Extended set (5 rules):** K2, J2, J3, H2, H4.
 - **Special rules:** K4, K5, J4 (known exception) and the K2 twin-signature case.
-- **Variant plan:** V01 to V13 (13 seeded variants) plus stock gaps S01 to S03.
+- **Variant plan:** V01 to V13 (13 seeded variants) plus stock gaps S01 to S03 (S04 was added later, after Phase 4 step 4.8).
 - **Clean plan:** C01 to C08.
 - **Decisions D1 to D4**, all accepted:
   - D1: `forcedTransfer` is judged per module and per policy.
@@ -67,6 +67,7 @@ ComplyRWA/
     Smoke.t.sol                    signing and recovery smoke test
     C01_Baseline.t.sol             baseline checks (C01, C03, C04, C07 scenarios)
     StockGaps.t.sol                S01, S02, S03 proven as passing "gap" tests
+    StockGapsVByte.t.sol           S04 (added after Phase 4), passing "gap" test
     gold/
       GoldHandler.sol              random-action driver with ground truth
       GoldInvariants.t.sol         7 property tests
@@ -123,7 +124,7 @@ Policy numbers (variables so clean configs can change them): required topic `1`,
 | `_maxBalanceImpl()` | Step 4c | V10 |
 | `_newToken()` | Step 4c | V12 |
 
-Every hook was added as a **small separate change**, and the clean run was repeated afterwards. It always showed **79 passed**, which proves the hook changed nothing for the clean set.
+Every hook was added as a **small separate change**, and the clean run was repeated afterwards. It always showed **79 passed**, which proves the hook changed nothing for the clean set. (After Phase 4 the clean run shows **80**, because S04 added one test; see section 10.3.)
 
 ### 4.4 Fixture rules learned from the pinned code
 
@@ -230,6 +231,8 @@ They live in `test/C01_Baseline.t.sol` (C01) and `test/clean/CleanConfigs.t.sol`
 
 **Why some have no scenario suite:** the scenario tests assume an empty start. C03, C04 and C07 start with balances, so only the property suite runs. Their scenario facts are checked in `C01_Baseline.t.sol` instead.
 
+**C08 start state (note).** The start state mints 300 tokens to Carol (country 408) **before** the country module is bound. No rule can block this at that moment, so it is a legal setup step and not a bypass. Only after that is `MaxBalanceModule` bound with a correct preset. A reviewer that flags the mint to Carol as a jurisdiction bypass is raising a false alarm (this is what Sonnet's one clean false positive in step 4.8 was). C08 is documented, not changed, so no Phase 3 result moves.
+
 **A false positive found in a gold test (not a contract).** On C08, G13 failed because it assumed Carol starts with 0 tokens. That was a flaw in the test. G13 now compares against Carol's starting balance. This is the kind of mistake the clean set exists to catch.
 
 **Result:** all 8 clean configurations pass every gold test (see section 10).
@@ -284,15 +287,16 @@ Specific design decisions:
 - **V10 side effect.** The harness reads the module counter by identity, but V10 writes it by wallet. So G05a and G05b also fail on V10. These are real symptoms (the counter no longer matches), recorded as extra failures with this reason.
 - **V12 needs a copied Token** because the stock token has no path that skips `transferred`.
 
-### 7.4 Stock gaps S01 to S03 (no build needed)
+### 7.4 Stock gaps S01 to S04 (no build needed)
 
 | ID | Rule | Stock behaviour | Proven by |
 |---|---|---|---|
 | S01 | K4 | An expired claim is still accepted (`isClaimValid` has no expiry logic) | `StockGaps.t.sol` (passes as a "gap shown" test) and G11 (fails) |
 | S02 | K5 | A sender whose claim was revoked can still send (`transfer` checks only `isVerified(_to)`) | `StockGaps.t.sol` and G12 (fails) |
 | S03 | K2 | A revoked claim is revived when the investor re-adds it with the twin signature (`s' = n - s`, flipped `v`), because revocation is keyed by exact signature bytes | `StockGaps.t.sol` and G14 (fails) |
+| S04 | K2 | A revoked claim is revived when the investor re-adds it with the same `r` and `s` but a different `v` byte (0/1 instead of 27/28), for the same reason: revocation is keyed by exact signature bytes. Added after Phase 4 step 4.8 | `StockGapsVByte.t.sol` (`test_S04` passes as a "gap shown" test). No gold test (G14 covers the twin-signature case only) |
 
-S03 is a gap of the ONCHAINID dependency, not of T-REX code. S01 to S03 are **not** counted in the 13 variants or in the detection rate.
+S03 and S04 are gaps of the ONCHAINID dependency (2.1.0), not of T-REX code. S01 to S04 are **not** counted in the 13 variants or in the detection rate.
 
 ---
 
@@ -410,7 +414,7 @@ Clean configurations are correct setups. A failing gold test there would be a fa
 | Configurations with a failing gold test | 0 |
 | **False-positive rate** | 0 ÷ 8 = **0%** (target: at most 15%) |
 
-Source: `results/clean.log` ends with `16 test suites: 79 tests passed, 0 failed`.
+Source: `results/clean.log` ended with `16 test suites: 79 tests passed, 0 failed` at the close of Phase 3. **Update after Phase 4:** the same command now gives **80 tests passed, 0 failed**, because `StockGapsVByte.t.sol` (S04) adds one test. Nothing else changed. The false-positive rate stays 0 of 8.
 
 ### 10.3 How the 79 tests break down
 
@@ -423,7 +427,9 @@ Source: `results/clean.log` ends with `16 test suites: 79 tests passed, 0 failed
 | Gold invariants on C01 | 1 | 1 (counted as one entry; contains 7 invariants) |
 | Clean scenario suites (C02, C05, C06, C08) | 4 | 44 |
 | Clean invariant suites (C02 to C08) | 7 | 7 (one each) |
-| **Total** | **16** | **79** |
+| **Total at the close of Phase 3** | **16** | **79** |
+| S04 (`StockGapsVByte.t.sol`, added after Phase 4) | +1 | +1 |
+| **Total now** | | **80** |
 
 Foundry 1.8.7 counts an invariant suite as one test entry. Counting each invariant separately gives 126 tests; the two figures describe the same tests.
 
@@ -509,7 +515,7 @@ python scripts/make_table.py results/all_variants.log results/clean.log
 
 Outputs: `results/variant_table.csv` and `results/variant_table.md`.
 
-Expected numbers: 79 passed (clean); 3 failed (special); 145 tests in the variant run (109 passed, 36 failed); 13 variants caught by a linked test; 8 clean configurations with 0 false positives.
+Expected numbers: 80 passed (clean; it was 79 at the close of Phase 3, S04 added one); 3 failed (special); 145 tests in the variant run (109 passed, 36 failed); 13 variants caught by a linked test; 8 clean configurations with 0 false positives.
 
 **Per-wave counts (for cross-checking):** Wave 1 = 73 tests (6 scenario suites of 11 plus 7 invariant suites), Wave 2 = 72 tests (6 scenario suites of 11 plus 6 invariant suites). 73 + 72 = 145.
 
@@ -536,7 +542,7 @@ Expected numbers: 79 passed (clean); 3 failed (special); 145 tests in the varian
 - [x] Handler with ground truth, fixed fuzz settings, setup functions excluded from fuzzing
 - [x] 8 clean configurations, all passing
 - [x] 13 seeded variants, all caught by a linked test
-- [x] Stock gaps S01 to S03 confirmed (G11, G12, G14 fail on stock)
+- [x] Stock gaps S01 to S03 confirmed (G11, G12, G14 fail on stock); S04 added after Phase 4 (`test_S04` passes)
 - [x] Results table and script
 - [x] Detection rate: 100% (target at least 75%)
 - [x] False-positive rate: 0% (target at most 15%)

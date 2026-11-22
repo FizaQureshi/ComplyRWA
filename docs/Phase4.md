@@ -2,17 +2,17 @@
 
 **Goal of Phase 4:** build the pipeline that turns an issuer's plain-English policy into executable Foundry tests, filters them, runs them on every configuration, and explains what failed.
 
-**Status so far:** steps 4.0 to 4.6 are COMPLETE. Steps 4.7 and 4.8 are not started.
+**Status:** Phase 4 is COMPLETE. Steps 4.0 to 4.8 are done. Section 12 lists a few small open items that do not change any result.
 
 Pinned system: T-REX tag `4.1.6`, commit `a09cfd38aa257d56db7ff9c90f30e65f125a141b`, Solidity `0.8.17`, Foundry `1.8.7`, Halmos `0.3.3` (see `environment.md`).
 
-> **How to read this file.** Section 1 is the step list. Section 2 covers step 4.0, section 3 step 4.1, section 4 step 4.2, section 5 step 4.3. Section 6 covers step 4.4, section 7 step 4.5, section 8 step 4.6. Section 9 records design decisions. Section 10 is the status and what comes next. Steps are added here as they close.
+> **How to read this file.** Section 1 is the step list. Sections 2 to 8 cover steps 4.0 to 4.6 (section 2 step 4.0, section 3 step 4.1, section 4 step 4.2, section 5 step 4.3, section 6 step 4.4, section 7 step 4.5, section 8 step 4.6). Section 9 covers step 4.7 and section 10 covers step 4.8. Section 11 records the design decisions. Section 12 is the status and what comes next.
 
 ---
 
 ## 1. Phase 4 build order
 
-Everything that needs no LLM came first. Steps 4.4 to 4.6 were built with Haiku 5.5 as the default model.
+Everything that needs no LLM came first. Steps 4.4 to 4.8 were built with Haiku 5.5 as the default model and Sonnet 5.5 as the comparison model.
 
 | Step | What | Needs LLM? | State |
 |---|---|---|---|
@@ -23,8 +23,8 @@ Everything that needs no LLM came first. Steps 4.4 to 4.6 were built with Haiku 
 | 4.4 | LLM interface and prompts (mock/replay first) | Yes | **Done** |
 | 4.5 | Generator: policy text to candidate tests, then the filter | Yes | **Done** |
 | 4.6 | Explainer (template fallback) | Yes | **Done** |
-| 4.7 | End-to-end demo script | Yes | **Done** |
-| 4.8 | LLM-only review baseline (for the three-way benchmark) | Yes | |
+| 4.7 | End-to-end demo script | Only the explainer, and only if a test failed | **Done** |
+| 4.8 | LLM-only review baseline (for the three-way benchmark) | Yes | **Done** |
 
 ---
 
@@ -471,7 +471,7 @@ K4 and K5 were not generated: stock T-REX violates them, so a correct test fails
 
 **Goal:** turn failing generated tests into short audit findings for an issuer who is not a Solidity expert.
 
-**Status: COMPLETE, with the known limits in 8.5.** Files: `pipeline/explainer.py`, `pipeline/prompts/explainer.md` (version 2), `pipeline/mock/explainer.txt`, `results/explain_<batches>_<mode>/`. The 4.6 files and result folders are not committed yet (the previous commit step covered 4.5).
+**Status: COMPLETE, with the known limits in 8.5.** Files: `pipeline/explainer.py`, `pipeline/prompts/explainer.md` (version 2), `pipeline/mock/explainer.txt`, `results/explain_<batches>_<mode>/`. The commit hash of the 4.6 files is not recorded here.
 
 ### 8.1 How it works
 
@@ -524,40 +524,210 @@ About $0.0014 per finding on Haiku. All 13 variants once would cost a few cents.
 
 **Goal:** show policy input → generated property → executed test → counterexample → audit report in one command.
 
-**Status: COMPLETE.** Files: `pipeline/demo.py`, `pipeline/DEMO.md`, `candidates/probe/ProbeJ4.sol`, `results/demo_<config>/report.md` and `report.json`, `results/filter_probe/`.
+**Status: COMPLETE.** The commit hash is not recorded here. The command to run the demo is in `pipeline/DEMO.md`. Files: `pipeline/demo.py`, `pipeline/DEMO.md`, `candidates/probe/ProbeJ4.sol`, `results/demo_<config>/report.md` and `report.json`, `results/filter_probe/`.
 
-### How it works
+### 9.1 How it works
+
 1. Policy input: the 5 default rules (K1, K3, J1, H1, H3), rule IDs chosen by the issuer.
 2. Generated properties: tests from the saved batches d1 and d2 (d2 replaces the empty H1 answer of d1).
 3. Executed tests: results on the target configuration are read from the saved filter matrices. They are not re-run live.
 4. Counterexamples: failing tests and reasons are read from the saved forge logs. The explainer writes one finding per failing rule. It only runs if a test failed.
 5. Report: rule status table, findings grouped by symptom (K, J or H rules), the reproducible test the explainer names, the INFO line, and cost.
 
-### Rules added in the report (all symptom-based, so the audit stays blind)
+### 9.2 Rules added in the report (all symptom-based, so the audit stays blind)
 - A failure message of the form "0 != N" on an H1 test is labelled a side effect (the module's counter did not move) and left out of the direct-evidence count.
 - If a KYC rule fails and an H3 test fails without a "tracked != real" message, it is labelled a side effect of the KYC failure.
 - If all tracked balances stay at 0 on every failing H3 test, a hint is printed to check `compliance.getModules()`.
 - The INFO line (forcedTransfer to a restricted country, agent-only) comes from a fixed probe test, not from the policy.
 
-### Results
+### 9.3 Results
+
 | Target | Rules failing | Groups | LLM cost this run |
 |---|---|---|---|
 | C01 (clean) | none | none | $0 |
 | V09 | H1, H3 | Holding limit (direct evidence H1 2 of 4, H3 4 of 4) | $0.0018 paid |
 | V04 | K1, K3, H3 | KYC, and H3 marked as a side effect (0 of 1 direct) | $0 (cached) |
 
-The known-exception probe (`test_J4_forcedTransferToRestrictedCountrySucceeds`) passes on all 12 variants it ran on (VACUOUS, as intended).
+The known-exception probe (`test_J4_forcedTransferToRestrictedCountrySucceeds`) passes on the 5 clean configurations and the 12 variants it ran on (VACUOUS, as intended). It is a scenario test, so it does not run on V11.
 
-### Limits
+### 9.4 Limits
+
 1. Test results are reused, not re-run, so the demo shows the pipeline on saved evidence.
 2. Grouping is by rule category, tuned to the seeded bugs. An unknown bug could appear as a separate group.
 3. The explainer still says the cap value "is not given", because the audit is blind.
 4. The target must be one of the pinned configurations (C01 to C08, V01 to V13).
 5. Only 3 targets have been run. V11 is not reachable by generated scenario tests.
 
+---
 
+## 10. Step 4.8: LLM-only review baseline
 
-## 10. Design decisions for Phase 4 (agreed)
+**Goal:** complete the three-way benchmark with a third method. An LLM only reads the code and the setup of one deployment and lists the policy rules it can break. It runs no test. It is scored against the same 13 variants and 8 clean configurations as the hand-written and the generated tests.
+
+**Status: COMPLETE.** Commits: `c3a495a` (reviewer prompt, input builder, scorer, offline tests, frozen keywords) and `26b2f5b` (runner and the stock-gap adjusted scoring). The later files (S04 test, r2 code view, repeat and retry options, compare and three-way scripts, triage files, run folders) have no commit hash recorded here.
+
+Files:
+
+| File | Purpose |
+|---|---|
+| `pipeline/prompts/reviewer.md` | The reviewer prompt |
+| `pipeline/review_policy.json` | Policy numbers per target (only C05 differs: cap 500, countries 408 and 643) |
+| `pipeline/review_keywords.json` | Linked rules and strict words per variant. Frozen before the first live call |
+| `pipeline/review_inputs.py` | Builds the input of each of the 21 targets, with a leak check |
+| `pipeline/review_extra_units.json` | Extra functions for the r2 code view |
+| `pipeline/review_baseline.py` | Runner: one model call per target, cache, money limit, retry |
+| `pipeline/review_score.py` | Parses the answers and scores them |
+| `pipeline/review_compare.py` | One table over all runs, and a list of findings on clean targets |
+| `pipeline/benchmark_threeway.py` | The three-way table |
+| `pipeline/test_review.py` | Offline checks (no network, no cost) |
+| `pipeline/mock/reviewer.txt` | Fixed fake answer for mock runs |
+| `test/StockGapsVByte.t.sol` | Foundry test for the new stock gap S04 |
+| `results/review_<batch>_<model>/` | Per run: `raw/`, `calls.json`, `calls_retry.json`, `report.md`, `scores.csv`, `findings.json`, and `report_after_retry.md` where a retry exists |
+| `results/review_compare.md`, `results/review_triage.md`, `results/review_triage.json`, `results/benchmark_threeway.md` | Summary tables and the manual triage |
+
+### 10.1 What the reviewer sees
+
+For each target (C01 to C08, V01 to V13) the prompt has three parts:
+
+1. **Policy.** The 10 rule texts (same wording as the generator), the policy numbers of that target, and three definitions (what "verified" means, the country code format, that the cap counts one identity across its wallets).
+2. **Code.** The functions that the 10 rules need, merged per contract, cut by the slicer of step 4.3. For the six code-copy variants (V01, V02, V03, V06, V10, V12) the copied file is cut instead of the stock file, and its name is changed back to the stock name.
+3. **Setup.** The base deployment code from `test/ComplyFixture.sol` (shown as `BaseSetup`) and the overrides of that target (shown as `Deployment`). The six hooks that only swap in a copied contract are left out, so the reviewer sees the deployed contract under its stock name.
+
+All comments are removed. Names that would reveal a target are changed (copies renamed, a literal such as `"not-the-issuer"` changed). `review_inputs.py --check` scans every prompt for target IDs, config names and words such as "variant", "bug" and "seeded". All 21 inputs pass. The reviewer never sees the variants' file names, the descriptions in `configs.json`, or the gold tests.
+
+Size: about 10,250 estimated tokens per target, which is about 15,800 to 16,450 real input tokens (real = estimate x 1.55). The r2 code view adds about 540 estimated tokens.
+
+The prompt asks for JSON only: a list of findings with `rule`, `where`, `severity`, `why` and `steps`, or an empty list. It lists five accepted behaviours that must not be reported: an agent's `forcedTransfer` to a restricted country, a holder who lost KYC still sending, claims without an expiry date, the same-identity move rejection, and agent actions while the token is paused.
+
+### 10.2 How answers are scored
+
+| Measure | Definition |
+|---|---|
+| Detected (official) | A HIGH or MEDIUM finding whose rule is one of the variant's linked rules |
+| Detected (strict) | Official, and the finding's `where` and `why` text contains one of the variant's strict words |
+| False positive (as frozen) | A clean target with at least one HIGH or MEDIUM finding |
+| No valid answer | Empty, cut off, or not valid JSON. Never counted as "no findings" |
+| Adjusted | The same two measures, ignoring stock-gap findings (K2 findings that describe the S03 or S04 gap, found by a word list) |
+| After triage | True false alarms only, after reading each finding (manual, see `results/review_triage.md`) |
+
+The linked rules come from `linked_tests` in `configs.json` (a test checks this). The keyword file was approved and frozen in commit `c3a495a`, before the first live call. Two things were added later, openly:
+
+- The stock-gap rule was fixed after the first real answer (C01 on Haiku, which reported the S03 gap) and before the other 20 answers existed. Without it, a twin-signature finding on V03's target would count as finding V03's real bug.
+- The S04 words (v byte, 0 or 1, re-encoded) were added after `test/StockGapsVByte.t.sol` passed. They apply to every run in the same way.
+
+The frozen rows do not change. Only the adjusted rows use the word list.
+
+### 10.3 Runs
+
+| Batch | Meaning |
+|---|---|
+| r1 | The official run, both models, all 21 targets |
+| r1b | A repeat of r1 on the same input (`--sample 1`), to measure run-to-run noise |
+| r2 | A sensitivity run: the code view also shows `Token.init`, `setCompliance`, `setIdentityRegistry`, `bindToken` and `getTokenBound`. Never mixed into the headline |
+
+A retry rule applies to both models: if an answer is not valid JSON, the target is asked once more. The first-run numbers stay official and the retry numbers are a separate row.
+
+| Run | Detected, first answers | Detected after retry | Invalid first answers | False positives: frozen / adjusted / after triage | Cost, first run / with retry | Model time, first run / with retry |
+|---|---|---|---|---|---|---|
+| Haiku r1 | 13/13 | not needed | 0 | 7 / 2 / 1 of 8 | $0.0765 | 797 s |
+| Haiku r1b | 13/13 | not needed | 0 | 5 / 1 / 1 of 8 | $0.0766 | 401 s |
+| Haiku r2 | 13/13 | 13/13 | 1 (C02, cut off at 12,000 tokens) | 3 (4 after retry) / 1 / 0 of 8 | $0.0730 / $0.0778 | 352 s / 380 s |
+| Sonnet r1 | 12/13 | 13/13 | 1 (V08) | 1 / 1 / 0 of 8 | $0.9197 / $0.9599 | 237 s / 244 s |
+| Sonnet r1b | 11/13 | 13/13 | 2 (V01, V05) | 1 / 1 / 0 of 8 | $0.9122 / $0.9973 | 217 s / 236 s |
+| Sonnet r2 | 10/13 | 12/13 | 3 (V02, V09, V13) | 1 / 0 / 0 of 8 | $0.9642 / $1.0937 | 232 s / 257 s |
+
+Strict detection equals official detection in every run.
+
+### 10.4 What the runs show
+
+1. **Detection.** Haiku found all 13 variants in all three runs. Sonnet found every variant whenever its answer was valid JSON (12 of 12, 11 of 11, 10 of 10 first answers). All its misses are format failures.
+2. **JSON reliability.** Sonnet's first answer was invalid JSON in 6 of 63 calls, usually a stray extra closing brace. Five of the six retries were valid. V09 in r2 failed twice. Haiku had no invalid JSON in 63 calls. Its one problem was a cut-off at the 12,000-token limit on C02 in r2, which the retry fixed.
+3. **Run-to-run noise.** On identical input, Haiku had 7 and 5 false positives as frozen (2 and 1 adjusted). One run is not enough to quote one number, so ranges are quoted. Sonnet had 1 of 8 in both runs.
+4. **False-positive ranges** (same-input runs r1 and r1b):
+
+| Model | As frozen | Adjusted | After triage | After triage, r2 code view |
+|---|---|---|---|---|
+| Haiku | 5 to 7 of 8 | 1 to 2 of 8 (13% to 25%) | 1 of 8 (13%) in both runs | 0 of 8 |
+| Sonnet | 1 of 8 in both runs | 1 of 8 (13%) in both runs | 0 of 8 in both runs | 0 of 8 |
+
+5. **Unseeded findings.** The reviewer reported real weaknesses that no seeded variant and no generated test targets (see 10.5). Haiku found the S03/S04 family in every run, on 3 to 5 clean targets each time. Sonnet found it once in three runs (C06 in r2).
+6. **Token-binding false alarm.** Haiku (not Sonnet) reported "the setup never binds the token" on C04 in r1 and on C02 in r1b. `Token.init` calls `setCompliance`, which binds the token, but that code was not in the reviewer's view. In r2 the code is shown and the alarm did not appear on any target. So this is an input problem, and the r2 code view is the better view.
+7. **Cost and time.** A Haiku run costs about $0.073 to $0.077 and takes 352 to 797 seconds. A Sonnet run costs about $0.91 to $0.96, plus $0.04 to $0.13 for retries, and takes about 220 to 260 seconds. Sonnet is about 12 to 13 times more expensive and faster (217 to 237 seconds against 352 to 797 for Haiku). Haiku writes much more output (85,812 tokens against 24,838 in r1), which suggests hidden reasoning (not proven).
+
+### 10.5 New findings from this step
+
+| Finding | Detail |
+|---|---|
+| **S04, a new stock gap (confirmed by a test)** | A revoked claim is revived when the investor re-adds it with the v byte written as 0 or 1. `getRecoveredAddress` adds 27 to a v below 27, so the new signature recovers the same signer, and `revokedClaims` is keyed on the exact signature bytes. Same family as S03 (twin signature). Found by Haiku on C02 (r1) and reproduced by `test/StockGapsVByte.t.sol`, which passes. Like S01 to S03 it is a gap of the ONCHAINID dependency, not counted in the 13 variants or in any rate |
+| **C08 is not clean for the literal J1 rule** | The C08 start state mints 300 tokens to Carol (country 408) before any module is bound, so a restricted-country wallet holds tokens. The gold tests only judge calls after setup and never counted it. The review reported it in 4 of 6 runs (Haiku r1 and r2, Sonnet r1 and r1b). C08 is documented, not changed, so the Phase 3 and 4 numbers stay valid. In the review scoring this finding counts as real, not as a false alarm |
+| **Clean test count** | The full clean Foundry run (all except `GoldSpecial` and the variants) is now 80 tests in 17 suites. It was 79 in 16 before `StockGapsVByte.t.sol` was added |
+
+### 10.6 Three-way table
+
+From `results/benchmark_threeway.md`. The review rows are r1 and, after the semicolon, the repeat r1b.
+
+| Method | Variants detected (of 13) | False alarms on the 8 clean configurations | Tokens in / out | Cost USD | Time (s) |
+|---|---|---|---|---|---|
+| Hand-written Foundry tests (no LLM) | 13/13 | 0 of 8 | 0 / 0 | $0 | 88 (Foundry run incl. compile) |
+| LLM-generated tests, Haiku | 12/13 | 0 of 8 configurations (0 of 40 tests rejected) | 88,231 / 52,594 | $0.0351 | 407 (236 model + 171 Foundry) |
+| LLM-generated tests, Sonnet | 12/13 | 0 of 8 configurations (0 of 40 tests rejected) | 80,278 / 22,454 | $0.3851 | 297 (163 model + 134 Foundry) |
+| LLM-only review, Haiku | 13/13; r1b 13/13 | frozen / adjusted / after triage: r1 7 / 2 / 1; r1b 5 / 1 / 1 | r1 335,658 / 85,812 | r1 $0.0765; r1b $0.0766 | r1 797; r1b 401 (model time) |
+| LLM-only review, Sonnet | 13/13 after retry (12/13 as first answered); r1b 13/13 after retry (11/13) | frozen / adjusted / after triage: r1 1 / 1 / 0; r1b 1 / 1 / 0 | r1 351,617 / 25,664 | r1 $0.9599; r1b $0.9973 | r1 244; r1b 236 (model time) |
+
+Per variant: the hand-written tests and both review runs catch all 13. The generated tests catch 12 and miss V11 (it starts with balances, so scenario tests cannot reach it). The full per-variant table is in `results/benchmark_threeway.md`.
+
+How to read it:
+- **The methods see different things.** The hand-written tests are the answer key, written by the same author as the variants. The generated tests see only the clean pinned code and the policy text. The review sees each target's own code and setup, so it is easier than blind testing. Seven variants are configuration-only changes (V04, V05, V07, V08, V09, V11, V13), where the setup override shows the change itself. Four variants (V03, V06, V10, V12) are visible only in the code, and all four were found in every valid answer.
+- **What each method adds.** Generated tests give a reproducible failing test and a clean-configuration check at very low cost. The review needs no test infrastructure, found V11, and found real weaknesses outside the seeded set, but its output is noisier and needs a person to triage it.
+- Cost of the generated tests covers generation only. The explainer adds about $0.0014 per finding on Haiku (step 4.6).
+- The time to write the hand-written tests and the variants by a person is not counted.
+
+### 10.7 Spend
+
+Step 4.8 cost $3.24 in paid calls (Haiku $0.2309, Sonnet $3.0107). The cached answers read again cost nothing. The ledger on the owner's machine shows $3.69 spent in total through step 4.8. About $16.3 of the $19.56 credit that was left at the start of step 4.8 remains.
+
+### 10.8 Problems met and fixes
+
+| # | Problem | Fix |
+|---|---|---|
+| 1 | The first live call failed with `No module named 'anthropic'`. No money was spent | It ran under a Python without the package. Running through the venv Python (`$PY`) works |
+| 2 | Progress lines did not appear until the end of a run | Git Bash holds Python output back. The runner now sets line buffering |
+| 3 | `calls.json` showed 15 s of model time after a replay of 21 cached answers | The cache read overwrote the original times. The runner now takes the original time from the ledger. The real time was 797 s |
+| 4 | Sonnet answers with invalid JSON (a stray `}`) | One retry per invalid answer, same rule for both models. The first-run numbers stay official |
+| 5 | Haiku was cut off at 12,000 tokens on C02 in r2 | The retry rule covered it. The limit was not raised, so no cached answer changed |
+| 6 | The first Haiku answer reported S03 on a clean target, which the scorer counted as a false positive, and would also have credited V03 | The adjusted rows ignore stock-gap findings (rule in 10.2) |
+| 7 | `--code-set` changes the prompt, so every r2 call is a new paid call | Expected. r2 is a separate batch |
+
+### 10.9 Limits
+
+1. The review sees the code of its own target, so detection here is easier than for blind testing. It is not a fair measure of a real audit with no hint of where to look.
+2. One author wrote the variants, the gold tests, the prompts, the keywords and the triage labels. The triage was done after seeing the answers and is not independent. The Phase 5 evaluator should check `results/review_triage.md`.
+3. Each model has only three runs (Sonnet has no repeat of r2), the temperature setting is off, and answers vary between runs. Quote ranges, not single numbers.
+4. Official detection needs a finding on a linked rule, not the root cause. Strict detection adds a word match. The loosest words are `removed` and `empty`.
+5. The stock-gap word list works by text matching. A finding that mixes S03 or S04 with a real bug would be dropped from the adjusted rows, which is the cautious direction.
+6. The prompt and the inputs are frozen. Any change makes every call new and paid, because the cache key covers the prompt text.
+7. r2 changed the input and was not repeated, so a difference between r1 and r2 mixes the input change with noise. The token-binding result rests on one run with the code shown (r2) against two runs without it (r1 and r1b).
+
+### 10.10 How to reproduce
+
+```
+python pipeline/test_review.py                                   18 offline checks
+python pipeline/review_inputs.py --check                         21 targets, no leaks (add --code-set r2 for r2)
+python pipeline/review_baseline.py --dry-run --model haiku       free: size and cost guess
+python pipeline/review_baseline.py --mode live --model haiku --retry-invalid
+python pipeline/review_baseline.py --mode live --model haiku --batch r1b --sample 1 --retry-invalid
+python pipeline/review_baseline.py --mode live --model haiku --batch r2 --code-set r2 --retry-invalid
+python pipeline/review_baseline.py --mode replay --model haiku   free: from the saved answers
+python pipeline/review_compare.py                                table of all runs (--clean-findings, --rescore-all)
+python pipeline/benchmark_threeway.py                            the three-way table
+forge test --match-path test/StockGapsVByte.t.sol -vv            S04 test
+```
+
+Use `--model sonnet` for Sonnet. A live run costs about $0.08 (Haiku) or $0.95 (Sonnet) and answers come from the cache when they exist.
+
+---
+
+## 11. Design decisions for Phase 4 (agreed)
 
 1. **Kind detection is automatic** (invariants or scenarios), so scenario tests skip C03, C04, C07 and V11.
 2. **Wrappers are deleted after each run**, so Phase 3 counts stay valid.
@@ -576,11 +746,19 @@ The known-exception probe (`test_J4_forcedTransferToRestrictedCountrySucceeds`) 
 12. **The explainer is blind by default.** Reveal mode is for comparison only.
 13. **One finding per (configuration, rule).**
 14. **Spending is capped** at `session_cap_usd` 15 per machine, within the team plan of 100 (hard stop 115).
-15. **Step 4.8 is added:** an LLM-only vulnerability review baseline, to complete the three-way benchmark.
+15. **Step 4.8 is added:** an LLM-only vulnerability review baseline, to complete the three-way benchmark (done, section 10).
+16. **The reviewer sees each target's own code and setup** (comments removed, copies renamed back to the stock names). It never sees target IDs, descriptions, gold tests or the variants' file names. This differs from decision 8 on purpose: a reviewer that only saw the clean code could not find anything in a variant.
+17. **All 21 targets are run with both models.** No target or test case is dropped to save money.
+18. **The scoring definitions and the strict words are frozen before the first live call** (commit `c3a495a`). The stock-gap adjusted rows were added later and are labelled as such.
+19. **Invalid JSON gets one retry, the same rule for both models.** The first-run numbers stay official. The retry numbers are a separate row.
+20. **r1 is the official review run.** r1b is a repeat on the same input, to measure noise. r2 (extra code view) is a sensitivity check and is never mixed into the headline.
+21. **The manual triage is kept apart from the official numbers** (`results/review_triage.md` and `.json`) and needs a check by the Phase 5 evaluator.
+22. **C08 is documented, not changed.** Its start state mints to a restricted-country wallet before the country module is bound.
+23. **Every review run has its own money limit** in the runner (default $0.40 for Haiku and $3.00 for Sonnet), inside the session cap of decision 14.
 
 ---
 
-## 11. Status and next
+## 12. Status and next
 
 - [x] 4.0 Cfg contracts importable, manifest written and checked
 - [x] 4.1 Executor reproduces the Phase 3 table
@@ -590,5 +768,5 @@ The known-exception probe (`test_J4_forcedTransferToRestrictedCountrySucceeds`) 
 - [x] 4.5 Generator: 10 rules, Haiku and Sonnet each 32 of 40 KEEP (80%), 12 of 13 variants, 0 REJECT
 - [x] 4.6 Explainer: 12 findings pass the automatic checks (known limits in 8.5)
 - [x] 4.7 End-to-end demo script: policy input, generated property, executed test, counterexample, audit report
-- [ ] 4.8 LLM-only review baseline: Haiku and Sonnet read the same slices and policy rules and list vulnerabilities without running tests; score against the 13 variants; time and token cost
+- [x] 4.8 LLM-only review baseline: both models on all 21 targets in three runs (r1, r1b, r2). Detection 13 of 13 for Haiku and 13 of 13 after one retry for Sonnet (r1 and r1b). False alarms after triage 1 of 8 for Haiku and 0 of 8 for Sonnet. Three-way table written (section 10)
 
