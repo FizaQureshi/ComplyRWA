@@ -1,7 +1,8 @@
 {
+  "status": "ok",
   "target": "V04",
   "model": "haiku",
-  "mode": "live",
+  "mode": "replay",
   "rules": {
     "K1": {
       "policy": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
@@ -51,11 +52,81 @@
   "info": [
     "INFO: J1 bypassed via forcedTransfer (agent-only path). Classified as a known exception, not a vulnerability. (Result of a fixed probe test, not generated from the policy.)"
   ],
+  "findings": {
+    "K1": {
+      "severity": "HIGH",
+      "text": "Violated policy\nK1: Only investors with a valid KYC claim from a trusted issuer may receive tokens.\n\nWhat went wrong\nUnder V04, the agent could mint to Mallory, and Alice and Bob could transfer to Mallory and to Bob after his claim was revoked. Mallory holds no KYC claim, and Bob's claim was revoked, so these transfers should have been refused. The change V04 makes is not provided, so the cause is not known.\n\nAffected functions\n- token.mint\n- token.transfer\n\nHow to reproduce\nClearest test: test_mintToUnverifiedWalletReverts\n1. Record Mallory's token balance.\n2. As agent, call token.mint(Mallory's wallet, 1), expecting revert \"Identity is not verified.\"\n3. The call succeeded instead of reverting, so the test failed.\n\nAlso failing: test_transferToUnverifiedWalletReverts and test_transferToWalletWithRevokedClaimReverts.\n\nThe expected \"Transfer not possible\" revert never happened in the transfer tests, so it cannot be told whether a KYC or compliance check was meant to fail.\n\nSuggested fix\nCompare V04 with C01 for the KYC claim topic, the trusted issuer and the identity checks. The output does not show which setting is responsible.",
+      "direct_evidence": {
+        "direct": 3,
+        "total": 3
+      },
+      "failing_tests": [
+        {
+          "name": "test_mintToUnverifiedWalletReverts",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferToUnverifiedWalletReverts",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferToWalletWithRevokedClaimReverts",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_mintToUnverifiedWalletReverts() public {\n        uint256 before = token.balanceOf(m);\n\n        vm.prank(agent);\n        vm.expectRevert(bytes(\"Identity is not verified.\"));\n        token.mint(m, 1);\n\n        assertEq(token.balanceOf(m), before, \"unverified wallet was minted tokens\");\n    }"
+    },
+    "K3": {
+      "severity": "HIGH",
+      "text": "**Violated policy**\nK3: At least one KYC claim topic must be required.\n\n**What went wrong**\nMint and transfer to Mallory's wallet succeeded. Mallory is registered but holds no KYC claim, so both calls should have reverted. The required-topics test also failed, which suggests KYC_TOPIC is not required in V04. The failure output does not show the topic list. The configuration change is not provided, so the cause is not known. The transfer test expected \"Transfer not possible\", but the call did not revert, so it cannot be told whether a KYC or a rule check applies.\n\n**Affected functions**\ntoken.mint, token.transfer, ctr.getClaimTopics\n\n**How to reproduce** (from test_K3_mintToUnclaimedWalletRejected and test_K3_transferToUnclaimedWalletRejected)\n1. Agent calls token.mint(Mallory's wallet, CAP / 10). Expected revert: \"Identity is not verified.\" Observed: no revert.\n2. Agent calls token.mint(Alice's first wallet, CAP / 10).\n3. Alice's first wallet calls token.transfer(Mallory's wallet, CAP / 10). Expected revert: \"Transfer not possible.\" Observed: no revert.\n\nThe topics test (test_K3_requiredTopicsNonEmptyAndIncludeKyc) also failed. It only reads ctr.getClaimTopics().\n\n**Suggested fix**\nMake KYC_TOPIC a required claim topic in V04, for example with ctr.addClaimTopic(KYC_TOPIC). Then re-run the three tests.",
+      "direct_evidence": {
+        "direct": 3,
+        "total": 3
+      },
+      "failing_tests": [
+        {
+          "name": "test_K3_mintToUnclaimedWalletRejected",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_K3_requiredTopicsNonEmptyAndIncludeKyc",
+          "reason": "assertion failed",
+          "side_effect": false
+        },
+        {
+          "name": "test_K3_transferToUnclaimedWalletRejected",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_K3_mintToUnclaimedWalletRejected() public {\n        // Mallory is registered but holds no KYC claim, so the policy forbids minting to her.\n        uint256 amt = CAP / 10;\n        assertTrue(amt > 0);\n\n        uint256 before = token.balanceOf(m);\n\n        vm.prank(agent);\n        vm.expectRevert(bytes(\"Identity is not verified.\"));\n        token.mint(m, amt);\n\n        assertEq(token.balanceOf(m), before);\n    }"
+    },
+    "H3": {
+      "severity": "HIGH",
+      "text": "Violated policy\nH3: the holding-limit module's balance records must match the real token balances. The test also expects a transfer to a recipient with revoked KYC to be refused.\n\nWhat went wrong\nBob's transfer to Alice's first wallet succeeded after Alice's KYC claim was revoked. The test expected \"Transfer not possible\". Because the call did not revert, the test stopped before the balance check, so it is not known whether the tracked balances also drifted. The test intends a KYC failure, but since nothing reverted, the output cannot show which check applies. The configuration change for V04 is not provided, so its cause is not known.\n\nAffected functions\n- `token.transfer` (recipient KYC check)\n- `_revokeClaim` (revokes the claim that should block the transfer)\n\nHow to reproduce\n1. The agent mints CAP / 10 tokens to Bob's wallet. The CAP value for V04 is not given.\n2. Revoke the KYC claim for Alice's identity with `_revokeClaim(idA)`.\n3. Bob calls `token.transfer` to Alice's first wallet for half that amount.\n4. Expected: revert \"Transfer not possible\". Actual: the call did not revert.\n\nNo other failing tests are listed.\n\nSuggested fix\nCompare V04 with the clean configuration C01 to find the setting that lets a transfer to a revoked recipient succeed. Check the recipient KYC check, the required claim topic and the trusted issuer. Re-run the test on V04 after the fix.",
+      "direct_evidence": {
+        "direct": 0,
+        "total": 1
+      },
+      "failing_tests": [
+        {
+          "name": "test_H3_rejectedTransferDoesNotDrift",
+          "reason": "next call did not revert as expected",
+          "side_effect": true
+        }
+      ],
+      "reproducible_test": "function test_H3_rejectedTransferDoesNotDrift() public {\n        uint256 amt = CAP / 10;\n        _mint(b, amt);\n        assertTrackedEqualsReal();\n\n        // Recipient's KYC is revoked, so the transfer to a1 must be refused.\n        _revokeClaim(idA);\n\n        uint256 bBefore = token.balanceOf(b);\n        vm.prank(b);\n        vm.expectRevert(bytes(\"Transfer not possible\"));\n        token.transfer(a1, amt / 2);\n\n        assertEq(token.balanceOf(b), bBefore, \"rejected transfer moved tokens\");\n        assertTrackedEqualsReal();\n    }"
+    }
+  },
   "cost": {
     "llm_calls": 3,
     "paid_usd": 0.0,
     "first_made_usd": 0.003608,
     "model_seconds": 0.0,
-    "wall_seconds": 0.4
+    "wall_seconds": 0.5
   }
 }

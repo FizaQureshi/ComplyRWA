@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nH3: the holding-limit module's tracked balances must match the real token balances.\n\nWhat went wrong\nThe test expected Bob's transfer to Alice's first wallet to be refused after Alice's KYC claim was revoked. The transfer was not refused. The test stopped at this check, so the H3 balance assertions did not run and any drift is not known. The output does not show whether the refusal was a KYC or a rule failure. The cause in V02 is not known, because the configuration change was not provided.\n\nAffected functions\n`token.transfer` (sender Bob). Revocation uses `_revokeClaim`.\n\nHow to reproduce\n1. The agent mints CAP/10 tokens to Bob (CAP for V02 is not given).\n2. Check that tracked and real balances match for all four identities.\n3. Revoke Alice's KYC claim (`idA`).\n4. Bob calls `token.transfer` to Alice's first wallet for half the amount.\n5. The expected \"Transfer not possible\" revert did not happen.\n\nSuggested fix\nNot known from this output. Find out why V02 accepted a transfer to a recipient whose KYC claim was revoked, then rerun the test.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 2812,
+  "output_tokens": 1622
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0010922,
+ "tag": "explainer:H3:V02:d1:blind",
+ "created": "2026-11-23 11:17:37"
+}

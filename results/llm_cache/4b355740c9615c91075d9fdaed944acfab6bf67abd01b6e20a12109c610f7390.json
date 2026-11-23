@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H3\",\"where\":\"Deployment._addModules (mint of 800 to b before modules are bound, then batchPreSetModuleState with balance 0)\",\"severity\":\"HIGH\",\"why\":\"The override mints 800 tokens to b while no compliance modules are bound, so MaxBalanceModule never records them. It then presets idB's tracked balance to 0 instead of 800, so the module's records no longer match the real token balances.\",\"steps\":\"setUp -> _addModules: _mint(b,800) succeeds (no modules, so created() notifies nothing) -> batchPreSetModuleState(compliance,[idB],[0]) -> super._addModules binds the modules -> getIDBalance(compliance,idB)==0 while token.balanceOf(b)==800\"},{\"rule\":\"H1\",\"where\":\"Deployment._addModules / MaxBalanceModule preset state\",\"severity\":\"HIGH\",\"why\":\"Because the module tracks idB at 0 while b really holds 800, the cap check lets b receive up to 1000 more tokens. That brings b to 1800, above the 1000 cap.\",\"steps\":\"After setUp: agent mint(b,1000) -> moduleCheck sees 0+1000<=1000 and passes -> b holds 1800. Alternatively, a holder with tokens calls transfer(b,1000) with the same result.\"},{\"rule\":\"H2\",\"where\":\"Deployment._addModules preset (idB balance)\",\"severity\":\"MEDIUM\",\"why\":\"The shared identity cap is enforced against a wrong stored balance for idB's identity. Any wallet added under idB can also be filled up to the cap on top of the existing 800, so the identity ends up holding more than 1000 in total.\",\"steps\":\"After setUp: agent registers a second wallet b2 under idB -> mint(b2,1000) passes the module check -> idB's identity holds 1800 across b and b2\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16060,
+  "output_tokens": 1308
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0452,
+ "tag": "reviewer:V11:r1",
+ "created": "2026-11-21 18:12:31"
+}

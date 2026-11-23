@@ -1,0 +1,12 @@
+{
+ "text": "**Severity: HIGH**\n\n**Violated policy**\nRule J1: investors registered in a restricted country may not receive tokens.\n\n**What went wrong**\nIn all three tests, the call that should have been rejected succeeded. Bob's wallet `b` was moved to the restricted country, but minting to it and transferring tokens to it both went through. The output shows only \"next call did not revert as expected,\" so the cause in V08 is not known. The configuration change was not provided.\n\n**Affected functions**\n- `token.mint` (receiver country check)\n- `token.transfer` (receiver country check)\n- `token.transferFrom` (receiver country check)\n\n**How to reproduce**\nClearest test: `test_mintToRestrictedCountryIsBlocked`.\n1. The agent calls `ir.updateCountry` to set Bob's wallet `b` to the restricted country (`RESTRICTED`).\n2. The agent calls `token.mint(b, CAP / 10)`. The test expects \"Compliance not followed\". No revert occurred.\n\nThe other two tests (`test_transferToRestrictedCountryIsBlocked`, `test_transferFromToRestrictedCountryIsBlocked`) fail the same way. For a `transfer` or `transferFrom` revert, the message \"Transfer not possible\" is shared with KYC failures, so the output cannot show which check should have fired.\n\n**Suggested fix**\nCheck that the country module is bound to `compliance` in V08 and that the restricted country is set. The cause cannot be confirmed from this output.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3355,
+  "output_tokens": 1428
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0010495,
+ "tag": "explainer:J1:V08:d1:blind",
+ "created": "2026-11-23 11:19:02"
+}

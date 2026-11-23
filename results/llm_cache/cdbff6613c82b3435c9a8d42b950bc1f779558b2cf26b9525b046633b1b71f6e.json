@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H3\",\"where\":\"Deployment._addModules (setup override)\",\"severity\":\"HIGH\",\"why\":\"The 800 tokens minted to wallet b are created before the holding-limit module is bound, so the module never counts them. The override then presets idB's recorded balance to 0 while b really holds 800, so the module's records do not match the real balance.\",\"steps\":\"1. Deployment.setUp runs _addModules: token.mint(b, 800) succeeds with no modules bound. 2. maxBalanceModule.batchPreSetModuleState(compliance, [idB], [0]) records idB = 0. 3. Modules are added and the cap is set to 1000. 4. getIDBalance(compliance, idB) returns 0 while balanceOf(b) returns 800.\"},{\"rule\":\"H1\",\"where\":\"Deployment._addModules (setup override) with MaxBalanceModule.moduleCheck\",\"severity\":\"HIGH\",\"why\":\"Because idB's recorded balance is 0 instead of 800, the cap check lets b receive up to 1000 more tokens. b can end with 1800 tokens, above the 1000 maximum.\",\"steps\":\"1. Setup as above: b holds 800 real tokens, module records idB = 0, cap = 1000. 2. agent calls token.mint(b, 1000). The compliance check moduleCheck sees 0 + 1000 <= 1000 and passes. 3. b now holds 1800 tokens, which exceeds the cap.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 16860,
+  "output_tokens": 1597
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0024845,
+ "tag": "reviewer:V11:r2",
+ "created": "2026-11-22 00:45:58"
+}

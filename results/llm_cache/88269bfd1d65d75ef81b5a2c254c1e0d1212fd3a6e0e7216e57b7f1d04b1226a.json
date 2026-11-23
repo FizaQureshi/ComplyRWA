@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.isClaimValid (used by IdentityRegistry.isVerified); BaseSetup._revokeClaim\",\"severity\":\"HIGH\",\"why\":\"ClaimIssuer.isClaimValid is a stub that always returns true. It never checks revokedClaims, so a claim revoked through revokeClaim still passes isVerified and the revoked wallet can still receive tokens.\",\"steps\":\"1) Register investor b with a valid KYC claim from claimIssuer. 2) Call claimIssuer.revokeClaim(claimId, idB) as issuerAdmin. 3) Call token.transfer(b, amount) from a funded holder. isVerified(b) still returns true, so the transfer succeeds.\"},{\"rule\":\"K1\",\"where\":\"ClaimIssuer.isClaimValid (used by IdentityRegistry.isVerified); Deployment._registerInvestors\",\"severity\":\"HIGH\",\"why\":\"Because isClaimValid always returns true, the claim for wallet m that was signed with secondKey (not a key of the trusted issuer) is accepted as valid. Wallet m therefore counts as KYC-verified without a valid claim from the trusted issuer and can receive tokens.\",\"steps\":\"1) Deployment setup adds the claim for idM from claimIssuer, signed with secondKey. 2) addClaim accepts it because isClaimValid returns true. 3) Call token.transfer(m, amount) from a funded holder. isVerified(m) returns true and the transfer succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15777,
+  "output_tokens": 2925
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0030402,
+ "tag": "reviewer:V02:r1b",
+ "created": "2026-11-22 00:51:12"
+}

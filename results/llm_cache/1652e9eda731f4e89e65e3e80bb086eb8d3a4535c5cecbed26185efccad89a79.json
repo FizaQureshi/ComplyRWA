@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K1\",\"where\":\"IdentityRegistry.isVerified\",\"severity\":\"HIGH\",\"why\":\"isVerified returns true as soon as one required topic passes (the loop returns true on the first valid topic), but the policy requires a valid claim for EVERY required topic. In this deployment topics 1 and 2 are both required, and wallet m has only the topic-1 claim, so m is treated as verified and can receive tokens.\",\"steps\":\"1. Agent calls token.mint(m, 100) (or any agent/user transfer to m). 2. isVerified(m) returns true because topic 1 is valid, even though topic 2 is missing. 3. The mint or transfer succeeds, so an investor without a full KYC claim set receives tokens.\"},{\"rule\":\"K2\",\"where\":\"IdentityRegistry.isVerified / _topicOk\",\"severity\":\"HIGH\",\"why\":\"The same any-topic logic means that revoking the KYC claim for one required topic does not stop the wallet from receiving tokens while its claim for the other topic is still valid. The wallet should no longer be verified once any required claim is revoked.\",\"steps\":\"1. ClaimIssuer.revokeClaim(claimId for topic 1, idB) by the issuer manager. 2. The topic-2 claim on idB is still valid, so isVerified(b) returns true. 3. Agent or holder transfers tokens to b, and the transfer succeeds even though b's KYC was revoked.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 16774,
+  "output_tokens": 2124
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0027394,
+ "tag": "reviewer:V01:r2",
+ "created": "2026-11-22 00:44:19"
+}

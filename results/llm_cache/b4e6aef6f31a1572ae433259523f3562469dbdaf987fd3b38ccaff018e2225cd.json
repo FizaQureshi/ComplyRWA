@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H3\",\"where\":\"Token.forcedTransfer (also used by Token.recoveryAddress)\",\"severity\":\"HIGH\",\"why\":\"forcedTransfer calls _transfer but never calls _tokenCompliance.transferred. MaxBalanceModule's _IDBalance is therefore not updated, so the receiver's recorded balance stays too low and the sender's stays too high. The same gap affects recoveryAddress, which relies on forcedTransfer.\",\"steps\":\"1. Mint 900 to a wallet of identity B (b), so the module records 900 for idB. 2. Agent calls forcedTransfer(b, a1, 900); the real balance moves but the module still records idB=900 and idA=0. 3. Mint 1000 to a1 (check passes since idA is recorded at 0); a1 now really holds 1900, above the cap of 1000, so H1 is also broken. 4. Alternatively, b now holds 0 but the module still counts 900 for idB, so b is wrongly blocked from receiving more than 100.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16706,
+  "output_tokens": 1613
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.049542,
+ "tag": "reviewer:V12:r2",
+ "created": "2026-11-22 00:39:48"
+}

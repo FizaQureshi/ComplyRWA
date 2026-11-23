@@ -1,0 +1,28 @@
+{
+ "V01": {
+  "model": "claude-sonnet-5-5",
+  "mode": "live",
+  "input_tokens": 15974,
+  "output_tokens": 1240,
+  "cost_usd": 0.044348,
+  "paid_usd": 0.044348,
+  "seconds": 10.65,
+  "truncated": false,
+  "stop_reason": "end_turn",
+  "cached": false,
+  "sample": 2
+ },
+ "V05": {
+  "model": "claude-sonnet-5-5",
+  "mode": "live",
+  "input_tokens": 15971,
+  "output_tokens": 880,
+  "cost_usd": 0.040742,
+  "paid_usd": 0.040742,
+  "seconds": 8.27,
+  "truncated": false,
+  "stop_reason": "end_turn",
+  "cached": false,
+  "sample": 2
+ }
+}

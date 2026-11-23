@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\n**Violated policy**\nRule H3: the holding-limit module's balance records must match the real token balances.\n\n**What went wrong**\nAfter 100 tokens were minted to Bob, the module's record for Bob's identity showed 0 while his real balance was 100. The same mismatch appeared for Alice's identity after minting to her wallet. The tests fail at this first check, so they do not reach the transfer, burn or forced-transfer steps. The cause in V10 is not known, because the audit tool did not say what V10 changes.\n\n**Affected functions**\n- `mint`: the tracked balance is not updated.\n- `_idBalance`: returns the stale value.\n- `transfer`, `burn` and `forcedTransfer`: not confirmed, since the tests stop before them.\n\n**How to reproduce**\n1. Agent mints 100 tokens to Bob (`_mint(b, amt)`, where amt = CAP/10).\n2. Run `assertTrackedEqualsReal()`. It fails with \"idB tracked != real: 0 != 100\".\n\nThe other three failing tests show the same mismatch for Alice's identity after minting to a1.\n\n**Suggested fix**\nCheck how V10 changes the MaxBalanceModule's update on mint, and make the tracked balance increase by the minted amount. Re-run the four H3 tests on V10 and on C01.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3680,
+  "output_tokens": 1604
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.00117,
+ "tag": "explainer:H3:V10:d1:blind",
+ "created": "2026-11-23 11:19:36"
+}

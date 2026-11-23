@@ -1,0 +1,86 @@
+{
+  "status": "ok",
+  "target": "V06",
+  "model": "haiku",
+  "mode": "live",
+  "rules": {
+    "K1": {
+      "policy": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "K3": {
+      "policy": "At least one KYC claim topic must be required.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "J1": {
+      "policy": "Investors registered in a restricted country may not receive tokens.",
+      "tests_run": 4,
+      "failed": 3,
+      "status": "FAIL",
+      "severity": "HIGH"
+    },
+    "H1": {
+      "policy": "No investor may hold more than the maximum allowed tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "H3": {
+      "policy": "The holding-limit module's balance records must match the real token balances.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    }
+  },
+  "groups": {
+    "Jurisdiction restriction not enforced": [
+      "J1"
+    ]
+  },
+  "info": [
+    "INFO: J1 bypassed via forcedTransfer (agent-only path). Classified as a known exception, not a vulnerability. (Result of a fixed probe test, not generated from the policy.)"
+  ],
+  "findings": {
+    "J1": {
+      "severity": "HIGH",
+      "text": "**Violated policy**\nRule J1: investors registered in a restricted country may not receive tokens.\n\n**What went wrong**\nIn configuration V06, all three tests failed. After Bob's wallet was moved to the restricted country, mint, transfer and transferFrom to that wallet succeeded instead of reverting, so the restricted investor received tokens. The forge output shows only \"did not revert\", so it cannot be told whether a KYC or a compliance check would have caused the revert. What V06 changes is not known.\n\n**Affected functions**\n`token.mint`, `token.transfer`, `token.transferFrom`\n\n**How to reproduce**\nClearest test: `test_transferToRestrictedCountryIsBlocked`.\n1. Agent mints one tenth of the cap to Alice's first wallet (the cap value for V06 is not given).\n2. Agent calls `ir.updateCountry` to set Bob's wallet to `RESTRICTED`.\n3. Alice's first wallet calls `token.transfer` to Bob's wallet for the same amount.\n4. Expected revert \"Transfer not possible\". Actual: the call succeeded.\n\nThe mint and transferFrom tests fail the same way.\n\n**Suggested fix**\nCheck in V06 that the country restriction module is bound to `compliance` and that the restricted country setting is active. The cause is not visible in this output. Re-run the three tests; they must pass on all clean configurations.",
+      "direct_evidence": {
+        "direct": 3,
+        "total": 3
+      },
+      "failing_tests": [
+        {
+          "name": "test_mintToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferFromToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_transferToRestrictedCountryIsBlocked() public {\n        uint256 amt = CAP / 10;\n\n        // Put Alice's wallet a1 in a position to send tokens.\n        _mint(a1, amt);\n\n        // Move the receiver into a restricted country.\n        vm.prank(agent);\n        ir.updateCountry(b, RESTRICTED);\n\n        uint256 aBefore = token.balanceOf(a1);\n        uint256 bBefore = token.balanceOf(b);\n\n        vm.prank(a1);\n        vm.expectRevert(bytes(\"Transfer not possible\"));\n        token.transfer(b, amt);\n\n        // Policy outcome: no tokens moved to the restricted-country investor.\n        assertEq(token.balanceOf(a1), aBefore, \"sender balance changed on blocked transfer\");\n        assertEq(token.balanceOf(b), bBefore, \"restricted-country investor received tokens\");\n    }"
+    }
+  },
+  "cost": {
+    "llm_calls": 1,
+    "paid_usd": 0.001055,
+    "first_made_usd": 0.001055,
+    "model_seconds": 6.9,
+    "wall_seconds": 13.9
+  }
+}

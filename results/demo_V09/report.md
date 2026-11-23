@@ -1,6 +1,6 @@
 # ComplyRWA audit report: V09
 
-Audit target: configuration `V09` (cause hidden from the auditor). Model: haiku. Mode: live.
+Audit target: configuration `V09` (cause hidden from the auditor). Model: haiku. Mode: replay.
 
 ## 1. Policy input
 
@@ -130,5 +130,5 @@ INFO: J1 bypassed via forcedTransfer (agent-only path). Classified as a known ex
 ## 5. Cost and time
 
 - Explainer LLM calls this run: 2; cost paid $0.0000; cost when first made $0.0030; model seconds 0
-- Demo wall time: 1 s
+- Demo wall time: 0 s
 - Generation cost is in `results/benchmark_generated.md` (tests were generated once and replayed).

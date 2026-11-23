@@ -1,0 +1,127 @@
+{
+  "status": "ok",
+  "target": "V02",
+  "model": "haiku",
+  "mode": "live",
+  "rules": {
+    "K1": {
+      "policy": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
+      "tests_run": 4,
+      "failed": 3,
+      "status": "FAIL",
+      "severity": "HIGH"
+    },
+    "K3": {
+      "policy": "At least one KYC claim topic must be required.",
+      "tests_run": 4,
+      "failed": 2,
+      "status": "FAIL",
+      "severity": "HIGH"
+    },
+    "J1": {
+      "policy": "Investors registered in a restricted country may not receive tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "H1": {
+      "policy": "No investor may hold more than the maximum allowed tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "H3": {
+      "policy": "The holding-limit module's balance records must match the real token balances.",
+      "tests_run": 4,
+      "failed": 1,
+      "status": "FAIL",
+      "severity": "HIGH"
+    }
+  },
+  "groups": {
+    "KYC requirement missing or bypassed": [
+      "K1",
+      "K3"
+    ],
+    "Holding limit not enforced or tracked wrongly": [
+      "H3"
+    ]
+  },
+  "info": [
+    "INFO: J1 bypassed via forcedTransfer (agent-only path). Classified as a known exception, not a vulnerability. (Result of a fixed probe test, not generated from the policy.)"
+  ],
+  "findings": {
+    "K1": {
+      "severity": "HIGH",
+      "text": "**Violated policy**\nOnly investors with a valid KYC claim from a trusted issuer may receive tokens (rule K1).\n\n**What went wrong**\nIn V02, the token accepted tokens for wallets without a valid KYC claim. Three tests expected a refusal and got none: a mint to Mallory, a transfer to Mallory, and a transfer to Bob after his claim was revoked. The configuration change is not provided, so the cause is not known. Because nothing reverted, it cannot be told whether \"Transfer not possible\" would have come from a KYC or a rule failure.\n\n**Affected functions**\n`token.mint` and `token.transfer`. The other two tests are not shown to affect any other function.\n\n**How to reproduce**\n1. Call `vm.prank(agent)` and `vm.expectRevert(\"Identity is not verified.\")`.\n2. Call `token.mint(m, 1)` (1 token to Mallory's wallet).\n3. The call does not revert, so the test fails with \"next call did not revert as expected.\"\n\nThe transfer tests fail the same way: `token.transfer(m, 1)` after Alice mints 10, and `token.transfer(b, 1)` after `_revokeClaim(idB)`.\n\n**Suggested fix**\nCompare V02 with the clean configuration C01 and find the setting that lets wallets without a valid KYC claim pass. The output does not show which setting does this.",
+      "direct_evidence": {
+        "direct": 3,
+        "total": 3
+      },
+      "failing_tests": [
+        {
+          "name": "test_mintToUnverifiedWalletReverts",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferToUnverifiedWalletReverts",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferToWalletWithRevokedClaimReverts",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_mintToUnverifiedWalletReverts() public {\n        uint256 before = token.balanceOf(m);\n\n        vm.prank(agent);\n        vm.expectRevert(bytes(\"Identity is not verified.\"));\n        token.mint(m, 1);\n\n        assertEq(token.balanceOf(m), before, \"unverified wallet was minted tokens\");\n    }"
+    },
+    "K3": {
+      "severity": "HIGH",
+      "text": "**Violated policy**\nK3: at least one KYC claim topic must be required. Wallets without a KYC claim must be rejected.\n\n**What went wrong**\nBoth tests expected a rejection and neither got one. Mallory, who is registered but holds no KYC claim, received tokens by mint and by transfer. The output does not show the cause. The V02 change is not provided, so the cause is not known.\n\n**Affected functions**\n`token.mint` and `token.transfer`, both of which rely on the identity KYC check.\n\n**How to reproduce**\nTransfer test, the clearest case:\n1. Agent calls `token.mint(Alice's first wallet, CAP / 10)`. The holding cap value for V02 is not given.\n2. Alice's first wallet calls `token.transfer(Mallory, CAP / 10)`.\n3. Expected: revert \"Transfer not possible\". Actual: no revert. The test comment says the expected failure is the KYC check, so the intended revert was KYC-related.\n\nThe mint test (`test_K3_mintToUnclaimedWalletRejected`) fails the same way: `token.mint(Mallory, CAP / 10)` did not revert with \"Identity is not verified.\"\n\n**Suggested fix**\nMake V02 require at least one KYC claim topic (`KYC_TOPIC`). Check whether V02 removes or empties the required claim topics. The output does not confirm this, so verify it before changing anything.",
+      "direct_evidence": {
+        "direct": 2,
+        "total": 2
+      },
+      "failing_tests": [
+        {
+          "name": "test_K3_mintToUnclaimedWalletRejected",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_K3_transferToUnclaimedWalletRejected",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_K3_mintToUnclaimedWalletRejected() public {\n        // Mallory is registered but holds no KYC claim, so the policy forbids minting to her.\n        uint256 amt = CAP / 10;\n        assertTrue(amt > 0);\n\n        uint256 before = token.balanceOf(m);\n\n        vm.prank(agent);\n        vm.expectRevert(bytes(\"Identity is not verified.\"));\n        token.mint(m, amt);\n\n        assertEq(token.balanceOf(m), before);\n    }"
+    },
+    "H3": {
+      "severity": "HIGH",
+      "text": "Violated policy\nH3: the holding-limit module's tracked balances must match the real token balances.\n\nWhat went wrong\nThe test expected Bob's transfer to Alice's first wallet to be refused after Alice's KYC claim was revoked. The transfer was not refused. The test stopped at this check, so the H3 balance assertions did not run and any drift is not known. The output does not show whether the refusal was a KYC or a rule failure. The cause in V02 is not known, because the configuration change was not provided.\n\nAffected functions\n`token.transfer` (sender Bob). Revocation uses `_revokeClaim`.\n\nHow to reproduce\n1. The agent mints CAP/10 tokens to Bob (CAP for V02 is not given).\n2. Check that tracked and real balances match for all four identities.\n3. Revoke Alice's KYC claim (`idA`).\n4. Bob calls `token.transfer` to Alice's first wallet for half the amount.\n5. The expected \"Transfer not possible\" revert did not happen.\n\nSuggested fix\nNot known from this output. Find out why V02 accepted a transfer to a recipient whose KYC claim was revoked, then rerun the test.",
+      "direct_evidence": {
+        "direct": 0,
+        "total": 1
+      },
+      "failing_tests": [
+        {
+          "name": "test_H3_rejectedTransferDoesNotDrift",
+          "reason": "next call did not revert as expected",
+          "side_effect": true
+        }
+      ],
+      "reproducible_test": "function test_H3_rejectedTransferDoesNotDrift() public {\n        uint256 amt = CAP / 10;\n        _mint(b, amt);\n        assertTrackedEqualsReal();\n\n        // Recipient's KYC is revoked, so the transfer to a1 must be refused.\n        _revokeClaim(idA);\n\n        uint256 bBefore = token.balanceOf(b);\n        vm.prank(b);\n        vm.expectRevert(bytes(\"Transfer not possible\"));\n        token.transfer(a1, amt / 2);\n\n        assertEq(token.balanceOf(b), bBefore, \"rejected transfer moved tokens\");\n        assertTrackedEqualsReal();\n    }"
+    }
+  },
+  "cost": {
+    "llm_calls": 3,
+    "paid_usd": 0.003364,
+    "first_made_usd": 0.003364,
+    "model_seconds": 24.1,
+    "wall_seconds": 31.9
+  }
+}

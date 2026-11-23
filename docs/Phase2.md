@@ -103,7 +103,7 @@ ID, Plain-English rule, Paths covered, Contracts involved, Testable form, Known 
 | **Testable form** | For each revocation route below, after revocation `isVerified(receiver) == false` and a transfer to that receiver reverts. Routes: (a) `deleteIdentity`, (b) trusted issuer removed (and no other trusted issuer holds a claim for the investor), (c) claim revoked at the ClaimIssuer. |
 | **Known exceptions** | Revocation does **not** stop the wallet from sending tokens it already holds (see K5). Removing a required topic is **not** a revocation route; see the note under K3. |
 | **How it could break** | Variant `isVerified` caches a previous "true" result. Variant ClaimIssuer ignores `revokedClaims`. Variant registry keeps the old identity after `deleteIdentity`. |
-| **Status** | Holds on stock for the three routes. **One bypass found by test: S03** (investor re-adds a revoked claim with a twin signature) |
+| **Status** | Holds on stock for the three routes. **Two bypasses found by test: S03** (investor re-adds a revoked claim with a twin signature) **and S04** (same, with a different `v` byte) |
 
 **Example: revoked claim still accepted**
 
@@ -116,6 +116,8 @@ ID, Plain-English rule, Paths covered, Contracts involved, Testable form, Known 
 | Finding | K2 violated: revocation had no effect on receiving |
 
 ---
+
+> **K2 bypass S04 (added after Phase 4 step 4.8).** Same idea as S03, but the signature is changed in the `v` byte instead of `s`: `v` as 0/1 instead of 27/28. `revokedClaims` is keyed by the exact signature bytes, so the changed signature is not found there and `isClaimValid` accepts it again. Reproduced on the project owner's machine (`test/StockGapsVByte.t.sol`, `test_S04` passes). Like S03, it is a gap of the ONCHAINID dependency (2.1.0), not of T-REX code. It is not part of the 13 variants or the detection rate.
 
 > **K2 bypass reproduced in a test (S03).** An investor can undo a revocation by re-adding the claim with a twin signature. See section 5a (note after item 12). Reproduced in a sandbox run; re-run on your machine to confirm (`test/StockGaps.t.sol`).
 
@@ -410,7 +412,7 @@ ID, Plain-English rule, Paths covered, Contracts involved, Testable form, Known 
 | ID | Category | Rule (short) | Status on stock | Main break type |
 |---|---|---|---|---|
 | K1 | KYC | Only fully verified receivers | Holds | Wrong verification logic |
-| K2 | KYC | Revocation blocks receiving | Holds (bypass S03) | Revocation ignored, twin signature |
+| K2 | KYC | Revocation blocks receiving | Holds (bypasses S03, S04) | Revocation ignored, twin signature, v-byte variant |
 | K3 | KYC | Topics list not empty | Config check | Empty list |
 | K4 | KYC | Expired KYC rejected | **Violated** | No on-chain expiry |
 | K5 | KYC | Revoked sender cannot send | **Violated** | Sender never checked |
@@ -542,12 +544,13 @@ All variant code lives in a separate `ComplyRWA/variants/` folder. The `T-REX/` 
 | S01 | K4 | S | Stock config, claim with an expiry date in the past | Expired claim accepted (stock gap) |
 | S02 | K5 | S | Stock config, sender's claim revoked | Revoked sender can still send (stock gap) |
 | S03 | K2 | S | Stock config, claim revoked, then re-added by the investor with the twin signature (`s' = n - s`, flipped `v`) | Revoked investor receives again (stock gap, reproduced in test) |
+| S04 | K2 | S | Stock config, claim revoked, then re-added by the investor with the same `r` and `s` but a different `v` byte (0/1 instead of 27/28) (`test/StockGapsVByte.t.sol`, `test_S04`) | Revoked investor receives again (stock gap, found in step 4.8, reproduced in test) |
 
-**Count:** 13 seeded variants (V01 to V13) plus 3 stock-gap cases (S01, S02, S03). Even if you drop the S cases, 13 stays inside the 12-15 target.
+**Count:** 13 seeded variants (V01 to V13) plus 4 stock-gap cases (S01, S02, S03, S04). Even if you drop the S cases, 13 stays inside the 12-15 target.
 
 **Which run detects what**
 - **Default audit (K1, K3, J1, H1, H3):** V01, V02, V04, V05, V07, V09, V11, V12, V13 (V13 is caught by the H1 test because a 5000 transfer exceeds the policy cap).
-- **Extended audits (K2, J2, J3, H2, K4, K5):** V03, V06, V08, V10, S01, S02, S03.
+- **Extended audits (K2, J2, J3, H2, K4, K5):** V03, V06, V08, V10, S01, S02, S03, S04.
 
 **Checks to do when building them:** some variants may turn out not to be reproducible (for example V06 depends on how the module reads the country). Reproducibility is judged in Phase 3. Only reproducible variants count in the 75% detection target.
 
@@ -588,6 +591,8 @@ All of them live in `test/clean/CleanConfigs.t.sol`. Each configuration is a sma
 | C08 | Carol holds 300 and Alice's second wallet holds 100 before `MaxBalanceModule` exists. Correct preset via `batchPreSetModuleState`, then `addModule` | yes | yes |
 
 The scenario assertions for C03, C04 and C07 are also covered by `test/C01_Baseline.t.sol` (`test_C03_...`, `test_C04_...`, `test_C07_...`).
+
+**C08 start state (note).** The start state mints 300 tokens to Carol (country 408) **before** the country module is bound. At that moment no rule can block it, so this is a legal setup step, not a bypass. The balance exists first, then `MaxBalanceModule` is bound with a correct preset. Any review (human or LLM) that flags this mint as a jurisdiction bypass is raising a false alarm. This was found in step 4.8, where Sonnet's one clean-configuration false positive was C08. C08 is documented, not changed.
 
 **A defect in a gold test, found by the clean set.** On C08 the test G13 failed because it assumed Carol starts with 0 tokens. This was a flaw in the test, not a finding about the contracts. G13 now compares against Carol's starting balance. This is the kind of false positive the clean set exists to catch.
 
@@ -686,7 +691,7 @@ G01 to G10 must **pass** on every clean configuration. G11, G12 and G14 are kept
 
 **Wave 1: configuration only (7 variants, fast).** V04, V05, V07, V08, V09, V11, V13.
 **Wave 2: code changes in copies of contracts (6 variants, slower).** V01, V02, V03, V06, V10, V12.
-**Stock gaps (no build, 3 cases).** S01, S02, S03.
+**Stock gaps (no build, 4 cases).** S01, S02, S03, S04 (S04 added after Phase 4).
 **Clean set (8 configurations).** C01 to C08.
 
 All variant code goes in `ComplyRWA/variants/`, and `T-REX/` stays untouched. V06 and V12 are the riskiest (V06 needs a copied module, V12 a copied `Token.sol`). If both turn out not reproducible, 11 seeded variants plus S01, S02 and S03 still make 14, inside the 12 to 15 target.

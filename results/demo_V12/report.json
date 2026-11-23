@@ -1,0 +1,76 @@
+{
+  "status": "ok",
+  "target": "V12",
+  "model": "haiku",
+  "mode": "live",
+  "rules": {
+    "K1": {
+      "policy": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "K3": {
+      "policy": "At least one KYC claim topic must be required.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "J1": {
+      "policy": "Investors registered in a restricted country may not receive tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "H1": {
+      "policy": "No investor may hold more than the maximum allowed tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "H3": {
+      "policy": "The holding-limit module's balance records must match the real token balances.",
+      "tests_run": 4,
+      "failed": 1,
+      "status": "FAIL",
+      "severity": "HIGH"
+    }
+  },
+  "groups": {
+    "Holding limit not enforced or tracked wrongly": [
+      "H3"
+    ]
+  },
+  "info": [
+    "INFO: J1 bypassed via forcedTransfer (agent-only path). Classified as a known exception, not a vulnerability. (Result of a fixed probe test, not generated from the policy.)"
+  ],
+  "findings": {
+    "H3": {
+      "severity": "HIGH",
+      "text": "Violated policy\nH3: the MaxBalanceModule's tracked balance for each identity must equal the real token balance of its wallets.\n\nWhat went wrong\nAfter the forced transfer, Alice's tracked balance is 75 but her real balance across both wallets is 50. The tracker did not drop when the tokens left her wallet. The check after the burn passed, so the burn appears correct. The output reports only idA, so the other identities were not shown to fail.\n\nAffected functions\ntoken.forcedTransfer: the tracker for the sender identity appears not to be updated. token.burn appears correct.\n\nHow to reproduce\n1. Agent mints one tenth of the cap (CAP/10) to Alice's first wallet a1. The cap value in V12 is not given. With the C01 cap of 1000, this is 100 tokens.\n2. Agent burns a quarter of that amount from a1.\n3. Agent forces a transfer of a quarter of that amount from a1 to Bob's wallet b.\n4. The check fails: Alice's tracked balance is 75, real balance is 50.\n\nSuggested fix\nCheck how forcedTransfer updates the MaxBalanceModule's tracked balance for the sender's identity, and make it match the real balance change. Then rerun this test.\n\nConfiguration V12 changes: not provided. The cause within V12 is not known.",
+      "direct_evidence": {
+        "direct": 1,
+        "total": 1
+      },
+      "failing_tests": [
+        {
+          "name": "test_H3_trackedMatchesRealAfterBurnAndForcedTransfer",
+          "reason": "idA tracked != real: 75 != 50",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_H3_trackedMatchesRealAfterBurnAndForcedTransfer() public {\n        uint256 amt = CAP / 10;\n        _mint(a1, amt);\n        assertTrackedEqualsReal();\n\n        vm.prank(agent);\n        token.burn(a1, amt / 4);\n        assertTrackedEqualsReal();\n\n        vm.prank(agent);\n        token.forcedTransfer(a1, b, amt / 4);\n        assertTrackedEqualsReal();\n    }"
+    }
+  },
+  "cost": {
+    "llm_calls": 1,
+    "paid_usd": 0.0,
+    "first_made_usd": 0.001378,
+    "model_seconds": 0.0,
+    "wall_seconds": 0.3
+  }
+}

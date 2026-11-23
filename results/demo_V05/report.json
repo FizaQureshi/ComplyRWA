@@ -1,0 +1,86 @@
+{
+  "status": "ok",
+  "target": "V05",
+  "model": "haiku",
+  "mode": "live",
+  "rules": {
+    "K1": {
+      "policy": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "K3": {
+      "policy": "At least one KYC claim topic must be required.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "J1": {
+      "policy": "Investors registered in a restricted country may not receive tokens.",
+      "tests_run": 4,
+      "failed": 3,
+      "status": "FAIL",
+      "severity": "HIGH"
+    },
+    "H1": {
+      "policy": "No investor may hold more than the maximum allowed tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "H3": {
+      "policy": "The holding-limit module's balance records must match the real token balances.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    }
+  },
+  "groups": {
+    "Jurisdiction restriction not enforced": [
+      "J1"
+    ]
+  },
+  "info": [
+    "INFO: J1 bypassed via forcedTransfer (agent-only path). Classified as a known exception, not a vulnerability. (Result of a fixed probe test, not generated from the policy.)"
+  ],
+  "findings": {
+    "J1": {
+      "severity": "HIGH",
+      "text": "Violated policy\nRule J1: investors registered in a restricted country may not receive tokens.\n\nWhat went wrong\nIn configuration V05, three ways of sending tokens to a restricted-country investor succeeded when they should have been blocked. Each test expected a revert, and none happened. The tests target the rule failure, not KYC, since Bob holds a KYC claim. The cause in V05 is not known, because the audit tool did not describe the configuration change.\n\nAffected functions\ntoken.mint, token.transfer, token.transferFrom\n\nHow to reproduce\nSteps from test_mintToRestrictedCountryIsBlocked:\n1. Agent calls ir.updateCountry(b, RESTRICTED), so Bob is in the restricted country.\n2. The test records total supply and Bob's balance.\n3. Agent calls token.mint(b, CAP / 10). In C01 that is 100 tokens. V05's cap is not given.\n4. The test expects the revert \"Compliance not followed\". The call did not revert.\n5. Bob received new tokens and supply grew, so the balance checks fail.\n\nThe other two tests, test_transferFromToRestrictedCountryIsBlocked and test_transferToRestrictedCountryIsBlocked, failed the same way: the expected \"Transfer not possible\" revert did not occur.\n\nSuggested fix\nIn V05, check that the country restriction module is bound to compliance and that the restricted-country variable is set as intended. The output does not confirm the cause.",
+      "direct_evidence": {
+        "direct": 3,
+        "total": 3
+      },
+      "failing_tests": [
+        {
+          "name": "test_mintToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferFromToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_mintToRestrictedCountryIsBlocked() public {\n        uint256 amt = CAP / 10;\n\n        vm.prank(agent);\n        ir.updateCountry(b, RESTRICTED);\n\n        uint256 supplyBefore = token.totalSupply();\n        uint256 bBefore = token.balanceOf(b);\n\n        vm.prank(agent);\n        vm.expectRevert(bytes(\"Compliance not followed\"));\n        token.mint(b, amt);\n\n        // Policy outcome: no new tokens were created for the restricted-country investor.\n        assertEq(token.balanceOf(b), bBefore, \"restricted-country investor was minted tokens\");\n        assertEq(token.totalSupply(), supplyBefore, \"supply grew for a restricted-country receiver\");\n    }"
+    }
+  },
+  "cost": {
+    "llm_calls": 1,
+    "paid_usd": 0.0,
+    "first_made_usd": 0.001153,
+    "model_seconds": 0.0,
+    "wall_seconds": 0.3
+  }
+}

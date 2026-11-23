@@ -1,0 +1,12 @@
+{
+ "text": "**Severity: HIGH**\n\n**Violated policy**\nOnly investors with a valid KYC claim from a trusted issuer may receive tokens (rule K1).\n\n**What went wrong**\nIn V02, the token accepted tokens for wallets without a valid KYC claim. Three tests expected a refusal and got none: a mint to Mallory, a transfer to Mallory, and a transfer to Bob after his claim was revoked. The configuration change is not provided, so the cause is not known. Because nothing reverted, it cannot be told whether \"Transfer not possible\" would have come from a KYC or a rule failure.\n\n**Affected functions**\n`token.mint` and `token.transfer`. The other two tests are not shown to affect any other function.\n\n**How to reproduce**\n1. Call `vm.prank(agent)` and `vm.expectRevert(\"Identity is not verified.\")`.\n2. Call `token.mint(m, 1)` (1 token to Mallory's wallet).\n3. The call does not revert, so the test fails with \"next call did not revert as expected.\"\n\nThe transfer tests fail the same way: `token.transfer(m, 1)` after Alice mints 10, and `token.transfer(b, 1)` after `_revokeClaim(idB)`.\n\n**Suggested fix**\nCompare V02 with the clean configuration C01 and find the setting that lets wallets without a valid KYC claim pass. The output does not show which setting does this.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3042,
+  "output_tokens": 1446
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0010272,
+ "tag": "explainer:K1:V02:d1:blind",
+ "created": "2026-11-23 11:17:44"
+}

@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.revokeClaim / ClaimIssuer.isClaimValid (revokedClaims keyed by raw signature bytes); Identity.addClaim lets the holder replace the stored signature\",\"severity\":\"HIGH\",\"why\":\"Revocation marks the exact signature bytes, but ECDSA signatures are malleable: (r, n-s, v flipped) recovers the same signer, and getRecoveredAddress and ecrecover do not reject high-s values. A revoked holder can re-add the claim with the malleated signature. isClaimValid then returns true and isVerified passes, so a revoked wallet can receive tokens again.\",\"steps\":\"1) Issuer calls claimIssuer.revokeClaim(claimId, idB) so the claim for wallet b is revoked. 2) b (management key on idB) computes s' = n - s and v' = v flipped, then calls idB.addClaim(1, 1, claimIssuer, abi.encodePacked(r, s', v'), KYC_DATA, \\\"\\\"). addClaim accepts it because the new bytes are not in revokedClaims and recovery yields the trusted signer. 3) a1 calls token.transfer(b, 1). isVerified(b) is true, canTransfer passes, and the transfer succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 16793,
+  "output_tokens": 5668
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0045133000000000005,
+ "tag": "reviewer:C04:r2",
+ "created": "2026-11-22 00:42:43"
+}

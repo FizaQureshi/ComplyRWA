@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15972,
+  "output_tokens": 8587
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0058907,
+ "tag": "reviewer:C05:r1",
+ "created": "2026-11-21 17:50:01"
+}

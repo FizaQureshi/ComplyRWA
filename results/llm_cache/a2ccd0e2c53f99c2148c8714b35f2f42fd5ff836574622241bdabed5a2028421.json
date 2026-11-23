@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nH1: No investor may hold more than the maximum allowed number of tokens.\n\nWhat went wrong\nThe changes in V13 are not known. The output does not say which assertion failed. The likely reading is that an over-cap call succeeded, so the cap was not enforced. This is not a known exception, because both calls raise holdings above the cap through an ordinary mint or transfer.\n\nAffected functions\ntoken.mint and token.transfer. The cap check in MaxBalanceModule is not shown in the output.\n\nHow to reproduce\nClearest test: test_mintPastCapIsRefused.\n1. The agent mints Bob \"room + 1\" tokens, where room is the cap minus Bob's identity balance. The cap value for V13 is not given.\n2. The test expects the call to fail and Bob's balances to stay unchanged.\n\nAlso failing: test_transferToSecondWalletCannotExceedIdentityCap. It moves tokens from Bob to Alice's second wallet, which pushes Alice's shared identity one token over the cap.\n\nSuggested fix\nConfirm which assertion failed and whether the cap module is bound to compliance under V13. Check that both the mint path and the transfer path test the identity's total balance against the cap.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 2931,
+  "output_tokens": 2160
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0013731,
+ "tag": "explainer:H1:V13:d2:blind",
+ "created": "2026-11-23 11:19:55"
+}

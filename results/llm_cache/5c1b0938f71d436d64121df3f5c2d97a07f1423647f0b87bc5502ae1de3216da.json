@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.revokeClaim / ClaimIssuer.isClaimValid / ClaimIssuer.getRecoveredAddress, used by IdentityRegistry.isVerified\",\"severity\":\"HIGH\",\"why\":\"Revocation is keyed on the raw signature bytes, but getRecoveredAddress uses ecrecover without a low-s check. A revoked claim's signature can be turned into a malleable twin (s replaced by n-s, v flipped 27\u219428) that recovers the same signer, so isClaimRevoked returns false and isClaimValid returns true. The investor can store this twin on their identity and remain KYC-verified after revocation.\",\"steps\":\"1) Issuer calls claimIssuer.revokeClaim(claimId, idB) for investor b. 2) b (owner of idB) computes the malleated signature S' = (r, n-s, v^1) and calls idB.addClaim(1, 1, claimIssuer, S', data, \\\"\\\"); isClaimValid(S') passes, so the claim is stored. 3) a1 calls token.transfer(b, amount); isVerified(b) returns true and the transfer succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 16014,
+  "output_tokens": 6299
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0047509,
+ "tag": "reviewer:C03:r1",
+ "created": "2026-11-21 17:48:58"
+}

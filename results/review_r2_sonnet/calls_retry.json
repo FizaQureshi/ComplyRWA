@@ -1,0 +1,41 @@
+{
+ "V02": {
+  "model": "claude-sonnet-5-5",
+  "mode": "live",
+  "input_tokens": 16577,
+  "output_tokens": 1200,
+  "cost_usd": 0.045154,
+  "paid_usd": 0.045154,
+  "seconds": 9.76,
+  "truncated": false,
+  "stop_reason": "end_turn",
+  "cached": false,
+  "sample": 1
+ },
+ "V09": {
+  "model": "claude-sonnet-5-5",
+  "mode": "live",
+  "input_tokens": 16779,
+  "output_tokens": 950,
+  "cost_usd": 0.043058,
+  "paid_usd": 0.043058,
+  "seconds": 8.69,
+  "truncated": false,
+  "stop_reason": "end_turn",
+  "cached": false,
+  "sample": 1
+ },
+ "V13": {
+  "model": "claude-sonnet-5-5",
+  "mode": "live",
+  "input_tokens": 16781,
+  "output_tokens": 769,
+  "cost_usd": 0.041252,
+  "paid_usd": 0.041252,
+  "seconds": 6.97,
+  "truncated": false,
+  "stop_reason": "end_turn",
+  "cached": false,
+  "sample": 1
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"J1\",\"where\":\"Deployment._addModules (override) \u2013 _mint(c, 300) runs before super._addModules()\",\"severity\":\"MEDIUM\",\"why\":\"The override mints 300 tokens to wallet c, which is registered in restricted country 408, before the country module is added to compliance. With no modules bound, canTransfer returns true, so the mint passes and a restricted-country investor ends up holding tokens. The later restriction only blocks new receipts, so c's balance stays and is also preset into the max-balance records.\",\"steps\":\"setUp -> _registerInvestors (c registered with country 408 and KYC claim) -> _wireModules -> Deployment._addModules: agent token.mint(c, 300) succeeds because compliance has no modules -> batchPreSetModuleState records 300 for idC -> super._addModules adds the country module and restriction 408, after c already holds tokens\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16116,
+  "output_tokens": 1510
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.047332,
+ "tag": "reviewer:C08:r1",
+ "created": "2026-11-21 18:10:30"
+}

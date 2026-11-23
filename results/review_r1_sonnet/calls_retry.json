@@ -1,0 +1,15 @@
+{
+ "V08": {
+  "model": "claude-sonnet-5-5",
+  "mode": "live",
+  "input_tokens": 15959,
+  "output_tokens": 826,
+  "cost_usd": 0.040178,
+  "paid_usd": 0.040178,
+  "seconds": 7.2,
+  "truncated": false,
+  "stop_reason": "end_turn",
+  "cached": false,
+  "sample": 1
+ }
+}

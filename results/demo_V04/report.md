@@ -1,6 +1,6 @@
 # ComplyRWA audit report: V04
 
-Audit target: configuration `V04` (cause hidden from the auditor). Model: haiku. Mode: live.
+Audit target: configuration `V04` (cause hidden from the auditor). Model: haiku. Mode: replay.
 
 ## 1. Policy input
 

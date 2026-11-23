@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H4\",\"where\":\"Deployment._configureModules (override of BaseSetup._configureModules)\",\"severity\":\"HIGH\",\"why\":\"The override calls _setCap(type(uint256).max) instead of the issuer's cap of 1000, which H4 forbids. The base version used CAP = 1000, so the override replaces the correct value.\",\"steps\":\"Deploy with the override, so setMaxBalance(2^256-1) is called through compliance.callModuleFunction. The cap is then max uint256 and every cap check passes.\"},{\"rule\":\"H1\",\"where\":\"Deployment._configureModules -> MaxBalanceModule.setMaxBalance / moduleCheck / moduleMintAction\",\"severity\":\"HIGH\",\"why\":\"With the cap at max uint256, the module's cap checks can never fail, so one investor identity can hold more than 1000 tokens. This also makes the shared-identity cap in H2 meaningless.\",\"steps\":\"The agent calls mint(a1, 5000). moduleCheck passes because 5000 <= max, and moduleMintAction passes. Identity A then holds 5000 tokens. A transfer(b, 2000) also succeeds, so b holds 2000, above 1000.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16781,
+  "output_tokens": 769
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.041252,
+ "tag": "reviewer:V13:r2:retry",
+ "created": "2026-11-22 00:40:01"
+}

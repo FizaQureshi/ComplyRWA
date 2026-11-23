@@ -1,0 +1,12 @@
+{
+ "text": "**Severity: HIGH**\n\n**Violated policy**\nRule K1: only investors with a valid KYC claim from a trusted issuer may receive tokens.\n\n**What went wrong**\nIn V01, three transfers that should have been refused went through. The agent minted 1 unit to Mallory, who holds no KYC claim. Alice's first wallet sent 1 unit to Mallory, and Alice's first wallet sent 1 unit to Bob after his claim was revoked. The change V01 makes is not provided, so the cause is not known. Both transfer failures show only \"Transfer not possible\", which is used for KYC and rule failures alike, so which check failed cannot be told.\n\n**Affected functions**\n`token.mint`, `token.transfer`\n\n**How to reproduce**\nClearest test: `test_mintToUnverifiedWalletReverts`\n1. Record Mallory's balance.\n2. Agent calls `vm.prank(agent)`.\n3. Expect a revert with \"Identity is not verified.\"\n4. Agent calls `token.mint(m, 1)`. The call succeeds, so the test fails.\n\nAlso failing: `test_transferToUnverifiedWalletReverts` and `test_transferToWalletWithRevokedClaimReverts`.\n\n**Suggested fix**\nCompare V01 with the baseline C01 to find what changed. Restore the KYC check on the receiving side for `mint` and `transfer`, then rerun all three tests on every clean configuration.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3042,
+  "output_tokens": 1609
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0011087,
+ "tag": "explainer:K1:V01:d1:blind",
+ "created": "2026-11-23 11:17:03"
+}

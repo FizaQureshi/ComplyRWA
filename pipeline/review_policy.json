@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "note": "Step 4.8. Policy numbers shown to the reviewer for each target. Rule texts are NOT repeated here: review_inputs.py takes them from prompts.RULE_TEXT, so the reviewer and the generator use the same wording. Only C05 differs from the baseline (ComplyFixture.sol: cap 1000, country 408; Cfg05: cap 500, countries 408 and 643).",
+  "rules": ["K1", "K2", "K3", "J1", "J2", "J3", "H1", "H2", "H3", "H4"],
+  "default": {
+    "restricted_countries": [408],
+    "cap": 1000
+  },
+  "overrides": {
+    "C05": {
+      "restricted_countries": [408, 643],
+      "cap": 500
+    }
+  },
+  "definitions": [
+    "A wallet is KYC-verified when it is registered and holds a valid claim for EVERY required claim topic, signed by at least one issuer that is trusted for that topic.",
+    "Country codes are ISO 3166-1 numeric codes.",
+    "The cap counts the tokens of one investor identity, across all wallets of that identity."
+  ]
+}

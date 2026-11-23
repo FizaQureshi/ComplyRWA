@@ -1,0 +1,9 @@
+{
+  "note": "Manual triage counts: clean targets (of 8) with a true false alarm, after removing stock-gap findings (S03/S04) and the real C08 finding. Labels made by the project team after seeing the answers; see results/review_triage.md. Key = <batch>_<model>.",
+  "r1_haiku": 1,
+  "r1b_haiku": 1,
+  "r2_haiku": 0,
+  "r1_sonnet": 0,
+  "r1b_sonnet": 0,
+  "r2_sonnet": 0
+}

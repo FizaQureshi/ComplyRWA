@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"J1\",\"where\":\"Deployment._addModules (override mints before super._addModules)\",\"severity\":\"HIGH\",\"why\":\"The override calls _mint(c, 300) before any compliance modules are bound. Wallet c is registered in restricted country 408 and has a valid KYC claim, so the mint passes with no country check. c ends up holding 300 tokens, and the maximum-balance module's preset state records them under idC.\",\"steps\":\"setUp -> _registerInvestors (c registered with country 408, KYC claim issued) -> Deployment._addModules -> _mint(c, 300) succeeds because compliance has no modules -> batchPreSetModuleState presets idC=300 -> super._addModules binds the country module, which never sees this mint.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 16116,
+  "output_tokens": 1421
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.046442,
+ "tag": "reviewer:C08:r1b",
+ "created": "2026-11-22 01:08:00"
+}

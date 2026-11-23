@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15931,
+  "output_tokens": 1214
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.044002,
+ "tag": "reviewer:C01:r1",
+ "created": "2026-11-21 18:04:39"
+}

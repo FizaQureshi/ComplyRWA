@@ -1,6 +1,6 @@
 # ComplyRWA audit report: C01
 
-Audit target: configuration `C01` (cause hidden from the auditor). Model: haiku. Mode: live.
+Audit target: configuration `C01` (cause hidden from the auditor). Model: haiku. Mode: replay.
 
 ## 1. Policy input
 

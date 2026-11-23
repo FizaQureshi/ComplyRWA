@@ -2,7 +2,7 @@
 
 Phase 0 reproducibility record. Every benchmark result in this project depends on these versions, so update this file whenever any of them change.
 
-Last updated: 2026-11-13
+Last updated: 2026-11-22
 
 ---
 
@@ -25,8 +25,15 @@ Last updated: 2026-11-13
 | Foundry (`forge`) | 1.8.7 | `forge --version` |
 | Halmos | 0.3.3 | `halmos --version` |
 | Hardhat | 2.14.0 (from `T-REX/package.json`) | `npx hardhat --version` |
-| fuzz seed | 0x436f6d706c79 | invariant runs 64 | depth 40 |
-| ONCHAINID (`@onchain-id/solidity`) | 2.1.0 | `grep '"version"' T-REX/node_modules/@onchain-id/solidity/package.json` |
+| ONCHAINID (`@onchain-id/solidity`) | 2.1.0 (installed dependency of T-REX 4.1.6) | `grep '"version"' T-REX/node_modules/@onchain-id/solidity/package.json` |
+
+### Fuzz settings (in `foundry.toml`)
+
+| Setting | Value |
+|---|---|
+| Fuzz seed | `0x436f6d706c79` |
+| Invariant runs | 64 |
+| Invariant depth | 40 |
 
 ### Foundry build details
 

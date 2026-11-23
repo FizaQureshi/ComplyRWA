@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.revokeClaim / ClaimIssuer.isClaimValid / ClaimIssuer.revokedClaims, reached through Identity.addClaim and IdentityRegistry.isVerified\",\"severity\":\"HIGH\",\"why\":\"Revocation is keyed on the raw signature bytes, but ECDSA signatures are malleable. The investor can flip s to n-s and flip v, which gives a different byte string that still recovers to the same issuer signer. The revoked claim can then be re-added and still passes isVerified, so a revoked wallet can receive tokens again.\",\"steps\":\"1) Issuer admin calls claimIssuer.revokeClaim(claimId, idA), which stores revokedClaims[sig]=true. 2) Investor a1 reads the original sig (r,s,v) from idA.getClaim(claimId). 3) a1 computes s' = n - s and v' = v XOR 1 (27<->28) and calls idA.addClaim(1, 1, claimIssuer, r||s'||v', data, \\\"\\\"). The validity check passes because the new bytes are not in revokedClaims and recover to the same signer. 4) a1 (or a2, same identity) calls token.transfer(x, amount) to a verified receiver, and it succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15972,
+  "output_tokens": 9709
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0064516999999999994,
+ "tag": "reviewer:C05:r1b",
+ "created": "2026-11-22 00:49:27"
+}

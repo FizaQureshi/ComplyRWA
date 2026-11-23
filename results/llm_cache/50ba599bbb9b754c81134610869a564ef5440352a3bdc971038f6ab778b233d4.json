@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.isClaimValid (used by IdentityRegistry.isVerified)\",\"severity\":\"HIGH\",\"why\":\"isClaimValid always returns true and never checks revokedClaims or the signature. A claim revoked through revokeClaim is still treated as valid, so the wallet stays verified and can keep receiving tokens.\",\"steps\":\"1) Mint tokens to b, who is verified. 2) issuerAdmin calls claimIssuer.revokeClaim(claimId, idB). 3) a1 (verified) calls token.transfer(b, x). isVerified(b) is still true, so the transfer succeeds.\"},{\"rule\":\"K1\",\"where\":\"ClaimIssuer.isClaimValid together with Deployment._registerInvestors\",\"severity\":\"HIGH\",\"why\":\"Signatures are never checked, so any claim naming the trusted issuer counts as valid. Deployment signs m's KYC claim with an arbitrary 'second-key' that is not an authorised signer of the issuer, yet m passes isVerified. Anyone with a claim key on their own identity can also self-issue a KYC claim.\",\"steps\":\"1) Deployment registers m and adds a claim on idM signed with 'second-key'. 2) The agent calls token.mint(m, 100), or a1 calls token.transfer(m, 100). isVerified(m) returns true, so m receives tokens without a valid KYC claim from a trusted signer.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15777,
+  "output_tokens": 1132
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.042874,
+ "tag": "reviewer:V02:r1",
+ "created": "2026-11-21 18:10:57"
+}

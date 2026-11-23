@@ -29,6 +29,8 @@ def ledger_lines():
 def ledger_since(n):
     cost = orig = secs = 0.0
     calls = 0
+    if not os.path.exists(LEDGER):
+        return calls, cost, orig, secs
     with open(LEDGER, encoding="utf-8") as f:
         for i, line in enumerate(f):
             if i < n or not line.strip():
@@ -108,6 +110,12 @@ def main():
     ap.add_argument("--probe", default="results/filter_probe/matrix.csv")
     a = ap.parse_args()
     t0 = time.time()
+    if not re.fullmatch(r"[CV]\d\d", a.target):
+        sys.exit(f"invalid target {a.target}")
+    for fn in ("report.md", "report.json"):
+        old = os.path.join(f"results/demo_{a.target}", fn)
+        if os.path.exists(old):
+            os.remove(old)
     rules = list(POLICY)
 
     # stage 1: policy input
@@ -139,9 +147,11 @@ def main():
         cmd = [sys.executable, "pipeline/explainer.py", "--batch", *a.batches,
                "--configs", a.target, "--model", a.model, "--mode", a.mode]
         print("[4/5] explainer:", " ".join(cmd))
-        r = subprocess.run(cmd)
+        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        print(r.stdout, end="")
         if r.returncode != 0:
-            sys.exit(f"explainer failed (exit {r.returncode})")
+            tail = (r.stderr.strip().splitlines() or ["no error text"])[-1]
+            sys.exit(f"explainer failed (exit {r.returncode}): {tail}")
     else:
         print("[4/5] explainer skipped, using", folder)
     found = {k: v for k, v in finding_files(folder, a.target).items() if k in rules}
@@ -173,6 +183,7 @@ def main():
         if status[r][1] > 0:
             groups.setdefault(r[0], []).append(r)
 
+    findings = {}
     L = [f"# ComplyRWA audit report: {a.target}", "",
          f"Audit target: configuration `{a.target}` (cause hidden from the auditor). "
          f"Model: {a.model}. Mode: {a.mode}.", "",
@@ -190,10 +201,11 @@ def main():
     for cat, rs in groups.items():
         L += [f"### {CAUSE[cat]} ({', '.join(rs)})", ""]
         for r in rs:
-            sev, text, b = found.get(r, ("HIGH", "(explainer text not found)", ""))
+            sev, text, b = found.get(r, ("UNKNOWN", "(explainer text not found)", ""))
             L += [f"#### Rule {r}: severity {sev}", "", text, ""]
             fl = [t for t in tests[r] if t[2] == "F"]
             side = 0
+            ftests = []
             L.append("Failing tests and reasons:")
             for bb, name, _ in fl:
                 why = reasons.get((r, a.target, name), "reason not found in log")
@@ -205,6 +217,7 @@ def main():
                         and "tracked != real" not in why:
                     tag = " (side effect: a KYC failure let a transfer through)"
                     side += 1
+                ftests.append({"name": name, "reason": why, "side_effect": bool(tag)})
                 L.append(f"- `{name}`: {why}{tag}")
             L += ["", f"Direct evidence: {len(fl) - side} of {len(fl)} failing tests."]
             if r == "H3" and fl and side == len(fl):
@@ -219,6 +232,9 @@ def main():
                 src = test_source(pick[0], r, pick[1])
                 if src:
                     L += ["", "Reproducible test (generated):", "", "```solidity", src, "```"]
+                findings[r] = {"severity": sev, "text": text,
+                               "direct_evidence": {"direct": len(fl) - side, "total": len(fl)},
+                               "failing_tests": ftests, "reproducible_test": src}
             L.append("")
         if len(groups) > 1:
             pass
@@ -235,13 +251,14 @@ def main():
     outdir = f"results/demo_{a.target}"
     os.makedirs(outdir, exist_ok=True)
     open(f"{outdir}/report.md", "w", encoding="utf-8").write("\n".join(L) + "\n")
-    js = {"target": a.target, "model": a.model, "mode": a.mode,
+    js = {"status": "ok", "target": a.target, "model": a.model, "mode": a.mode,
           "rules": {r: {"policy": POLICY[r], "tests_run": status[r][0], "failed": status[r][1],
                         "status": "FAIL" if status[r][1] else ("PASS" if status[r][0] else "NOT_RUN"),
-                        "severity": found.get(r, (None,))[0] if status[r][1] else None}
+                        "severity": found.get(r, ("UNKNOWN",))[0] if status[r][1] else None}
                     for r in rules},
           "groups": {CAUSE[c]: rs for c, rs in groups.items()},
           "info": [info] if info else [],
+          "findings": findings,
           "cost": {"llm_calls": calls, "paid_usd": round(cost, 6), "first_made_usd": round(orig, 6),
                    "model_seconds": round(secs, 1), "wall_seconds": round(time.time() - t0, 1)}}
     json.dump(js, open(f"{outdir}/report.json", "w", encoding="utf-8"), indent=2)
@@ -249,5 +266,25 @@ def main():
     print({r: ("FAIL" if status[r][1] else "PASS") for r in rules})
 
 
+def _write_error(msg):
+    pp = argparse.ArgumentParser(add_help=False)
+    pp.add_argument("--target")
+    t, _ = pp.parse_known_args()
+    if not t.target or not re.fullmatch(r"[CV]\d\d", t.target):
+        return
+    d = f"results/demo_{t.target}"
+    os.makedirs(d, exist_ok=True)
+    json.dump({"status": "error", "target": t.target, "step": "demo", "message": str(msg)},
+              open(f"{d}/report.json", "w", encoding="utf-8"), indent=2)
+
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit as e:
+        if e.code not in (0, None):
+            _write_error(e.code if isinstance(e.code, str) else f"exit code {e.code}")
+        raise
+    except Exception as e:
+        _write_error(repr(e))
+        raise

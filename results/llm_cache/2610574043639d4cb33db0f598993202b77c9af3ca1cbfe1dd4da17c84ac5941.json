@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"H4\",\"where\":\"Deployment._configureModules (override) calling _setCap(type(uint256).max)\",\"severity\":\"HIGH\",\"why\":\"The override replaces the base configuration and sets the holding cap to the maximum uint256 instead of the issuer's 1000. The base version uses CAP = 1000, but the override never calls it.\",\"steps\":\"Deploy with the override; maxBalanceModule._maxBalance[compliance] = 2^256-1 instead of 1000.\"}, {\"rule\":\"H1\",\"where\":\"Deployment._configureModules (override) / MaxBalanceModule.moduleCheck, moduleMintAction, moduleTransferAction\",\"severity\":\"HIGH\",\"why\":\"With the cap at max uint256, every cap check in the module passes. An identity can therefore hold far more than 1000 tokens through normal mint and transfer calls.\",\"steps\":\"agent calls token.mint(b, 5000), which passes isVerified and canTransfer. Then b transfers or receives more tokens, and the balance stays above 1000 with no revert.\"}, {\"rule\":\"H2\",\"where\":\"Deployment._configureModules (override) / MaxBalanceModule\",\"severity\":\"MEDIUM\",\"why\":\"The module tracks balances per identity, but the shared cap for a1 and a2 (same identity idA) is effectively unlimited because the cap is max uint256. The combined holdings of the two wallets can exceed 1000.\",\"steps\":\"agent mints 800 to a1 and 800 to a2. Both succeed, so identity idA holds 1600.\"}]}",
+ "model": "claude-sonnet-5-5",
+ "usage": {
+  "input_tokens": 15981,
+  "output_tokens": 956
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.041522,
+ "tag": "reviewer:V13:r1b",
+ "created": "2026-11-22 01:10:20"
+}

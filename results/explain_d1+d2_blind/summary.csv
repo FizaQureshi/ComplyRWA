@@ -1,4 +1,2 @@
 config,rule,batch,failing_tests,severity,format_problems,ungrounded,out_tokens,cost_usd
-V04,H3,d1,1,HIGH,,,1901,0.001232
-V04,K1,d1,3,HIGH,,,1553,0.001081
-V04,K3,d1,3,HIGH,,,1996,0.001295
+V13,H1,d2,2,HIGH,,,2160,0.001373

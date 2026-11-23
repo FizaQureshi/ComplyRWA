@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nH1: No investor may hold more than the maximum allowed number of tokens.\n\nWhat went wrong\nUnder V10, Bob's tracked identity balance stays at 0 after an agent mints him 500 tokens, so the cap check does not count the holding. The output shows \"0 != 500\" in two tests. In the cross-wallet test, over-cap mints to Alice's wallets raised no error and the transfer to a2 was not blocked. The failing line and the V10 cause are not known, because the configuration change was not provided.\n\nAffected functions\ntoken.mint, token.transfer, and MaxBalanceModule balance tracking (_idBalance).\n\nHow to reproduce\nSteps from test_mintWithinCapSucceeds:\n1. Read _idBalance(idB). The fixture start state is 0.\n2. Room = CAP minus 0. The output's 500 implies CAP 1000 (V10's CAP is not given).\n3. Agent calls token.mint(Bob, 500). No revert is shown.\n4. Check balanceOf(Bob) and _idBalance(idB) equal 500. Output: 0 != 500.\n\nAlso failing: test_transferWithinIdentityCapSucceeds (0 != 500) and test_transferToSecondWalletCannotExceedIdentityCap (assertFalse with no values shown).\n\nSuggested fix\nMake MaxBalanceModule update identity balances on mint and transfer under V10, and revert over-cap mints with MaxBalanceExceeded. Rerun the three tests.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3313,
+  "output_tokens": 4221
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0024418,
+ "tag": "explainer:H1:V10:d2:blind",
+ "created": "2026-11-23 11:19:28"
+}

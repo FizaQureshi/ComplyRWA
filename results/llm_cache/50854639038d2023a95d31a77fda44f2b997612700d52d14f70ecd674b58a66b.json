@@ -1,0 +1,12 @@
+{
+ "text": "{\"findings\":[{\"rule\":\"K2\",\"where\":\"ClaimIssuer.isClaimValid (ClaimIssuer.sol), called by IdentityRegistry.isVerified\",\"severity\":\"HIGH\",\"why\":\"revokeClaim and revokeClaimBySignature only write to revokedClaims, but isClaimValid never reads that mapping. It checks only the signature and the signer key. IdentityRegistry.isVerified relies on isClaimValid, so a revoked KYC claim still counts as valid and the wallet can keep receiving tokens.\",\"steps\":\"1) Setup: wallet b is KYC-verified under idB. 2) Issuer admin calls claimIssuer.revokeClaim(claimId, idB) (the setup's _revokeClaim helper does this). 3) Holder a1 calls token.transfer(b, amount). isVerified(b) still returns true, so the transfer succeeds.\"}]}",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 15850,
+  "output_tokens": 3390
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.00328,
+ "tag": "reviewer:V03:r1",
+ "created": "2026-11-21 17:52:03"
+}

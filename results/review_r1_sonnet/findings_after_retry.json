@@ -1,0 +1,324 @@
+{
+ "C01": {
+  "status": "ok",
+  "notes": [],
+  "findings": []
+ },
+ "C02": {
+  "status": "ok",
+  "notes": [],
+  "findings": []
+ },
+ "C03": {
+  "status": "ok",
+  "notes": [],
+  "findings": []
+ },
+ "C04": {
+  "status": "ok",
+  "notes": [],
+  "findings": []
+ },
+ "C05": {
+  "status": "ok",
+  "notes": [],
+  "findings": []
+ },
+ "C06": {
+  "status": "ok",
+  "notes": [],
+  "findings": []
+ },
+ "C07": {
+  "status": "ok",
+  "notes": [],
+  "findings": []
+ },
+ "C08": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "J1",
+    "where": "Deployment._addModules (override) \u2013 _mint(c, 300) runs before super._addModules()",
+    "severity": "MEDIUM",
+    "why": "The override mints 300 tokens to wallet c, which is registered in restricted country 408, before the country module is added to compliance. With no modules bound, canTransfer returns true, so the mint passes and a restricted-country investor ends up holding tokens. The later restriction only blocks new receipts, so c's balance stays and is also preset into the max-balance records.",
+    "steps": "setUp -> _registerInvestors (c registered with country 408 and KYC claim) -> _wireModules -> Deployment._addModules: agent token.mint(c, 300) succeeds because compliance has no modules -> batchPreSetModuleState records 300 for idC -> super._addModules adds the country module and restriction 408, after c already holds tokens"
+   }
+  ]
+ },
+ "V01": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K1",
+    "where": "IdentityRegistry.isVerified",
+    "severity": "HIGH",
+    "why": "isVerified returns true as soon as any one required topic has a valid claim, instead of requiring every required topic. This deployment requires topics 1 and 2, and idM holds only a topic-1 claim, so wallet m passes verification without the topic-2 claim.",
+    "steps": "1. Setup registers m with idM and issues only the topic-1 claim. 2. Agent calls token.mint(m, 10), or b calls transfer(m, 10). 3. isVerified(m) is true because topic 1 is valid, so the call succeeds although the topic-2 claim is missing."
+   }
+  ]
+ },
+ "V02": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K2",
+    "where": "ClaimIssuer.isClaimValid (used by IdentityRegistry.isVerified)",
+    "severity": "HIGH",
+    "why": "isClaimValid always returns true and never checks revokedClaims or the signature. A claim revoked through revokeClaim is still treated as valid, so the wallet stays verified and can keep receiving tokens.",
+    "steps": "1) Mint tokens to b, who is verified. 2) issuerAdmin calls claimIssuer.revokeClaim(claimId, idB). 3) a1 (verified) calls token.transfer(b, x). isVerified(b) is still true, so the transfer succeeds."
+   },
+   {
+    "rule": "K1",
+    "where": "ClaimIssuer.isClaimValid together with Deployment._registerInvestors",
+    "severity": "HIGH",
+    "why": "Signatures are never checked, so any claim naming the trusted issuer counts as valid. Deployment signs m's KYC claim with an arbitrary 'second-key' that is not an authorised signer of the issuer, yet m passes isVerified. Anyone with a claim key on their own identity can also self-issue a KYC claim.",
+    "steps": "1) Deployment registers m and adds a claim on idM signed with 'second-key'. 2) The agent calls token.mint(m, 100), or a1 calls token.transfer(m, 100). isVerified(m) returns true, so m receives tokens without a valid KYC claim from a trusted signer."
+   }
+  ]
+ },
+ "V03": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K2",
+    "where": "ClaimIssuer.isClaimValid (used by IdentityRegistry.isVerified)",
+    "severity": "HIGH",
+    "why": "ClaimIssuer.isClaimValid only checks that the recovered signer has a purpose-3 key. It never reads `revokedClaims`, so revokeClaim and revokeClaimBySignature have no effect on isVerified. A wallet whose KYC claim was revoked still passes isVerified and can keep receiving tokens, which also defeats K1's requirement for a valid claim.",
+    "steps": "1) Mint tokens to a1 or b; both have valid claims. 2) issuerAdmin calls claimIssuer.revokeClaim(claimId, idB). 3) a1 calls token.transfer(b, x). isVerified(b) is still true, so the transfer succeeds. Agent mint(b, x) also succeeds."
+   }
+  ]
+ },
+ "V04": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "Deployment._deployClaimIssuer (override calls ctr.removeClaimTopic(KYC_TOPIC) after super added it)",
+    "severity": "HIGH",
+    "why": "The override removes the only required claim topic, so the ClaimTopicsRegistry is empty at the end of setup. No KYC claim topic is required, which violates the rule that at least one must be.",
+    "steps": "setUp -> super._deployClaimIssuer adds topic 1 -> override removes topic 1 -> ctr.getClaimTopics() returns []"
+   },
+   {
+    "rule": "K1",
+    "where": "IdentityRegistry.isVerified with an empty required-topics list (caused by the setup override)",
+    "severity": "HIGH",
+    "why": "With no required topics, isVerified returns true for any wallet that is merely registered, with no claim or trusted issuer check. A registered investor with no KYC claim can therefore receive tokens.",
+    "steps": "agent registers wallet m (idM, no claim issued) -> agent calls token.mint(m, 100) succeeds -> a holder calls token.transfer(m, 10) succeeds"
+   },
+   {
+    "rule": "K2",
+    "where": "IdentityRegistry.isVerified with an empty required-topics list (caused by the setup override)",
+    "severity": "HIGH",
+    "why": "Revoking a claim has no effect on verification because claims are never checked. A wallet whose KYC was revoked can still receive tokens.",
+    "steps": "_revokeClaim(idB) -> a holder calls token.transfer(b, 10) still succeeds because isVerified(b) returns true"
+   }
+  ]
+ },
+ "V05": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "J1",
+    "where": "Deployment._configureModules",
+    "severity": "HIGH",
+    "why": "The override restricts country 410 instead of 408, and it never calls super, so 408 is never added to the CountryRestrictModule. Investor c is registered in 408 and holds a valid KYC claim, so isVerified and the country module both pass and c can receive tokens.",
+    "steps": "agent mint(b, 100); b transfer(c, 50) succeeds. Agent mint(c, 10) also succeeds."
+   },
+   {
+    "rule": "J3",
+    "where": "Deployment._configureModules",
+    "severity": "HIGH",
+    "why": "The module is bound to the compliance contract, but the restricted set holds the wrong country (410, not 408), so the country restriction does not match the policy.",
+    "steps": "Call countryModule.isCountryRestricted(compliance, 408), which returns false. Then call transfer to a wallet registered in 408; it succeeds."
+   },
+   {
+    "rule": "J2",
+    "where": "Deployment._configureModules",
+    "severity": "HIGH",
+    "why": "Because 408 is not in the restricted set, updating a wallet's country to 408 does not stop it from receiving tokens.",
+    "steps": "agent ir.updateCountry(b, 408); a1 transfer(b, 10) succeeds."
+   }
+  ]
+ },
+ "V06": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "J2",
+    "where": "IdentityRegistry.updateCountry",
+    "severity": "HIGH",
+    "why": "updateCountry only emits CountryUpdated and never writes the new country to the identity registry storage. The country module reads investorCountry from that storage, so it still sees the old, unrestricted country and the wallet can keep receiving tokens.",
+    "steps": "1. Agent calls ir.updateCountry(b, 408). 2. investorCountry(b) still returns 356. 3. Another holder calls token.transfer(b, x). 4. CountryRestrictModule.moduleCheck passes and the transfer succeeds."
+   }
+  ]
+ },
+ "V07": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "J3",
+    "where": "Deployment._configureModules",
+    "severity": "HIGH",
+    "why": "The override runs the base setup, which restricts country 408, and then calls compliance.removeModule(countryModule). The country module is no longer bound to the compliance contract, so ModularCompliance.canTransfer never calls it and the restriction has no effect.",
+    "steps": "Deploy the setup. Call compliance.getModules(): only the MaxBalance module is listed. Call compliance.isModuleBound(countryModule): it returns false."
+   },
+   {
+    "rule": "J1",
+    "where": "Deployment._configureModules (removeModule of countryModule)",
+    "severity": "HIGH",
+    "why": "Wallet c is registered in restricted country 408 and holds a valid KYC claim. With the country module unbound, canTransfer checks only the max-balance module, so c can receive tokens.",
+    "steps": "agent calls token.mint(c, 100). It succeeds. Then a1 calls token.transfer(c, 10). It also succeeds."
+   },
+   {
+    "rule": "J2",
+    "where": "Deployment._configureModules (removeModule of countryModule)",
+    "severity": "HIGH",
+    "why": "Updating a wallet's country to 408 has no effect on transfers, because the country module is not consulted. A wallet moved to a restricted country can still receive tokens.",
+    "steps": "agent calls ir.updateCountry(b, 408). A holder then calls token.transfer(b, 10). It succeeds."
+   }
+  ]
+ },
+ "V08": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "J3",
+    "where": "Deployment._configureModules (override of BaseSetup._configureModules)",
+    "severity": "HIGH",
+    "why": "The override only calls _setCap(CAP) and drops the base calls to _restrictCountry(RESTRICTED). The country module is bound to the compliance contract, but country 408 is never added, so the restriction does nothing.",
+    "steps": "Deploy with the override; countryModule.isCountryRestricted(compliance, 408) returns false; every moduleCheck in the country module passes."
+   },
+   {
+    "rule": "J1",
+    "where": "Deployment._configureModules / CountryRestrictModule.moduleCheck",
+    "severity": "HIGH",
+    "why": "Wallet c is registered with country 408 and holds a valid KYC claim. Because 408 is not in the restricted set, c passes both isVerified and canTransfer and can receive tokens.",
+    "steps": "agent calls token.mint(c, 100) and it succeeds; b calls token.transfer(c, 10) and it succeeds."
+   },
+   {
+    "rule": "J2",
+    "where": "Deployment._configureModules / IdentityRegistry.updateCountry",
+    "severity": "HIGH",
+    "why": "Updating a wallet's country to 408 has no effect on its ability to receive, because the country module has no restricted countries configured.",
+    "steps": "agent calls ir.updateCountry(b, 408); a1 calls token.transfer(b, 10) and it succeeds."
+   }
+  ]
+ },
+ "V09": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "H1",
+    "where": "Deployment._configureModules (calls compliance.removeModule(maxBalanceModule) after super)",
+    "severity": "HIGH",
+    "why": "The override unbinds MaxBalanceModule right after the cap is set, so ModularCompliance.canTransfer no longer calls it. No holding limit applies to mint, transfer, transferFrom or batchTransfer.",
+    "steps": "Setup runs. Agent calls token.mint(b, 5000), which passes because only CountryRestrictModule is checked. The same happens with transfer(b, amount) for any amount."
+   },
+   {
+    "rule": "H2",
+    "where": "Deployment._configureModules (removeModule of MaxBalanceModule)",
+    "severity": "HIGH",
+    "why": "With the module unbound, no per-identity cap exists. Wallets a1 and a2, which share identity idA, can together hold far more than 1000.",
+    "steps": "Agent mints 1000 to a1 and then 1000 to a2. Both succeed and idA holds 2000."
+   },
+   {
+    "rule": "H3",
+    "where": "Deployment._configureModules / ModularCompliance.transferred, created, destroyed",
+    "severity": "MEDIUM",
+    "why": "The unbound module no longer receives moduleMintAction, moduleTransferAction or moduleBurnAction. Its _IDBalance records stay at 0 while real balances change, so the records do not match the token balances.",
+    "steps": "Agent mints 500 to b. Then call maxBalanceModule.getIDBalance(compliance, idB), which returns 0 while token.balanceOf(b) is 500."
+   }
+  ]
+ },
+ "V10": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "H2",
+    "where": "MaxBalanceModule._getIdentity (used by moduleCheck, moduleTransferAction, moduleMintAction, moduleBurnAction)",
+    "severity": "HIGH",
+    "why": "_getIdentity returns the wallet address instead of the identity contract from the identity registry. The cap is therefore tracked per wallet, and two wallets of the same identity each get their own 1000-token cap.",
+    "steps": "a1 and a2 are both registered under idA. The agent mints 1000 to a1 and then 1000 to a2. Both calls pass moduleCheck, and idA's wallets hold 2000 in total."
+   },
+   {
+    "rule": "H1",
+    "where": "MaxBalanceModule._getIdentity (setup wires this module as the holding-limit module)",
+    "severity": "HIGH",
+    "why": "Because balances are counted per wallet, one investor identity can hold more than the 1000 maximum by spreading tokens across its wallets. The module's _IDBalance records are keyed by wallet, so they never reflect the per-identity total.",
+    "steps": "Mint 1000 to a1. Then b transfers 1000 to a2, or the agent mints 1000 to a2. The identity idA now holds 2000 and the module does not revert."
+   }
+  ]
+ },
+ "V11": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "H3",
+    "where": "Deployment._addModules (mint of 800 to b before modules are bound, then batchPreSetModuleState with balance 0)",
+    "severity": "HIGH",
+    "why": "The override mints 800 tokens to b while no compliance modules are bound, so MaxBalanceModule never records them. It then presets idB's tracked balance to 0 instead of 800, so the module's records no longer match the real token balances.",
+    "steps": "setUp -> _addModules: _mint(b,800) succeeds (no modules, so created() notifies nothing) -> batchPreSetModuleState(compliance,[idB],[0]) -> super._addModules binds the modules -> getIDBalance(compliance,idB)==0 while token.balanceOf(b)==800"
+   },
+   {
+    "rule": "H1",
+    "where": "Deployment._addModules / MaxBalanceModule preset state",
+    "severity": "HIGH",
+    "why": "Because the module tracks idB at 0 while b really holds 800, the cap check lets b receive up to 1000 more tokens. That brings b to 1800, above the 1000 cap.",
+    "steps": "After setUp: agent mint(b,1000) -> moduleCheck sees 0+1000<=1000 and passes -> b holds 1800. Alternatively, a holder with tokens calls transfer(b,1000) with the same result."
+   },
+   {
+    "rule": "H2",
+    "where": "Deployment._addModules preset (idB balance)",
+    "severity": "MEDIUM",
+    "why": "The shared identity cap is enforced against a wrong stored balance for idB's identity. Any wallet added under idB can also be filled up to the cap on top of the existing 800, so the identity ends up holding more than 1000 in total.",
+    "steps": "After setUp: agent registers a second wallet b2 under idB -> mint(b2,1000) passes the module check -> idB's identity holds 1800 across b and b2"
+   }
+  ]
+ },
+ "V12": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "H3",
+    "where": "Token.forcedTransfer (also used by Token.recoveryAddress)",
+    "severity": "MEDIUM",
+    "why": "forcedTransfer moves balances but never calls _tokenCompliance.transferred. MaxBalanceModule's _IDBalance for the sender and receiver identities therefore stops matching real balances. The receiver's recorded balance is too low, so it can later exceed the 1000 cap (H1). The sender's recorded balance is too high, and the receiver's own later transfers can revert on underflow in moduleTransferAction.",
+    "steps": "1) Mint 1000 to b. 2) Agent calls forcedTransfer(b, a1, 1000); the real balance of a1 is 1000 but _IDBalance[idA] stays 0 and _IDBalance[idB] stays 1000. 3) Mint or transfer another 1000 to a1; moduleCheck passes because it sees 0, so idA holds 2000. 4) a1 transfers tokens out, which can underflow or misreport in moduleTransferAction."
+   }
+  ]
+ },
+ "V13": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "H4",
+    "where": "Deployment._configureModules (setup override)",
+    "severity": "HIGH",
+    "why": "The override sets the holding cap to type(uint256).max instead of 1000. The base setup used CAP = 1000, but the override drops it and applies a cap that H4 forbids.",
+    "steps": "Deploy with the override -> compliance.callModuleFunction(setMaxBalance(type(uint256).max)) on maxBalanceModule -> the cap is now uint256 max, not 1000."
+   },
+   {
+    "rule": "H1",
+    "where": "Deployment._configureModules -> MaxBalanceModule.setMaxBalance / moduleCheck",
+    "severity": "HIGH",
+    "why": "With the cap at uint256 max, MaxBalanceModule.moduleCheck never rejects a realistic amount. Any verified investor can therefore hold far more than 1000 tokens, and the same applies to two wallets under one identity.",
+    "steps": "agent mints 5000 to a1 (idA is verified, country 356) -> mint succeeds because 5000 is below the uint256 max cap -> a1 transfers 5000 to b -> succeeds, so holdings exceed 1000."
+   }
+  ]
+ }
+}

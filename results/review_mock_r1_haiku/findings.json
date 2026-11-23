@@ -1,0 +1,275 @@
+{
+ "C01": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "C02": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "C03": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "C04": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "C05": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "C06": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "C07": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "C08": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V01": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V02": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V03": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V04": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V05": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V06": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V07": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V08": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V09": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V10": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V11": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V12": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ },
+ "V13": {
+  "status": "ok",
+  "notes": [],
+  "findings": [
+   {
+    "rule": "K3",
+    "where": "ClaimTopicsRegistry.removeClaimTopic / setup _deployClaimIssuer",
+    "severity": "HIGH",
+    "why": "The required claim topics list can end up empty, so isVerified returns true for any registered wallet.",
+    "steps": "1. Remove the only required topic. 2. Transfer tokens to a registered wallet that holds no claim. 3. The transfer succeeds."
+   }
+  ]
+ }
+}
