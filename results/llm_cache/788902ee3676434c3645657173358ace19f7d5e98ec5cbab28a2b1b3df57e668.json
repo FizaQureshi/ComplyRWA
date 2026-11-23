@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nRule J1: investors registered in a restricted country may not receive tokens.\n\nWhat went wrong\nIn configuration V07, all three tests failed. Each expects a revert when Bob's wallet is moved into the restricted country, but no revert happened. So tokens could reach a restricted-country investor through mint, transfer and transferFrom. The configuration change is not provided, so the cause is not known. The output does not show whether the expected \"Transfer not possible\" would have been a KYC or a rule failure, so this cannot be told.\n\nAffected functions\ntoken.mint, token.transfer, token.transferFrom. token.forcedTransfer is not tested here.\n\nHow to reproduce\nClearest test: test_mintToRestrictedCountryIsBlocked.\n1. Agent calls ir.updateCountry for Bob's wallet, setting the restricted country.\n2. Agent calls token.mint to Bob's wallet for one tenth of the cap.\n3. Expected: revert \"Compliance not followed\". Observed: no revert, so the test failed.\n\nThe transfer and transferFrom tests fail the same way.\n\nSuggested fix\nNot known from the input. Check what V07 changes in the country rule settings and confirm the country module is still bound to compliance in V07.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3355,
+  "output_tokens": 1666
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0011685,
+ "tag": "explainer:J1:V07:d1:blind",
+ "created": "2026-11-23 11:18:47"
+}

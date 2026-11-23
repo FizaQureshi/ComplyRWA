@@ -1,0 +1,86 @@
+{
+  "status": "ok",
+  "target": "V08",
+  "model": "haiku",
+  "mode": "live",
+  "rules": {
+    "K1": {
+      "policy": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "K3": {
+      "policy": "At least one KYC claim topic must be required.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "J1": {
+      "policy": "Investors registered in a restricted country may not receive tokens.",
+      "tests_run": 4,
+      "failed": 3,
+      "status": "FAIL",
+      "severity": "HIGH"
+    },
+    "H1": {
+      "policy": "No investor may hold more than the maximum allowed tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "H3": {
+      "policy": "The holding-limit module's balance records must match the real token balances.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    }
+  },
+  "groups": {
+    "Jurisdiction restriction not enforced": [
+      "J1"
+    ]
+  },
+  "info": [
+    "INFO: J1 bypassed via forcedTransfer (agent-only path). Classified as a known exception, not a vulnerability. (Result of a fixed probe test, not generated from the policy.)"
+  ],
+  "findings": {
+    "J1": {
+      "severity": "HIGH",
+      "text": "**Violated policy**\nRule J1: investors registered in a restricted country may not receive tokens.\n\n**What went wrong**\nIn all three tests, the call that should have been rejected succeeded. Bob's wallet `b` was moved to the restricted country, but minting to it and transferring tokens to it both went through. The output shows only \"next call did not revert as expected,\" so the cause in V08 is not known. The configuration change was not provided.\n\n**Affected functions**\n- `token.mint` (receiver country check)\n- `token.transfer` (receiver country check)\n- `token.transferFrom` (receiver country check)\n\n**How to reproduce**\nClearest test: `test_mintToRestrictedCountryIsBlocked`.\n1. The agent calls `ir.updateCountry` to set Bob's wallet `b` to the restricted country (`RESTRICTED`).\n2. The agent calls `token.mint(b, CAP / 10)`. The test expects \"Compliance not followed\". No revert occurred.\n\nThe other two tests (`test_transferToRestrictedCountryIsBlocked`, `test_transferFromToRestrictedCountryIsBlocked`) fail the same way. For a `transfer` or `transferFrom` revert, the message \"Transfer not possible\" is shared with KYC failures, so the output cannot show which check should have fired.\n\n**Suggested fix**\nCheck that the country module is bound to `compliance` in V08 and that the restricted country is set. The cause cannot be confirmed from this output.",
+      "direct_evidence": {
+        "direct": 3,
+        "total": 3
+      },
+      "failing_tests": [
+        {
+          "name": "test_mintToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferFromToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_mintToRestrictedCountryIsBlocked() public {\n        uint256 amt = CAP / 10;\n\n        vm.prank(agent);\n        ir.updateCountry(b, RESTRICTED);\n\n        uint256 supplyBefore = token.totalSupply();\n        uint256 bBefore = token.balanceOf(b);\n\n        vm.prank(agent);\n        vm.expectRevert(bytes(\"Compliance not followed\"));\n        token.mint(b, amt);\n\n        // Policy outcome: no new tokens were created for the restricted-country investor.\n        assertEq(token.balanceOf(b), bBefore, \"restricted-country investor was minted tokens\");\n        assertEq(token.totalSupply(), supplyBefore, \"supply grew for a restricted-country receiver\");\n    }"
+    }
+  },
+  "cost": {
+    "llm_calls": 1,
+    "paid_usd": 0.00105,
+    "first_made_usd": 0.00105,
+    "model_seconds": 7.3,
+    "wall_seconds": 14.3
+  }
+}

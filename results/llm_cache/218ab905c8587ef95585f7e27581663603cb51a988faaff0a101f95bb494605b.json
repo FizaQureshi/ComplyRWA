@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nK3: at least one KYC claim topic must be required.\n\nWhat went wrong\nBoth tests expected a transfer to Mallory to be blocked, because she is registered but holds no KYC claim. In this configuration both calls succeeded, so the KYC check was not enforced. The configuration change is not provided, and the output does not show the cause. \"Transfer not possible\" covers both KYC and rule failures, and the output does not show which check would have fired.\n\nAffected functions\n`token.mint` (to Mallory's wallet) and `token.transfer` (from Alice's first wallet to Mallory's wallet).\n\nHow to reproduce\nClearest test: `test_K3_mintToUnclaimedWalletRejected`.\n1. The agent calls `token.mint` for Mallory's wallet with one tenth of the holding cap. Expected: \"Identity is not verified.\" Observed: no revert.\n\n`test_K3_transferToUnclaimedWalletRejected` fails the same way: Alice's first wallet transfers to Mallory's wallet and no revert occurs.\n\nSuggested fix\nConfirm that the claim topics registry has at least one required topic (the KYC topic) in V01. The output does not show the cause, so check the V01 claim topic setup first.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 2772,
+  "output_tokens": 1947
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0012507,
+ "tag": "explainer:K3:V01:d1:blind",
+ "created": "2026-11-23 11:17:20"
+}

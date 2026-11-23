@@ -1,0 +1,12 @@
+{
+ "text": "**Severity: HIGH**\n\n**Violated policy**\nRule J1: investors registered in a restricted country may not receive tokens.\n\n**What went wrong**\nIn configuration V06, all three tests failed. After Bob's wallet was moved to the restricted country, mint, transfer and transferFrom to that wallet succeeded instead of reverting, so the restricted investor received tokens. The forge output shows only \"did not revert\", so it cannot be told whether a KYC or a compliance check would have caused the revert. What V06 changes is not known.\n\n**Affected functions**\n`token.mint`, `token.transfer`, `token.transferFrom`\n\n**How to reproduce**\nClearest test: `test_transferToRestrictedCountryIsBlocked`.\n1. Agent mints one tenth of the cap to Alice's first wallet (the cap value for V06 is not given).\n2. Agent calls `ir.updateCountry` to set Bob's wallet to `RESTRICTED`.\n3. Alice's first wallet calls `token.transfer` to Bob's wallet for the same amount.\n4. Expected revert \"Transfer not possible\". Actual: the call succeeded.\n\nThe mint and transferFrom tests fail the same way.\n\n**Suggested fix**\nCheck in V06 that the country restriction module is bound to `compliance` and that the restricted country setting is active. The cause is not visible in this output. Re-run the three tests; they must pass on all clean configurations.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 3355,
+  "output_tokens": 1438
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0010545,
+ "tag": "explainer:J1:V06:d1:blind",
+ "created": "2026-11-23 11:18:32"
+}

@@ -1,0 +1,86 @@
+{
+  "status": "ok",
+  "target": "V07",
+  "model": "haiku",
+  "mode": "live",
+  "rules": {
+    "K1": {
+      "policy": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "K3": {
+      "policy": "At least one KYC claim topic must be required.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "J1": {
+      "policy": "Investors registered in a restricted country may not receive tokens.",
+      "tests_run": 4,
+      "failed": 3,
+      "status": "FAIL",
+      "severity": "HIGH"
+    },
+    "H1": {
+      "policy": "No investor may hold more than the maximum allowed tokens.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    },
+    "H3": {
+      "policy": "The holding-limit module's balance records must match the real token balances.",
+      "tests_run": 4,
+      "failed": 0,
+      "status": "PASS",
+      "severity": null
+    }
+  },
+  "groups": {
+    "Jurisdiction restriction not enforced": [
+      "J1"
+    ]
+  },
+  "info": [
+    "INFO: J1 bypassed via forcedTransfer (agent-only path). Classified as a known exception, not a vulnerability. (Result of a fixed probe test, not generated from the policy.)"
+  ],
+  "findings": {
+    "J1": {
+      "severity": "HIGH",
+      "text": "Violated policy\nRule J1: investors registered in a restricted country may not receive tokens.\n\nWhat went wrong\nIn configuration V07, all three tests failed. Each expects a revert when Bob's wallet is moved into the restricted country, but no revert happened. So tokens could reach a restricted-country investor through mint, transfer and transferFrom. The configuration change is not provided, so the cause is not known. The output does not show whether the expected \"Transfer not possible\" would have been a KYC or a rule failure, so this cannot be told.\n\nAffected functions\ntoken.mint, token.transfer, token.transferFrom. token.forcedTransfer is not tested here.\n\nHow to reproduce\nClearest test: test_mintToRestrictedCountryIsBlocked.\n1. Agent calls ir.updateCountry for Bob's wallet, setting the restricted country.\n2. Agent calls token.mint to Bob's wallet for one tenth of the cap.\n3. Expected: revert \"Compliance not followed\". Observed: no revert, so the test failed.\n\nThe transfer and transferFrom tests fail the same way.\n\nSuggested fix\nNot known from the input. Check what V07 changes in the country rule settings and confirm the country module is still bound to compliance in V07.",
+      "direct_evidence": {
+        "direct": 3,
+        "total": 3
+      },
+      "failing_tests": [
+        {
+          "name": "test_mintToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferFromToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferToRestrictedCountryIsBlocked",
+          "reason": "next call did not revert as expected",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_mintToRestrictedCountryIsBlocked() public {\n        uint256 amt = CAP / 10;\n\n        vm.prank(agent);\n        ir.updateCountry(b, RESTRICTED);\n\n        uint256 supplyBefore = token.totalSupply();\n        uint256 bBefore = token.balanceOf(b);\n\n        vm.prank(agent);\n        vm.expectRevert(bytes(\"Compliance not followed\"));\n        token.mint(b, amt);\n\n        // Policy outcome: no new tokens were created for the restricted-country investor.\n        assertEq(token.balanceOf(b), bBefore, \"restricted-country investor was minted tokens\");\n        assertEq(token.totalSupply(), supplyBefore, \"supply grew for a restricted-country receiver\");\n    }"
+    }
+  },
+  "cost": {
+    "llm_calls": 1,
+    "paid_usd": 0.001169,
+    "first_made_usd": 0.001169,
+    "model_seconds": 8.6,
+    "wall_seconds": 15.5
+  }
+}

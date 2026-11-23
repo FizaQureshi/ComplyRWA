@@ -1,0 +1,12 @@
+{
+ "text": "Severity: HIGH\n\nViolated policy\nRule H3: the holding-limit module's tracked balances must match the real token balances.\n\nWhat went wrong\nThe test expected Alice's wallets to refuse a transfer after her KYC claim was revoked. The transfer was accepted instead, so the test failed before the balance check ran. Whether tracked and real balances drifted is not known. The revert message cannot be checked either, because no revert happened. The V03 change is not provided, so the cause is not known.\n\nAffected functions\ntoken.transfer, _revokeClaim, _idBalance (used by the H3 check, which was not reached).\n\nHow to reproduce\n1. The agent mints one tenth of the holding cap to Bob's wallet (`_mint(b, amt)`).\n2. Check that tracked balances equal real balances.\n3. Revoke Alice's identity KYC claim (`_revokeClaim(idA)`).\n4. Bob transfers half of his amount to Alice's first wallet, expecting revert \"Transfer not possible\".\n5. The transfer succeeds, and Forge reports \"next call did not revert as expected\".\n\nSuggested fix\nCompare the V03 settings with clean configuration C01. Confirm the recipient KYC check is active for this configuration, then rerun the test. Do not weaken the test to remove the revert expectation.",
+ "model": "claude-haiku-5-5",
+ "usage": {
+  "input_tokens": 2812,
+  "output_tokens": 2103
+ },
+ "stop_reason": "end_turn",
+ "cost_usd": 0.0013327,
+ "tag": "explainer:H3:V03:d1:blind",
+ "created": "2026-11-23 11:18:11"
+}
