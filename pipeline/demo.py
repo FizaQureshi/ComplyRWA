@@ -147,9 +147,11 @@ def main():
         cmd = [sys.executable, "pipeline/explainer.py", "--batch", *a.batches,
                "--configs", a.target, "--model", a.model, "--mode", a.mode]
         print("[4/5] explainer:", " ".join(cmd))
-        r = subprocess.run(cmd)
+        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        print(r.stdout, end="")
         if r.returncode != 0:
-            sys.exit(f"explainer failed (exit {r.returncode})")
+            tail = (r.stderr.strip().splitlines() or ["no error text"])[-1]
+            sys.exit(f"explainer failed (exit {r.returncode}): {tail}")
     else:
         print("[4/5] explainer skipped, using", folder)
     found = {k: v for k, v in finding_files(folder, a.target).items() if k in rules}
