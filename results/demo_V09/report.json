@@ -1,7 +1,8 @@
 {
+  "status": "ok",
   "target": "V09",
   "model": "haiku",
-  "mode": "live",
+  "mode": "replay",
   "rules": {
     "K1": {
       "policy": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
@@ -48,11 +49,75 @@
   "info": [
     "INFO: J1 bypassed via forcedTransfer (agent-only path). Classified as a known exception, not a vulnerability. (Result of a fixed probe test, not generated from the policy.)"
   ],
+  "findings": {
+    "H1": {
+      "severity": "HIGH",
+      "text": "Violated policy\nRule H1: No investor may hold more than the maximum allowed number of tokens.\n\nWhat went wrong\nIn V09, the holding cap appears not to be enforced. `test_mintPastCapIsRefused` expects a mint that takes Bob above the cap to be refused. The failure shows the call was not refused. `test_transferToSecondWalletCannotExceedIdentityCap` shows the same gap across Alice's two wallets. The two \"0 != 500\" failures do not show which line failed, so their cause cannot be told from the output.\n\nAffected functions\nToken.mint and Token.transfer, through the MaxBalanceModule cap check. The cause in V09 is not known, because the audit tool did not describe what the configuration changes.\n\nHow to reproduce (test_mintPastCapIsRefused)\n1. Read Bob's identity balance (idB) and compute room = CAP minus that balance.\n2. The agent mints room + 1 tokens to Bob.\n3. Expected: the call is refused. Observed: the call succeeds, so the assertFalse(ok) check fails.\n\nThe transfer test fails the same way on Alice's second wallet.\n\nSuggested fix\nCheck that MaxBalanceModule is bound to compliance in V09 and that its cap check runs on both mint and transfer. Confirm the cap value for V09, which is not given in the inputs. Rerun all four tests.",
+      "direct_evidence": {
+        "direct": 2,
+        "total": 4
+      },
+      "failing_tests": [
+        {
+          "name": "test_mintPastCapIsRefused",
+          "reason": "assertion failed",
+          "side_effect": false
+        },
+        {
+          "name": "test_mintWithinCapSucceeds",
+          "reason": "assertion failed: 0 != 500",
+          "side_effect": true
+        },
+        {
+          "name": "test_transferToSecondWalletCannotExceedIdentityCap",
+          "reason": "assertion failed",
+          "side_effect": false
+        },
+        {
+          "name": "test_transferWithinIdentityCapSucceeds",
+          "reason": "assertion failed: 0 != 500",
+          "side_effect": true
+        }
+      ],
+      "reproducible_test": "function test_mintPastCapIsRefused() public {\n        uint256 bal = _idBalance(idB);\n        assertTrue(bal <= CAP);\n        uint256 room = CAP - bal;\n        uint256 pre = token.balanceOf(b);\n\n        vm.prank(agent);\n        (bool ok, ) = address(token).call(abi.encodeWithSelector(Token.mint.selector, b, room + 1));\n\n        assertFalse(ok);\n        assertEq(token.balanceOf(b), pre);\n        assertEq(_idBalance(idB), bal);\n    }"
+    },
+    "H3": {
+      "severity": "HIGH",
+      "text": "**Violated policy**\nH3: the holding-limit module's tracked balance for each identity must equal the real token balance of that identity's wallets.\n\n**What went wrong**\nAfter a 100-token mint to Alice's first wallet, the tracked balance for Alice's identity stays 0 while her real balance is 100. Because the tracked figure is too low, the holding cap check sees less than the real holding, so the cap can be bypassed. The test output does not show why. What V09 changes was not provided, so the cause is not known.\n\n**Affected functions**\nThe failing tests use mint, transfer, burn and forced transfer. The output does not show which function skips the tracker update.\n\n**How to reproduce**\nTaken from `test_H3_trackedMatchesRealAfterMintAndTransfers`:\n1. The agent mints 100 tokens to Alice's first wallet (`a1`).\n2. The H3 check runs: Alice's identity shows tracked 0, real 100. The test fails here.\n\nThe other three failing tests show the same gap, including Bob's identity (tracked 0, real 100) in the rejected-transfer test.\n\n**Suggested fix**\nMake the MaxBalanceModule update the tracked balance on every mint, transfer, burn and forced transfer. Review what V09 changes, since that is the likely cause, but that is not known from this output.",
+      "direct_evidence": {
+        "direct": 4,
+        "total": 4
+      },
+      "failing_tests": [
+        {
+          "name": "test_H3_rejectedTransferDoesNotDrift",
+          "reason": "idB tracked != real: 0 != 100",
+          "side_effect": false
+        },
+        {
+          "name": "test_H3_sameIdentityTransferKeepsTrackedTotal",
+          "reason": "idA tracked != real: 0 != 100",
+          "side_effect": false
+        },
+        {
+          "name": "test_H3_trackedMatchesRealAfterBurnAndForcedTransfer",
+          "reason": "idA tracked != real: 0 != 100",
+          "side_effect": false
+        },
+        {
+          "name": "test_H3_trackedMatchesRealAfterMintAndTransfers",
+          "reason": "idA tracked != real: 0 != 100",
+          "side_effect": false
+        }
+      ],
+      "reproducible_test": "function test_H3_trackedMatchesRealAfterMintAndTransfers() public {\n        uint256 amt = CAP / 10;\n        _mint(a1, amt);\n        _mint(b, amt);\n        assertTrackedEqualsReal();\n\n        uint256 bBefore = token.balanceOf(b);\n        _transfer(a1, b, amt / 2);\n        assertEq(token.balanceOf(b), bBefore + amt / 2, \"b did not receive tokens\");\n        assertTrackedEqualsReal();\n\n        _transfer(a1, a2, amt / 4);\n        assertTrackedEqualsReal();\n    }"
+    }
+  },
   "cost": {
     "llm_calls": 2,
     "paid_usd": 0.0,
     "first_made_usd": 0.002985,
     "model_seconds": 0.0,
-    "wall_seconds": 0.6
+    "wall_seconds": 0.3
   }
 }
