@@ -168,7 +168,8 @@ def show(result):
     not_run = [r for r, v in rules.items() if v.get("status") in ("NOT_RUN", "NOT RUN")]
     info = data.get("info", [])
 
-    if rules and len(not_run) == len(rules):
+    untested = data.get("target") in NOT_TESTED or bool(rules and len(not_run) == len(rules))
+    if untested:
         st.warning("Not tested. The saved tests are skipped for this configuration, so this is not a clean result.")
     elif failed:
         st.error(f"{len(failed)} of {len(rules)} rules failed")
