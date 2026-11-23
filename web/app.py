@@ -1,41 +1,32 @@
 import json
 import subprocess
+import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parent
-SAMPLES = ROOT / "samples"
 REPO = ROOT.parent
 
 STEPS = [
-    "Slicing the contract code",
-    "Asking the AI to write tests",
-    "Filtering out bad tests",
-    "Running tests with Foundry",
-    "Writing the report",
+    "Policy input (K1, K3, J1, H1, H3)",
+    "Generated properties (saved tests)",
+    "Executed tests (saved results)",
+    "Explaining the failures (saved AI answers)",
+    "Building the audit report",
 ]
 
-RULES = {
+FIXED_RULES = {
     "K1": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
-    "K2": "Revoking an investor's KYC must block them from receiving tokens.",
     "K3": "At least one KYC claim topic must be required.",
-    "K4": "Expired KYC claims must be rejected.",
-    "K5": "An investor whose KYC was revoked must not be able to send tokens.",
     "J1": "Investors registered in a restricted country may not receive tokens.",
-    "J2": "A change of an investor's country must be respected by the country rule.",
-    "J3": "The country module must be bound and configured.",
-    "J4": "A forced transfer by an agent is a known exception and must be labelled as such.",
     "H1": "No investor may hold more than the maximum allowed tokens.",
-    "H2": "The cap applies per identity, not per wallet.",
     "H3": "The holding-limit module's balance records must match the real token balances.",
-    "H4": "The cap must be set to a sensible number.",
 }
-DEFAULT_IDS = ["K1", "K3", "J1", "H1", "H3"]
-NONE = "(none)"
 CONFIGS = [f"C{i:02d}" for i in range(1, 9)] + [f"V{i:02d}" for i in range(1, 14)]
-DEMO_TARGETS = ["C01", "V04", "V09"]
+NOT_TESTED = {"C03", "C04", "C07", "V11"}
 
 st.set_page_config(
     page_title="ComplyRWA", page_icon=":material/shield:", layout="wide", initial_sidebar_state="expanded"
@@ -63,45 +54,17 @@ st.markdown(
 
 
 def config_label(c):
-    return f"{c} (clean setup)" if c.startswith("C") else f"{c} (seeded variant)"
+    kind = "clean setup" if c.startswith("C") else "seeded variant"
+    return f"{c} ({kind}{', not tested' if c in NOT_TESTED else ''})"
 
 
 def error_result(stage, message):
     return {"error": {"stage": stage, "message": message}}
 
 
-def read_folder(folder):
-    jp, mp = Path(folder) / "report.json", Path(folder) / "report.md"
-    if not jp.exists():
-        return None
-    data = json.loads(jp.read_text(encoding="utf-8"))
-    report = mp.read_text(encoding="utf-8") if mp.exists() else ""
-    return {"data": data, "report": report}
-
-
-def load_demo(target):
-    return read_folder(SAMPLES / f"demo_{target}")
-
-
-def run_real(target, engine_dir, engine_python, log):
-    # TO CONFIRM with the engine owner: demo.py currently takes only --target, so the rule rows are not passed yet.
-    cmd = [engine_python, "pipeline/demo.py", "--target", target]
-    lines = []
-    try:
-        proc = subprocess.Popen(
-            cmd, cwd=engine_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            text=True, encoding="utf-8", errors="replace", bufsize=1,
-        )
-        for line in proc.stdout:
-            lines.append(line.rstrip())
-            log.code("\n".join(lines[-12:]))
-        proc.wait()
-    except Exception as e:
-        return error_result("launch", str(e))
-    result = read_folder(Path(engine_dir) / "results" / f"demo_{target}")
-    if result is None:
-        return error_result("engine", "\n".join(lines[-10:]) or "The engine did not write report.json.")
-    return result
+def read_json(path):
+    p = Path(path)
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
 
 
 def checklist(active, failed=False):
@@ -118,21 +81,47 @@ def checklist(active, failed=False):
     return "\n\n".join(lines)
 
 
-def demo_progress(fail=False):
-    stop_at = 3 if fail else len(STEPS)
-    with st.status("Running audit...", expanded=True) as status:
-        bar = st.progress(0)
-        box = st.empty()
-        for i in range(stop_at):
-            box.markdown(checklist(i))
-            time.sleep(0.8)
-            bar.progress(int((i + 1) / len(STEPS) * 100))
-        if fail:
-            box.markdown(checklist(stop_at, failed=True))
-            status.update(label="Audit failed", state="error")
-        else:
-            box.markdown(checklist(len(STEPS)))
-            status.update(label="Audit finished", state="complete")
+def run_engine(target, engine_python):
+    if not (REPO / "pipeline" / "demo.py").exists():
+        return error_result("setup", "pipeline/demo.py was not found. Run git pull and try again.")
+    cmd = [engine_python, "pipeline/demo.py", "--target", target, "--mode", "replay"]
+    box = st.empty()
+    last = len(STEPS) - 1
+    i = 0
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        fut = pool.submit(
+            subprocess.run, cmd, cwd=str(REPO), capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=300,
+        )
+        while not fut.done():
+            box.markdown(checklist(min(i, last)))
+            i += 1
+            time.sleep(0.4)
+        try:
+            proc = fut.result()
+        except Exception as e:
+            box.markdown(checklist(min(i, last), failed=True))
+            return error_result("launch", str(e))
+
+    folder = REPO / "results" / f"demo_{target}"
+    try:
+        data = read_json(folder / "report.json")
+    except ValueError:
+        data = None
+
+    if proc.returncode != 0:
+        box.markdown(checklist(min(i, last), failed=True))
+        if data and data.get("status") == "error":
+            return error_result(data.get("step", "demo"), data.get("message", "The audit failed."))
+        tail = (proc.stderr or proc.stdout or "").strip().splitlines()
+        return error_result("demo", tail[-1] if tail else "The command failed and printed nothing.")
+    if not data or data.get("status") != "ok":
+        box.markdown(checklist(min(i, last), failed=True))
+        return error_result("demo", "report.json is missing or is not marked ok.")
+
+    box.markdown(checklist(len(STEPS)))
+    mp = folder / "report.md"
+    return {"data": data, "report": mp.read_text(encoding="utf-8") if mp.exists() else ""}
 
 
 def status_text(s):
@@ -140,14 +129,19 @@ def status_text(s):
         return ":green[PASS]"
     if s == "FAIL":
         return ":red[**FAIL**]"
+    if s in ("NOT_RUN", "NOT RUN"):
+        return ":gray[NOT RUN]"
     return s or "-"
 
 
 KNOWN_KEYS = {"policy", "tests_run", "failed", "status", "severity"}
 
 
-def extra_notes(v):
+def rule_note(rid, v, findings):
     parts = []
+    de = (findings.get(rid) or {}).get("direct_evidence") or {}
+    if v.get("status") == "FAIL" and de.get("direct") == 0:
+        parts.append("side effect, not a separate problem")
     for k, val in v.items():
         if k in KNOWN_KEYS or val in (None, "", False, [], {}):
             continue
@@ -168,29 +162,35 @@ def show(result):
 
     data, report = result["data"], result["report"]
     rules = data.get("rules", {})
-    failed = [rid for rid, v in rules.items() if v.get("status") == "FAIL"]
-    passed = [rid for rid, v in rules.items() if v.get("status") == "PASS"]
+    findings = data.get("findings") if isinstance(data.get("findings"), dict) else {}
+    failed = [r for r, v in rules.items() if v.get("status") == "FAIL"]
+    passed = [r for r, v in rules.items() if v.get("status") == "PASS"]
+    not_run = [r for r, v in rules.items() if v.get("status") in ("NOT_RUN", "NOT RUN")]
     info = data.get("info", [])
 
-    if failed:
+    if rules and len(not_run) == len(rules):
+        st.warning("Not tested. The saved tests are skipped for this configuration, so this is not a clean result.")
+    elif failed:
         st.error(f"{len(failed)} of {len(rules)} rules failed")
     elif info:
-        st.success("No problems found. There are notes for your information.")
+        st.success(f"No problems found for these {len(rules)} rules. There are notes for your information.")
     else:
-        st.success("No findings. All rules passed.")
+        st.success(f"No findings for these {len(rules)} rules.")
     st.caption(f"Target: {data.get('target', 'unknown')}  |  Model: {data.get('model', '?')}  |  Mode: {data.get('mode', '?')}")
+    st.caption("This audit shows saved evidence. It does not run Foundry live.")
     if report:
         st.download_button("Download report.md", report, file_name="report.md", mime="text/markdown")
 
-    tab_status, tab_report = st.tabs(["Rule status", "Full report"])
+    tab_status, tab_find, tab_report = st.tabs(["Rule status", "Findings", "Full report"])
 
     with tab_status:
-        cols = st.columns(3)
+        cols = st.columns(4)
         cols[0].metric("Rules checked", len(rules))
         cols[1].metric("Passed", len(passed))
         cols[2].metric("Failed", len(failed))
+        cols[3].metric("Not tested", len(not_run))
 
-        notes = {rid: extra_notes(v) for rid, v in rules.items()}
+        notes = {rid: rule_note(rid, v, findings) for rid, v in rules.items()}
         has_notes = any(notes.values())
         lines = [
             "| Rule | Policy | Tests run | Tests failed | Status | Severity |" + (" Note |" if has_notes else ""),
@@ -222,15 +222,35 @@ def show(result):
                 f"(\\${cost.get('first_made_usd', 0):.4f} when first made), {cost.get('wall_seconds', 0)} s"
             )
 
+    with tab_find:
+        if not findings:
+            st.write("No findings to show.")
+        for n, (rid, f) in enumerate(findings.items()):
+            sev = str(f.get("severity") or "UNKNOWN")
+            de = f.get("direct_evidence") or {}
+            side = de.get("direct") == 0
+            title = f"[{sev}] Rule {rid}" + (" (side effect)" if side else "")
+            with st.expander(title, expanded=(n == 0)):
+                if side:
+                    st.info("Side effect, not a separate problem: every failure of this rule comes from another rule's problem.")
+                st.markdown((f.get("text") or "").replace("\n", "  \n"))
+                if de:
+                    st.caption(f"Direct evidence: {de.get('direct', '?')} of {de.get('total', '?')} failing tests")
+                tests = f.get("failing_tests") or []
+                if tests:
+                    st.write("**Failing tests**")
+                    for t in tests:
+                        tag = " (side effect)" if t.get("side_effect") else ""
+                        st.write(f"- `{t.get('name', '')}`{tag}: {t.get('reason', '')}")
+                if f.get("reproducible_test"):
+                    st.write("**Reproducible test**")
+                    st.code(f["reproducible_test"], language="solidity")
+
     with tab_report:
         if report:
             st.markdown(report)
         else:
             st.write("No report.md was found.")
-
-
-def sync_text(i):
-    st.session_state[f"text{i}"] = RULES.get(st.session_state[f"rid{i}"], "")
 
 
 st.title("ComplyRWA")
@@ -240,63 +260,27 @@ st.caption(
 )
 
 with st.sidebar:
-    mode = st.radio("**Mode**", ["Demo mode (saved results)", "Real audit"])
-    is_demo = mode.startswith("Demo")
-    if is_demo:
-        simulate_fail = st.checkbox("Simulate a failed audit")
-        st.caption("Demo mode shows saved results for C01, V04 and V09.")
-    else:
-        engine_dir = st.text_input("Engine folder", str(REPO))
-        engine_python = st.text_input("Python for the engine", "python")
+    st.markdown("**Settings**")
+    engine_python = st.text_input("Python for the engine", sys.executable)
+    test_error = st.checkbox("Test the error screen (sends an unknown target)")
+    st.caption("Replay mode: the audit shows saved evidence. No Foundry and no API key are needed.")
 
 config = st.selectbox("Target configuration", CONFIGS, format_func=config_label)
 
 st.subheader("Policy rules")
-st.caption("Pick a rule ID for each row. The text fills in automatically and you can edit it. Use at least 3 rows.")
-h1, h2 = st.columns([1, 5])
-h1.markdown("**Rule ID**")
-h2.markdown("**Policy text**")
-for i in range(5):
-    st.session_state.setdefault(f"rid{i}", DEFAULT_IDS[i])
-    st.session_state.setdefault(f"text{i}", RULES[DEFAULT_IDS[i]])
-    c1, c2 = st.columns([1, 5])
-    c1.selectbox(
-        f"Rule ID {i + 1}", [NONE] + list(RULES), key=f"rid{i}", on_change=sync_text, args=(i,),
-        label_visibility="collapsed",
-    )
-    c2.text_input(f"Rule text {i + 1}", key=f"text{i}", label_visibility="collapsed")
-if is_demo:
-    st.caption("Demo mode ignores changes to the rules. Saved results use K1, K3, J1, H1 and H3.")
+st.caption("This version audits these 5 rules. They are fixed because the saved tests were made for exactly these texts.")
+rule_lines = ["| Rule | Policy |", "|---|---|"] + [f"| {rid} | {text} |" for rid, text in FIXED_RULES.items()]
+st.markdown("\n".join(rule_lines))
 
 if st.button("Run audit", type="primary", icon=":material/play_arrow:"):
-    chosen = []
-    for i in range(5):
-        rid, text = st.session_state[f"rid{i}"], st.session_state[f"text{i}"].strip()
-        if rid != NONE and text:
-            chosen.append((rid, text))
-    ids = [rid for rid, _ in chosen]
-    if len(chosen) < 3:
-        st.error("Choose at least 3 rules.")
-    elif len(set(ids)) < len(ids):
-        st.error("Each rule ID can be used only once.")
-    elif is_demo and not simulate_fail and config not in DEMO_TARGETS:
-        st.error("Saved demo results exist only for C01, V04 and V09. Pick one of them.")
-    elif is_demo:
-        demo_progress(fail=simulate_fail)
-        if simulate_fail:
-            result = error_result("executor", "Foundry could not compile the project.")
+    target = "V99" if test_error else config
+    with st.status("Running audit (replay of saved evidence)...", expanded=True) as status:
+        result = run_engine(target, engine_python)
+        if result.get("error"):
+            status.update(label="Audit failed", state="error")
         else:
-            result = load_demo(config) or error_result("demo", f"web/samples/demo_{config}/report.json is missing.")
-        st.session_state["result"] = result
-    else:
-        with st.status("Running the audit. This can take a few minutes...", expanded=True) as status:
-            log = st.empty()
-            result = run_real(config, engine_dir, engine_python, log)
-            if result.get("error"):
-                status.update(label="Audit failed", state="error")
-            else:
-                status.update(label="Audit finished", state="complete")
-        st.session_state["result"] = result
+            status.update(label="Audit finished", state="complete")
+    st.session_state["result"] = result
 
 if "result" in st.session_state:
     show(st.session_state["result"])
