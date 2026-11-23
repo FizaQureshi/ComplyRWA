@@ -2,7 +2,7 @@
   "status": "ok",
   "target": "C03",
   "model": "haiku",
-  "mode": "live",
+  "mode": "replay",
   "rules": {
     "K1": {
       "policy": "Only investors with a valid KYC claim from a trusted issuer may receive tokens.",
@@ -48,6 +48,6 @@
     "paid_usd": 0.0,
     "first_made_usd": 0.0,
     "model_seconds": 0.0,
-    "wall_seconds": 0.0
+    "wall_seconds": 0.1
   }
 }

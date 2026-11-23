@@ -263,7 +263,7 @@ def main():
                    "model_seconds": round(secs, 1), "wall_seconds": round(time.time() - t0, 1)}}
     json.dump(js, open(f"{outdir}/report.json", "w", encoding="utf-8"), indent=2)
     print("Wrote", f"{outdir}/report.md", "and report.json")
-    print({r: ("FAIL" if status[r][1] else "PASS") for r in rules})
+    print({r: ("FAIL" if status[r][1] else ("PASS" if status[r][0] else "NOT_RUN")) for r in rules})
 
 
 def _write_error(msg):
