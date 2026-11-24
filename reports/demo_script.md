@@ -31,7 +31,7 @@ python pipeline/demo.py --target C01 --mode replay
 
 Replace `C01` with `V09` or `V04`. Always use `--mode replay`.
 
-> After any replay run, run `git checkout -- results` before committing. **Do not commit results/.**
+> After any replay run, run `git checkout -- results` before `git add reports/`. **Do not commit results/.**
 
 ---
 
@@ -100,11 +100,11 @@ Replace `C01` with `V09` or `V04`. Always use `--mode replay`.
 |---|---|
 | **Generated properties table** | "Three rules fail: K1, K3, H3. J1 and H1 pass." |
 | **Finding K1** | "KYC is broken — an unverified wallet received tokens. The tool caught it in three different tests: mint, transfer, and transfer-to-revoked-claim." |
-| **Finding K3** | "The required-topics check also failed, suggesting the KYC topic was removed from the required list." |
+| **Finding K3** | "The required-topics check also failed, suggesting the KYC topic is not required." |
 | **Finding H3 — the note at the bottom** | "Look at the last line: 'All failing H3 tests are side effects of the KYC failure above. No separate holding-limit problem is shown.' The report tells the issuer not to chase a second problem that isn't there." |
 | **Suggested fix for K1/K3** | "'Compare V04 with C01 for the KYC claim topic and trusted issuer.' The tool tells the issuer exactly where to look." |
 
-**Key message:** *"The report groups failures by rule and flags which ones are side effects of the same root cause — stopping the issuer from chasing problems that aren't there."*
+**Key message:** *"The report groups failures by rule and notes when failures look like side effects of another failure — stopping the issuer from chasing problems that aren't there."*
 
 ---
 
@@ -128,7 +128,7 @@ Replace `C01` with `V09` or `V04`. Always use `--mode replay`.
 | "Does it run Foundry live?" | "In the web app demo it shows saved evidence in replay mode. A live run needs Foundry installed on the server — that is the productionisation step." |
 | "How much does a full audit cost?" | "Generation cost depends on the model and number of rules. Haiku costs about \$0.0035 per rule; Sonnet about \$0.0385. The explainer adds ~\$0.0014 per finding." |
 | "Why do C03, C04, C07 and V11 show 'not tested'?" | "Those four configurations start with balances already set. Scenario tests assume an empty start and are skipped on them; only property tests run. This is documented and expected." |
-| "Is the code open source?" | "The pipeline and test harness are in this repo. MaxBalanceModule is CC-BY-NC-4.0 — non-commercial use only." |
+| "Is the code open source?" | "The pipeline and tests are in the project repository. Files derived from T-REX are GPL-3.0, and MaxBalanceModule is CC-BY-NC-4.0." |
 
 ---
 

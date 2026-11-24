@@ -35,7 +35,7 @@ The pipeline was given 10 rules (H1–H4, J1–J3, K1–K3) and generated 4 test
 | Vacuous | 8 | 8 |
 | Rejected (failed on clean config) | 0 | 0 |
 | Bugs caught | **12 / 13** | **12 / 13** |
-| False alarms on 8 clean configs | **0 / 8** | **0 / 8** |
+| False alarms on 8 clean configs | **0 of 8 configs (0 of 40 tests rejected for failing on clean)** | **0 of 8 configs (0 of 40 tests rejected for failing on clean)** |
 | Generation cost | **\$0.035** | **\$0.385** |
 | Model time | 236 s | 163 s |
 
@@ -63,12 +63,12 @@ Haiku had zero JSON format failures. Sonnet's misses before retry were format fa
 | Method | First-answer detection | After retry | False alarms (after triage) | Cost |
 |---|---|---|---|---|
 | Hand-written Foundry tests | **13/13** | n/a | 0/8 | \$0 |
-| AI-generated tests (Haiku) | 12/13 | n/a | 0/8 | \$0.035 |
-| AI-generated tests (Sonnet) | 12/13 | n/a | 0/8 | \$0.385 |
+| AI-generated tests (Haiku) | 12/13 | n/a | 0/8 (0 of 40 rejected on clean) | \$0.035 |
+| AI-generated tests (Sonnet) | 12/13 | n/a | 0/8 (0 of 40 rejected on clean) | \$0.385 |
 | LLM-only review — Haiku r1 | **13/13** | n/a | 1/8 | \$0.077 |
 | LLM-only review — Sonnet r1 | **12/13** | **13/13** | 0/8 | \$0.960 |
 
-**Plain-language takeaway:** Hand-written tests detect 13/13 with zero false alarms. AI-generated tests (Haiku) achieve 92% detection (12/13) at \$0.035 with no false alarms. Sonnet costs 11× more for identical detection and validity on this benchmark. The LLM-only review reaches 13/13 in r1/r1b but requires human triage: Haiku's raw false-alarm rate on clean configs is 63–88% before triage (13–25% after excluding stock gaps, dropping to 13% after manual triage). Sonnet's first-answer detection is 11–12/13 due to invalid JSON, and in run r2 it remained 12/13 even after retry.
+**Plain-language takeaway:** Hand-written tests detect 13/13 with zero false alarms. AI-generated tests (Haiku) achieve 92% detection (12/13) at \$0.035 with no false alarms. Sonnet costs 11× more for identical detection and validity on this benchmark. The LLM-only review reaches 13/13 in r1/r1b but requires human triage: Haiku's raw false-alarm rate on clean configs is 63–88% before triage (13–25% after excluding stock gaps, dropping to 13% after manual triage). Sonnet's first-answer detection is 10–12/13 across runs due to invalid JSON, and in run r2 it remained 12/13 even after retry.
 
 ---
 
@@ -85,7 +85,7 @@ Haiku had zero JSON format failures. Sonnet's misses before retry were format fa
 
 | Report | Q1 (what is wrong, in their words) | Q2 | Q3 | Q4 | Q5 | Notes |
 |---|---|---|---|---|---|---|
-| C01 | *[Pending]* | — | — | — | — | |
+| C01 | *[Pending]* | — (N/A) | — (N/A) | /5 | /5 | |
 | V04 | *[Pending]* | /5 | /5 | /5 | /5 | |
 | V05 | *[Pending]* | /5 | /5 | /5 | /5 | |
 | V09 | *[Pending]* | /5 | /5 | /5 | /5 | |

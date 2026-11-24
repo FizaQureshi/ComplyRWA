@@ -146,7 +146,7 @@ python pipeline/demo.py --target V04 --mode replay
 | Forge suites | 38 (21 invariant + 17 scenario) |
 | Total test cases | 208 (63 clean gold + 145 variant) |
 
-Full pass/fail table: `results/variant_table.md`. Reproduced in `reports/evaluation_report.md` §3.1.
+Full pass/fail table: `results/variant_table.md`. Reproduced in `reports/evaluation_report.md` §2.
 
 ---
 
@@ -161,11 +161,11 @@ Full pass/fail table: `results/variant_table.md`. Reproduced in `reports/evaluat
 | Rules used | 10 (H1 H2 H3 H4 J1 J2 J3 K1 K2 K3) |
 | Tests per rule | 4 |
 | Total tests per model | **40** |
-| Haiku batches | b1 (K1 retry), d1 (K1 K3 J1 H1 H3), d2 (H1 retry), e1 (K2 J2 J3 H2 H4) |
-| Sonnet batch | s1 (all 10 rules) |
+| Haiku batches | d1 (K1 K3 J1 H1 H3), d2 (H1 retry), e1 (K2 J2 J3 H2 H4) — 11 calls |
+| Sonnet batch | s1 (all 10 rules) — 10 calls |
 | Validity filter | (1) compile; (2) fails on clean baseline C01?; (3) vacuousness check on C01 |
 
-> **Note on batch counts:** Haiku's 88,231 input tokens are the sum of batches b1 + d1 + d2 + e1 (13 live calls, 1 truncated). Sonnet's 80,278 tokens are from batch s1 (10 live calls, 0 truncated). These cover different rules, not duplicate runs.
+> **Note on batch counts:** Haiku's 88,231 input tokens are the sum of batches d1 + d2 + e1 (11 calls, 1 truncated). Sonnet's 80,278 tokens are from batch s1 (10 calls, 0 truncated). Batch b1 was an earlier trial and is not part of the benchmark.
 
 ### 4.2 Validity Results
 
@@ -192,7 +192,7 @@ Full pass/fail table: `results/variant_table.md`. Reproduced in `reports/evaluat
 
 | Metric | Haiku 5.5 | Sonnet 5.5 |
 |---|---|---|
-| LLM calls (live) | 13 (1 truncated — `generator:H1:d1`) | 10 (0 truncated) |
+| LLM calls (live) | 11 (1 truncated — `generator:H1:d1`) | 10 (0 truncated) |
 | Input tokens | 88,231 | 80,278 |
 | Output tokens | 52,594 | 22,454 |
 | **Generation cost** | **\$0.0351** | **\$0.3851** |
@@ -205,7 +205,7 @@ Full pass/fail table: `results/variant_table.md`. Reproduced in `reports/evaluat
 
 | Batch | Rules covered | Calls | Truncated | Input tokens | Output tokens | Cost |
 |---|---|---|---|---|---|---|
-| b1 | K1 (retry) | 1 | 0 | 9,316 | 3,788 | \$0.0028 |
+| b1 (earlier trial) | K1 (earlier trial, not in benchmark) | 1 | 0 | 9,316 | 3,788 | \$0.0028 |
 | d1 | K1 K3 J1 H1 H3 | 5 | 1 | 43,437 | 21,890 | \$0.0153 |
 | d2 | H1 (retry) | 1 | 0 | 7,953 | 5,285 | \$0.0034 |
 | e1 | K2 J2 J3 H2 H4 | 5 | 0 | 36,841 | 25,419 | \$0.0164 |
@@ -307,7 +307,7 @@ Costs and times copied directly from `results/review_compare.md`.
 
 **Source:** `results/llm_ledger.jsonl` — 323 total records (262 live, 25 mock, 36 replay). Mock and replay calls record \$0 cost.
 
-### 7.1 By Model (live calls only)
+### 7.1 By Model — all records (incl. mock and replay, $0)
 
 | Model | Live calls | Input tokens | Output tokens | Cost (USD) |
 |---|---|---|---|---|
@@ -329,7 +329,7 @@ Costs and times copied directly from `results/review_compare.md`.
 
 | Batch | Model | Calls | Truncated | Input tokens | Output tokens | Cost |
 |---|---|---|---|---|---|---|
-| b1 | Haiku 5.5 | 1 | 0 | 9,316 | 3,788 | \$0.0028 |
+| b1 (earlier trial, not in benchmark) | Haiku 5.5 | 1 | 0 | 9,316 | 3,788 | \$0.0028 |
 | d1 | Haiku 5.5 | 5 | 1 | 43,437 | 21,890 | \$0.0153 |
 | d2 | Haiku 5.5 | 1 | 0 | 7,953 | 5,285 | \$0.0034 |
 | e1 | Haiku 5.5 | 5 | 0 | 36,841 | 25,419 | \$0.0164 |

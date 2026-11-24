@@ -166,7 +166,7 @@ ComplyRWA checks whether a tokenised real-world asset (a T-REX / ERC-3643 securi
 - 4.8: LLM-only review baseline and three-way benchmark.
 
 ### Benchmark results — AI-generated tests
-Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests evaluated per model. Haiku input tokens come from batches b1, d1, d2, e1; Sonnet from batch s1.
+Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests evaluated per model. Haiku input tokens come from batches d1, d2, e1 (11 calls); Sonnet from batch s1 (10 calls).
 
 | Metric | Haiku 5.5 | Sonnet 5.5 |
 |---|---|---|
@@ -213,7 +213,7 @@ Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests e
 
 **Goal:** Write evaluation report, benchmark data, independent evaluation, demo script, final docs.
 
-**Status:** Complete. Deliverables committed to `charvi-reports` branch.
+**Status:** Drafted. Evaluator session pending. Not yet pushed.
 
 ### Deliverables list
 1. `reports/evaluation_report.md`: Concise 2-page evaluation report.
@@ -223,14 +223,16 @@ Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests e
 5. `reports/final_documentation.md`: This combined project documentation.
 
 ### Limitations
-1. Single pinned system (T-REX 4.1.6).
-2. Three rule categories only (KYC, jurisdiction, holding limit).
-3. 13 variants designed by one person.
-4. Clean set is small (8 configurations; one false alarm = 12.5%).
-5. AI outputs vary run-to-run (ranges quoted).
-6. Reviewer sees target code (upper bound compared to blind audit).
-7. Demo replay mode uses cached responses.
-8. `MaxBalanceModule` is CC-BY-NC-4.0 (non-commercial).
+1. **Hand-written tests are the answer key:** They were written by the same author as the variants, so their 100% detection rate is not an independent head-to-head evaluation.
+2. **Single pinned system:** Only T-REX 4.1.6 tested.
+3. **Three rule categories only:** KYC, jurisdiction, holding limit.
+4. **13 variants designed by one person:** Covers core rules, but not all real-world edge cases.
+5. **Small clean-config set:** 8 configurations; one false alarm equals 12.5%.
+6. **No run-to-run range for generated tests:** Each model generated the benchmark suites in a single official run.
+7. **Reviewer sees target code:** Detection rates are an upper bound compared to a true blind audit.
+8. **Web demo interface limits:** The 5 demo rules are fixed and read-only; the app displays saved evidence in replay mode and does not run Foundry live; and it displays a "not tested" warning for C03, C04, C07, and V11 because they start with balances.
+9. **C08 classification contradiction:** `review_triage.md` labels the C08 finding "Real" (pre-bind mint to Carol holds tokens), whereas `Phase3.md` §6 treats it as legal setup and flags it as a false alarm.
+10. **MaxBalanceModule is CC-BY-NC-4.0:** Non-commercial licence only.
 
 ---
 
@@ -260,7 +262,7 @@ python pipeline/demo.py --target C01 --mode replay
 # Then inspect results/demo_C01/report.md
 ```
 
-After running, discard modified ledger entries with `git checkout -- results`.
+After running, run `git checkout -- results` before `git add reports/` to discard modified ledger entries.
 
 ### Demo talking points
 - **C01 (Clean):** Show policy table and all-passed status. Point out INFO line for agent forcedTransfer known exception.

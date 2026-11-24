@@ -4,6 +4,17 @@
 
 ---
 
+## Evaluator Profile
+
+| Field | Details |
+|---|---|
+| **Name** | [Evaluator Name] |
+| **Role** | [e.g. Compliance Analyst, Smart Contract Auditor, Software Engineer, or Student] |
+| **Background** | [e.g. Experience with token standards, Web3 compliance, or general programming/review] |
+| **Relationship to team** | [Outside the team (independent) / Fallback team member] |
+
+---
+
 ## Overview for the Evaluator
 
 Thank you for agreeing to look at this tool.
@@ -184,13 +195,13 @@ In the V12 report, read the "What went wrong" paragraph under the Rule H3 findin
 
 | Report | Evaluator | Q1 (brief) | Q2 | Q3 | Q4 | Q5 | Key feedback |
 |---|---|---|---|---|---|---|---|
-| C01 | | | — | — | — | — | |
+| C01 | | | — (N/A) | — (N/A) | /5 | /5 | |
 | V04 | | | /5 | /5 | /5 | /5 | |
 | V05 | | | /5 | /5 | /5 | /5 | |
 | V09 | | | /5 | /5 | /5 | /5 | |
 | V12 | | | /5 | /5 | /5 | /5 | |
 
-**Average scores (Q2–Q5, broken reports V04–V12 only):**
+**Average scores (Q2–Q3 for broken reports V04–V12; Q4–Q5 across all reports):**
 
 | Question | Average |
 |---|---|
