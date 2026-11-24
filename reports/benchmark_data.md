@@ -315,6 +315,8 @@ Costs and times copied directly from `results/review_compare.md`.
 | `claude-sonnet-5-5` | 111 | 1,633,960 | 151,681 | \$3.3958 |
 | **Total** | **323** | **4,143,900** | **817,477** | **\$3.7039** |
 
+> Note: Rounded summary figures ($0.31 for Haiku, $3.40 for Sonnet, $3.70 total) are independently rounded from the exact ledger values.
+
 ### 7.2 By Pipeline Stage
 
 | Stage | Calls | Input tokens | Output tokens | Cost (USD) |

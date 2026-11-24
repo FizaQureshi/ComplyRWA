@@ -18,7 +18,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-The app opens in the browser. Pick a target from the dropdown and press **Run audit**. No Foundry, no API key needed. Everything runs in replay mode.
+The app opens in the browser. Pick a target from the dropdown and press **Run audit**. The web demo uses saved evidence in replay mode and does not run Foundry live (no Foundry and no API key needed).
 
 > **Note:** C03, C04, C07 and V11 show a "not tested" warning. This is expected — those four configurations start with balances already set, so scenario tests are skipped and only property tests run on them.
 
@@ -31,7 +31,7 @@ python pipeline/demo.py --target C01 --mode replay
 
 Replace `C01` with `V09` or `V04`. Always use `--mode replay`.
 
-> After any replay run, run `git checkout -- results` before `git add reports/`. **Do not commit results/.**
+> **Safe Git workflow:** Check `git status` first to confirm you have no results changes to preserve, then run `git checkout -- results` before `git add reports/`. Do not commit `results/`.
 
 ---
 
@@ -104,7 +104,7 @@ Replace `C01` with `V09` or `V04`. Always use `--mode replay`.
 | **Finding H3 — the note at the bottom** | "Look at the last line: 'All failing H3 tests are side effects of the KYC failure above. No separate holding-limit problem is shown.' The report tells the issuer not to chase a second problem that isn't there." |
 | **Suggested fix for K1/K3** | "'Compare V04 with C01 for the KYC claim topic and trusted issuer.' The tool tells the issuer exactly where to look." |
 
-**Key message:** *"The report groups failures by rule and notes when failures look like side effects of another failure — stopping the issuer from chasing problems that aren't there."*
+**Key message:** *"The report groups related failures and notes when failures look like side effects of another failure."*
 
 ---
 

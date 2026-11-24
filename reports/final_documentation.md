@@ -166,7 +166,7 @@ ComplyRWA checks whether a tokenised real-world asset (a T-REX / ERC-3643 securi
 - 4.8: LLM-only review baseline and three-way benchmark.
 
 ### Benchmark results — AI-generated tests
-Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests evaluated per model. Haiku input tokens come from batches d1, d2, e1 (11 calls); Sonnet from batch s1 (10 calls).
+Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests evaluated per model. Haiku input tokens come from batches d1, d2 and e1 (11 calls); Sonnet from batch s1 (10 calls).
 
 | Metric | Haiku 5.5 | Sonnet 5.5 |
 |---|---|---|
@@ -176,7 +176,7 @@ Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests e
 | Rejected | 0 | 0 |
 | Bugs detected | **12 / 13** | **12 / 13** |
 | Bug missed | **V11** | **V11** |
-| False alarms on clean configs | **0 / 8** | **0 / 8** |
+| False alarms on clean configs | **0 of 40 tests rejected on clean** | **0 of 40 tests rejected on clean** |
 | Cost (USD) | **\$0.0351** | **\$0.3851** |
 | Model time | 236 s | 163 s |
 | Total time (incl. Foundry) | 407 s | 297 s |
@@ -262,7 +262,8 @@ python pipeline/demo.py --target C01 --mode replay
 # Then inspect results/demo_C01/report.md
 ```
 
-After running, run `git checkout -- results` before `git add reports/` to discard modified ledger entries.
+**Agreed safe Git workflow:** Run `git checkout -- results` before `git add reports/`.  
+*Important:* Only run that checkout command after checking `git status` and confirming you have no results changes you need to preserve. It discards local changes inside `results/`.
 
 ### Demo talking points
 - **C01 (Clean):** Show policy table and all-passed status. Point out INFO line for agent forcedTransfer known exception.

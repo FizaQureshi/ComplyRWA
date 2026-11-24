@@ -35,7 +35,7 @@ The pipeline was given 10 rules (H1–H4, J1–J3, K1–K3) and generated 4 test
 | Vacuous | 8 | 8 |
 | Rejected (failed on clean config) | 0 | 0 |
 | Bugs caught | **12 / 13** | **12 / 13** |
-| False alarms on 8 clean configs | **0 of 8 configs (0 of 40 tests rejected for failing on clean)** | **0 of 8 configs (0 of 40 tests rejected for failing on clean)** |
+| False alarms on clean configs | **0 of 40 tests rejected for failing on a clean configuration** | **0 of 40 tests rejected for failing on a clean configuration** |
 | Generation cost | **\$0.035** | **\$0.385** |
 | Model time | 236 s | 163 s |
 
@@ -62,11 +62,11 @@ Haiku had zero JSON format failures. Sonnet's misses before retry were format fa
 
 | Method | First-answer detection | After retry | False alarms (after triage) | Cost |
 |---|---|---|---|---|
-| Hand-written Foundry tests | **13/13** | n/a | 0/8 | \$0 |
-| AI-generated tests (Haiku) | 12/13 | n/a | 0/8 (0 of 40 rejected on clean) | \$0.035 |
-| AI-generated tests (Sonnet) | 12/13 | n/a | 0/8 (0 of 40 rejected on clean) | \$0.385 |
-| LLM-only review — Haiku r1 | **13/13** | n/a | 1/8 | \$0.077 |
-| LLM-only review — Sonnet r1 | **12/13** | **13/13** | 0/8 | \$0.960 |
+| Hand-written Foundry tests | **13/13** | n/a | 0 of 8 configurations | \$0 |
+| AI-generated tests (Haiku) | 12/13 | n/a | 0 of 40 tests rejected on clean | \$0.035 |
+| AI-generated tests (Sonnet) | 12/13 | n/a | 0 of 40 tests rejected on clean | \$0.385 |
+| LLM-only review — Haiku r1 | **13/13** | n/a | 1 of 8 configurations | \$0.077 |
+| LLM-only review — Sonnet r1 | **12/13** | **13/13** | 0 of 8 configurations | \$0.960 |
 
 **Plain-language takeaway:** Hand-written tests detect 13/13 with zero false alarms. AI-generated tests (Haiku) achieve 92% detection (12/13) at \$0.035 with no false alarms. Sonnet costs 11× more for identical detection and validity on this benchmark. The LLM-only review reaches 13/13 in r1/r1b but requires human triage: Haiku's raw false-alarm rate on clean configs is 63–88% before triage (13–25% after excluding stock gaps, dropping to 13% after manual triage). Sonnet's first-answer detection is 10–12/13 across runs due to invalid JSON, and in run r2 it remained 12/13 even after retry.
 
@@ -85,11 +85,11 @@ Haiku had zero JSON format failures. Sonnet's misses before retry were format fa
 
 | Report | Q1 (what is wrong, in their words) | Q2 | Q3 | Q4 | Q5 | Notes |
 |---|---|---|---|---|---|---|
-| C01 | *[Pending]* | — (N/A) | — (N/A) | /5 | /5 | |
-| V04 | *[Pending]* | /5 | /5 | /5 | /5 | |
-| V05 | *[Pending]* | /5 | /5 | /5 | /5 | |
-| V09 | *[Pending]* | /5 | /5 | /5 | /5 | |
-| V12 | *[Pending]* | /5 | /5 | /5 | /5 | |
+| Report A (C01) | *[Pending]* | — (N/A) | — (N/A) | /5 | /5 | |
+| Report B (V04) | *[Pending]* | /5 | /5 | /5 | /5 | |
+| Report C (V05) | *[Pending]* | /5 | /5 | /5 | /5 | |
+| Report D (V09) | *[Pending]* | /5 | /5 | /5 | /5 | |
+| Report E (V12) | *[Pending]* | /5 | /5 | /5 | /5 | |
 
 **Evaluator:** [Name, role, relationship to project — state if outsider or team fallback]  
 The evaluation questionnaire and results template are in `reports/evaluator_questionnaire.md`.
@@ -110,7 +110,7 @@ The evaluation questionnaire and results template are in `reports/evaluator_ques
    - The web app displays saved evidence in replay mode and does not run Foundry live.
    - The web app displays a "not tested" warning for C03, C04, C07, and V11 because they start with balances.
 9. **C08 classification contradiction:** `review_triage.md` labels the C08 finding "Real" (pre-bind mint to Carol holds tokens), whereas `Phase3.md` §6 treats it as legal setup and flags it as a false alarm.
-10. **MaxBalanceModule is CC-BY-NC-4.0:** Non-commercial licence only.
+10. **Licences:** Files derived from T-REX are GPL-3.0, and MaxBalanceModule is CC-BY-NC-4.0 (non-commercial licence only).
 
 ---
 
@@ -119,7 +119,7 @@ The evaluation questionnaire and results template are in `reports/evaluator_ques
 Prices in `pipeline/llm_config.json`: Haiku 5.5 at \$0.10/MTok in, \$0.50/MTok out; Sonnet 5.5 at \$2.00/MTok in, \$10.00/MTok out.  
 **[TODO: verify against Anthropic's official pricing page and record your own check date here before final submission.]** (Team check was 2026-11-18).
 
-Total API spend from `results/llm_ledger.jsonl` (262 live calls across 323 total records): **\$3.70** (Haiku \$0.31, Sonnet \$3.40).
+Total API spend from `results/llm_ledger.jsonl` (262 live calls across 323 total records): **\$3.70** (Haiku \$0.31, Sonnet \$3.40; per-model figures are independently rounded).
 
 ---
 

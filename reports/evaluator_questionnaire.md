@@ -25,17 +25,18 @@ Thank you for agreeing to look at this tool.
 
 **How long this takes:** About 30–45 minutes to read the five reports and fill in the table.
 
-**Reports to read:** The five `report.md` files are attached to this document. Open each one in any text viewer.
+**Reports to read:** Five blinded audit reports are provided (labeled Report A through Report E). Open each file in any text viewer.
 
-| Label | File |
+| Blinded Label | File |
 |---|---|
-| C01 | `C01_report.md` |
-| V04 | `V04_report.md` |
-| V05 | `V05_report.md` |
-| V09 | `V09_report.md` |
-| V12 | `V12_report.md` |
+| Report A | `results/demo_C01/report.md` |
+| Report B | `results/demo_V04/report.md` |
+| Report C | `results/demo_V05/report.md` |
+| Report D | `results/demo_V09/report.md` |
+| Report E | `results/demo_V12/report.md` |
 
-> You are not told in advance which reports describe a problem. Try to decide for yourself whether each one is saying "everything is fine" or "there is a problem."
+> *Note for Evaluator:* You are not told in advance which reports describe a problem. Try to decide for yourself whether each one is saying "everything is fine" or "there is a problem."  
+> *(Private mapping for team: Report A = C01, Report B = V04, Report C = V05, Report D = V09, Report E = V12. Kept private until review completion.)*
 
 ---
 
@@ -47,7 +48,31 @@ Please fill in one section per report. Use the 1–5 scale where stated.
 
 ---
 
-### Report C01
+### Report A
+
+**Q1. In your own words, what does this report say? Is there a problem, and if so what?**
+
+> *Your answer:*
+
+**Q2. If there is a problem, do you understand what should be fixed and roughly who should fix it?** (1–5 + brief note, or N/A if clean)
+
+> *Score:* &nbsp;&nbsp; *Note:*
+
+**Q3. Is the evidence given (test results, reproduction steps) convincing?** (1–5 + brief note, or N/A if clean)
+
+> *Score:* &nbsp;&nbsp; *Note:*
+
+**Q4. How clear is this report? Is anything confusing or unclear?** (1–5 rating + note what was unclear)
+
+> *Score:* &nbsp;&nbsp; *Note:*
+
+**Q5. How actionable is this report for you as the person responsible for this token?** (1–5)
+
+> *Score:*
+
+---
+
+### Report B
 
 **Q1. In your own words, what does this report say? Is there a problem, and if so what?**
 
@@ -71,7 +96,7 @@ Please fill in one section per report. Use the 1–5 scale where stated.
 
 ---
 
-### Report V04
+### Report C
 
 **Q1. In your own words, what does this report say? Is there a problem, and if so what?**
 
@@ -95,7 +120,7 @@ Please fill in one section per report. Use the 1–5 scale where stated.
 
 ---
 
-### Report V05
+### Report D
 
 **Q1. In your own words, what does this report say? Is there a problem, and if so what?**
 
@@ -119,31 +144,7 @@ Please fill in one section per report. Use the 1–5 scale where stated.
 
 ---
 
-### Report V09
-
-**Q1. In your own words, what does this report say? Is there a problem, and if so what?**
-
-> *Your answer:*
-
-**Q2. If there is a problem, do you understand what should be fixed and roughly who should fix it?** (1–5 + brief note)
-
-> *Score:* &nbsp;&nbsp; *Note:*
-
-**Q3. Is the evidence given (test results, reproduction steps) convincing?** (1–5 + brief note)
-
-> *Score:* &nbsp;&nbsp; *Note:*
-
-**Q4. How clear is this report? Is anything confusing or unclear?** (1–5 rating + note what was unclear)
-
-> *Score:* &nbsp;&nbsp; *Note:*
-
-**Q5. How actionable is this report for you as the person responsible for this token?** (1–5)
-
-> *Score:*
-
----
-
-### Report V12
+### Report E
 
 **Q1. In your own words, what does this report say? Is there a problem, and if so what?**
 
@@ -195,13 +196,13 @@ In the V12 report, read the "What went wrong" paragraph under the Rule H3 findin
 
 | Report | Evaluator | Q1 (brief) | Q2 | Q3 | Q4 | Q5 | Key feedback |
 |---|---|---|---|---|---|---|---|
-| C01 | | | — (N/A) | — (N/A) | /5 | /5 | |
-| V04 | | | /5 | /5 | /5 | /5 | |
-| V05 | | | /5 | /5 | /5 | /5 | |
-| V09 | | | /5 | /5 | /5 | /5 | |
-| V12 | | | /5 | /5 | /5 | /5 | |
+| Report A (C01) | | | — (N/A) | — (N/A) | /5 | /5 | |
+| Report B (V04) | | | /5 | /5 | /5 | /5 | |
+| Report C (V05) | | | /5 | /5 | /5 | /5 | |
+| Report D (V09) | | | /5 | /5 | /5 | /5 | |
+| Report E (V12) | | | /5 | /5 | /5 | /5 | |
 
-**Average scores (Q2–Q3 for broken reports V04–V12; Q4–Q5 across all reports):**
+**Average scores (Q2–Q3 for broken reports B–E; Q4–Q5 across all reports A–E):**
 
 | Question | Average |
 |---|---|
