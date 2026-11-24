@@ -282,6 +282,8 @@ Three independent batches were run, each with two models. Each batch = one call 
 
 A variant counts as detected when the reviewer returns a HIGH or MEDIUM finding linked to the correct rule.
 
+> **Reading guidance:** always present **first-answer** and **after-retry** detection together. Sonnet's JSON format is not always reliable on first attempt — presenting only the post-retry number overstates reliability. Haiku had zero format failures in r1 and r1b and is the more format-reliable model.
+
 | Run | Model | Invalid JSON targets | Detected before retry | Detected after retry |
 |---|---|---|---|---|
 | r1 | Haiku 5.5 | 0 | 13 / 13 | 13 / 13 |

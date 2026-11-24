@@ -76,14 +76,23 @@ The pipeline is given only the five-rule policy text; it never sees the variant 
 
 The reviewer LLM reads each configuration's code (with comments removed) and returns findings directly, without running any tests. Two models were used in two rounds (r1, r1b = same input repeated; r2 = expanded code view).
 
-**Detection rate (official runs r1):**
+> **Important:** Sonnet's first answers were invalid JSON in several targets across runs (1 target in r1, 2 in r1b, 3 in r2). One retry was allowed per invalid answer. Detection rates **must be read with their pre-retry and post-retry figures together** — presenting only the post-retry number overstates reliability. The pre-retry rates show that Sonnet's JSON format is not always reliable on first attempt.
 
-| Model | Bugs caught | After retry |
-|---|---|---|
-| Haiku 5.5 | 13/13 | 13/13 |
-| Sonnet 5.5 | 12/13 (one invalid JSON) | **13/13** |
+**Detection rates — official runs r1 (first answer / after one retry):**
 
-Both models find all 13 bugs once retries on invalid JSON are allowed. Run-to-run detection is stable (r1b also 13/13 for Haiku; 13/13 after retry for Sonnet r1b).
+| Model | First-answer detection | After one retry | Invalid JSON targets |
+|---|---|---|---|
+| Haiku 5.5 | **13/13** | 13/13 (no retries needed) | 0 |
+| Sonnet 5.5 | **12/13** | **13/13** | 1 (V08) |
+
+**Run-to-run stability (r1b — same input as r1, repeated):**
+
+| Model | First-answer detection | After retry | Invalid JSON targets |
+|---|---|---|---|
+| Haiku 5.5 | **13/13** | 13/13 | 0 |
+| Sonnet 5.5 | **11/13** | **13/13** | 2 (V01, V05) |
+
+Both models detect all 13 bugs once retries on invalid JSON are allowed. Haiku is more reliable on first attempt (0 format failures in r1 and r1b). Sonnet's first-attempt detection varies: 12/13 in r1, 11/13 in r1b — all misses are format failures, not genuine non-detections.
 
 **False-alarm rate (clean configs, r1 and r1b range):**
 
@@ -104,18 +113,25 @@ Three categories of clean-config findings were identified by manual triage (see 
 
 ## 4. Three-Way Summary
 
-| Method | Bugs caught (of 13) | False alarms on clean (after triage) | Cost (USD) |
-|---|---|---|---|
-| Hand-written Foundry tests | **13 / 13** | **0 / 8** | \$0 |
-| AI-generated tests (Haiku) | 12 / 13 | 0 / 8 | \$0.035 |
-| AI-generated tests (Sonnet) | 12 / 13 | 0 / 8 | \$0.385 |
-| LLM-only review (Haiku, r1) | 13 / 13 | 1 / 8 | \$0.077 |
-| LLM-only review (Sonnet, r1+retry) | 13 / 13 | 0 / 8 | \$0.960 |
+The table below shows the nuanced picture the brief requires. Detection rates for the LLM-only review are shown as **first-answer / after retry** — do not use the post-retry number alone.
+
+| Method | Model | Bugs caught (first answer) | Bugs caught (after retry) | False alarms — frozen / adjusted / after triage | Cost (USD) |
+|---|---|---|---|---|---|
+| Hand-written Foundry tests | — | **13 / 13** | n/a | 0 / 0 / 0 of 8 | \$0 |
+| AI-generated tests | Haiku 5.5 | 12 / 13 | n/a | 0 / 0 / 0 of 8 | \$0.035 |
+| AI-generated tests | Sonnet 5.5 | 12 / 13 | n/a | 0 / 0 / 0 of 8 | \$0.385 |
+| LLM-only review (r1) | Haiku 5.5 | **13 / 13** | n/a | 7 / 2 / 1 of 8 | \$0.077 |
+| LLM-only review (r1) | Sonnet 5.5 | **12 / 13** | **13 / 13** | 1 / 1 / 0 of 8 | \$0.960 |
+| LLM-only review (r1b repeat) | Haiku 5.5 | **13 / 13** | n/a | 5 / 1 / 1 of 8 | \$0.077 |
+| LLM-only review (r1b repeat) | Sonnet 5.5 | **11 / 13** | **13 / 13** | 1 / 1 / 0 of 8 | \$0.997 |
+
+> **False alarm columns:** "frozen" = any HIGH/MEDIUM on a clean target; "adjusted" = excluding known stock-gap findings (S03/S04); "after triage" = true false alarms only after the team read each finding. Triage labels have not yet been independently verified — this is one of the evaluator's tasks (Section 6.4).
 
 **Plain-language takeaway:**
-- Haiku at \$0.035 catches 92% of bugs with no false alarms — competitive with hand-written tests at a fraction of the cost of manual review.
-- Sonnet at \$0.385 gives the same detection rate. For a 10× cost increase there is no measurable quality gain over Haiku on this benchmark.
-- The LLM-only review is the most thorough (13/13) but requires a human to sort real findings from false alarms. Haiku's raw false-alarm rate on clean configs is 63–88% before triage, dropping to 13% after the team reads each one; Sonnet's is 13% frozen, 0% after triage.
+
+- **Hand-written tests** are the gold standard: 13/13 with zero false alarms, zero cost beyond developer time.
+- **AI-generated tests** (both models) achieve 12/13 with zero false alarms and generation costs under \$0.40. Both miss V11 for the same structural reason (see Section 3.2). The two models give identical detection and validity results; Haiku at ~\$0.035 is roughly 11× cheaper than Sonnet at ~\$0.385 for the same outcome.
+- **LLM-only review** finds all 13 bugs but requires human triage of false alarms. **Sonnet's pre-retry detection varies (12/13 and 11/13 on the same input), and these misses are entirely due to invalid JSON responses, not failure to identify the bug.** After one retry, both models reach 13/13. Haiku is more format-reliable (0 JSON failures) but produces more noise on clean configs (1 true false alarm per 8, vs 0 for Sonnet after triage).
 
 ---
 
