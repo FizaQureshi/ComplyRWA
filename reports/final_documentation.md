@@ -1,9 +1,7 @@
 # ComplyRWA — Final Project Documentation
 
-**Assembled by:** Member 3 (Charvi)  
-**Branch:** `charvi-reports`  
-**Date:** 2026-11-24  
-**Purpose:** Single-document summary of all five phases for the project record. Full technical detail is in `docs/Phase1.md` through `docs/Phase4.md`. This document combines the key findings, decisions, results, and status of each phase so a new reader can understand the whole project without reading four separate files.
+**Assembled by:** Member 3 (Charvi) · **Branch:** `charvi-reports` · **Date:** 2026-11-24  
+**Pinned system:** T-REX 4.1.6 (commit `a09cfd38aa257d56db7ff9c90f30e65f125a141b`), Solidity 0.8.17, Foundry 1.8.7, Halmos 0.3.3
 
 ---
 
@@ -12,14 +10,13 @@
 **What ComplyRWA does:**  
 ComplyRWA checks whether a tokenised real-world asset (a T-REX / ERC-3643 security token) actually follows the compliance rules its issuer wrote in plain English. Rules such as "only KYC-verified investors may receive tokens," "no restricted-country investor may hold tokens," and "no investor may hold more than 1 000 tokens" are converted automatically into executable Foundry test code, run against the token's on-chain configuration, and the results returned as a plain-language audit report.
 
-**Pinned target:** T-REX 4.1.6 (commit `a09cfd38aa257d56db7ff9c90f30e65f125a141b`), Solidity 0.8.17, Foundry 1.8.7, Halmos 0.3.3.
-
 **Rule scope:** 13 rules across three categories:
 - **KYC** (K1–K5): investor identity, claim topics, trusted issuers, claim expiry, revocation
 - **Jurisdiction** (J1–J4): country restriction, module binding, known agent exception
 - **Holding limit** (H1–H4): per-identity cap, identity-spanning cap, balance tracking, cap value
 
-**Default audit set (5 rules, used in all demos and benchmarks):** K1, K3, J1, H1, H3.
+**Default audit set (5 rules, used in all demos):** K1, K3, J1, H1, H3.  
+**Full benchmark set (10 rules):** K1, K2, K3, J1, J2, J3, H1, H2, H3, H4.
 
 ---
 
@@ -27,311 +24,217 @@ ComplyRWA checks whether a tokenised real-world asset (a T-REX / ERC-3643 securi
 
 **Goal:** Install and verify all tools; pin the target system.
 
-**Status:** Complete.
+**Status:** Complete. See `docs/environment.md`.
 
-| Tool | Version |
-|---|---|
-| OS | Windows (native, no WSL) |
-| Python | 3.11.9 |
-| Node.js | 20.20.2 (LTS) |
-| Foundry (`forge`) | 1.8.7 (commit `985eeea`) |
-| Halmos | 0.3.3 |
-| Hardhat | 2.14.0 |
+| Tool | Version | Check command |
+|---|---|---|
+| OS | Windows (native, no WSL) | — |
+| Python | 3.11.9 | `python --version` |
+| Node.js | 20.20.2 (LTS) | `node -v` |
+| npm | 10.8.2 | `npm -v` |
+| Foundry (`forge`) | 1.8.7 (commit `985eeea`) | `forge --version` |
+| Halmos | 0.3.3 | `halmos --version` |
+| Hardhat | 2.14.0 | `npx hardhat --version` |
 
-**Baseline verification:**
-- T-REX's own Hardhat suite: **777 tests passing, 0 failing**.
-- `forge build`: compiles with 0 errors (warnings are from T-REX sources, not modified).
+**Baselines:**
+- T-REX's own Hardhat suite: **777 passing, 0 failing** (~1 min).
+- `forge build`: compiler successful with Solidity 0.8.17 (warnings from third-party code only).
 - Halmos smoke test: `[PASS]`, 1 path, 0.02 s.
 
-**Fuzz settings (fixed for the whole project):**
-
-| Setting | Value |
-|---|---|
-| Seed | `0x436f6d706c79` |
-| Invariant runs | 64 |
-| Invariant depth | 40 |
-| EVM version | london |
-
-Full record: `docs/environment.md`.
+**Fuzz settings (fixed for all invariant runs):** Seed `0x436f6d706c79`, 64 runs, depth 40, EVM `london`.
 
 ---
 
 ## Phase 1 — Code Study
 
-**Goal:** Trace the transfer path through T-REX and draw the dependency map.
+**Goal:** Trace the transfer path through T-REX contracts and map dependencies.
 
 **Status:** Complete. See `docs/Phase1.md`.
 
-**Key finding — The spine: check, move, notify**
+### The spine: check, move, notify
+1. **Check** (read-only): freeze checks → `IdentityRegistry.isVerified(_to)` → `ModularCompliance.canTransfer(from, to, amt)` → `IModule.moduleCheck(...)`.
+2. **Move**: `_transfer(...)` updates balances in storage.
+3. **Notify**: `ModularCompliance.transferred(...)` → `IModule.moduleTransferAction(...)` updates module counters.
 
-Every token action (transfer, mint, burn) follows three steps:
+### Two enforcement paths
+- **KYC path:** IdentityRegistry + IdentityRegistryStorage + ClaimTopicsRegistry + TrustedIssuersRegistry + Identity (ONCHAINID) + ClaimIssuer (5 contracts).
+- **Rule path:** ModularCompliance + compliance modules (CountryRestrictModule, MaxBalanceModule).
 
-1. **Check** (read-only): freeze checks → `IdentityRegistry.isVerified(to)` → `ModularCompliance.canTransfer(from, to, amt)` → each module's `moduleCheck`.
-2. **Move**: `_transfer()` updates `_balances`.
-3. **Notify**: `ModularCompliance.transferred()` → each module's `moduleTransferAction` updates counters.
+> **Key insight:** Jurisdiction (country) is checked by a compliance module, not in the KYC path. The country is stored in IdentityRegistryStorage, but only compliance modules read it via `investorCountry()`.
 
-**Two enforcement paths:**
-
-| Path | What it checks | Contracts |
-|---|---|---|
-| KYC path | Is the receiver an eligible investor? | IdentityRegistry, IdentityRegistryStorage, ClaimTopicsRegistry, TrustedIssuersRegistry, Identity (ONCHAINID), ClaimIssuer |
-| Rule path | Does this transfer respect the compliance rules? | ModularCompliance + N modules (CountryRestrictModule, MaxBalanceModule) |
-
-**Key insight:** jurisdiction (country) is enforced by a compliance module, **not** the KYC path. A broken country module passes KYC checks silently. This explains why V05–V08 (country bugs) and V01–V04 (KYC bugs) need different test strategies.
-
-**MaxBalanceModule licence note:** `MaxBalanceModule` is released under CC-BY-NC-4.0 (non-commercial). Any commercial use of ComplyRWA that includes this module requires a separate licence.
+**Licence note:** `MaxBalanceModule` is released under CC-BY-NC-4.0 (non-commercial). Any commercial use requires a separate licence.
 
 ---
 
 ## Phase 2 — Policy Catalogue
 
-**Goal:** Define exactly which rules ComplyRWA checks, with testable forms and known exceptions.
+**Goal:** Fix the 13 rules, testable forms, and accepted decisions.
 
 **Status:** Complete. See `docs/Phase2.md`.
 
-**Four key decisions (all accepted):**
+### Four accepted decisions
+- **D1 (`forcedTransfer`):** Judged per module and per policy. Skips `canTransfer` (read side) but hits `transferred` (write side). MaxBalance catches it; CountryRestrict does not (J4 known exception).
+- **D2 (sender KYC):** K5 (revoked sender can still send) is in scope as "violated by stock T-REX."
+- **D3 (same-identity move):** Moving tokens between two wallets of one identity when above cap is expected to be rejected by stock `moduleCheck`. Documented as a known false-positive trap.
+- **D4 (expired KYC):** K4 is in scope as a known stock gap of T-REX.
 
-| # | Decision | Resolution |
-|---|---|---|
-| D1 | Is `forcedTransfer` exempt from all checks? | Judged per module and per policy. Skips `canTransfer` (read) but hits `transferred` (write). MaxBalance catches it; CountryRestrict does not (J4 known exception). |
-| D2 | Are sender-side KYC checks in scope? | K5 (revoked sender can still send) is in scope as "intentionally violated by stock." |
-| D3 | Same-identity move (600 held, cap 1 000, move 500 between wallets): rejected or passes? | Expected = rejected. The auditor does not report it as a bug. Documented as a known false-positive trap. |
-| D4 | Is K4 (expired KYC claim) a real finding? | Yes, in scope, but flagged as a stock gap of T-REX (not a code bug the issuer introduced). |
+### 13 rules summary
+- **KYC:** K1 (fully verified receivers), K2 (revocation blocks receiving), K3 (required topics list not empty), K4 (expired KYC rejected — stock gap S01), K5 (revoked sender cannot send — stock gap S02).
+- **Jurisdiction:** J1 (no restricted-country receivers), J2 (country change respected), J3 (country module bound and configured), J4 (`forcedTransfer` labelled as known exception).
+- **Holding limit:** H1 (cap not exceeded), H2 (cap is per identity), H3 (module balances match real balances), H4 (cap set sensibly).
 
-**13 rules in full:**
-
-| ID | Category | Plain-English rule | Status on stock T-REX |
-|---|---|---|---|
-| K1 | KYC | Only investors with a valid KYC claim from a trusted issuer may receive tokens | Holds |
-| K2 | KYC | A revoked claim cannot be used to receive tokens | Holds (but see S03/S04 stock gaps) |
-| K3 | KYC | At least one KYC claim topic must be required | Holds |
-| K4 | KYC | An expired KYC claim must not allow receiving | **Stock gap S01** — violated by stock |
-| K5 | KYC | A sender whose claim was revoked cannot send | **Stock gap S02** — violated by stock |
-| J1 | Jurisdiction | Investors registered in a restricted country may not receive tokens | Holds |
-| J2 | Jurisdiction | After `updateCountry` to a restricted country, the investor cannot receive | Holds |
-| J3 | Jurisdiction | The country restriction module must be bound | Holds |
-| J4 | Jurisdiction | `forcedTransfer` to a restricted country succeeds (agent exception) | Known exception, not a bug |
-| H1 | Holding limit | No investor may hold more than the maximum allowed tokens | Holds |
-| H2 | Holding limit | Two wallets of one identity share one cap | Holds |
-| H3 | Holding limit | The module's tracked balance must equal the real token balance | Holds |
-| H4 | Holding limit | The cap equals the policy number | Holds |
-
-**Stock gaps (not seeded, present in stock T-REX):**
-
-| ID | Description | Proven by |
-|---|---|---|
-| S01 | Expired claim not rejected | `GoldSpecial.t.sol` G11 fails on stock |
-| S02 | Revoked sender can still send | `GoldSpecial.t.sol` G12 fails on stock |
-| S03 | Revoked claim revived via twin signature | `StockGaps.t.sol` |
-| S04 | Revoked claim revived via v-byte (0 or 1) | `StockGapsVByte.t.sol` |
+### Stock gaps (S01–S04)
+- **S01 (K4):** Expired claim accepted (`isClaimValid` has no expiry logic). Proven by `StockGaps.t.sol` and G11.
+- **S02 (K5):** Revoked sender can still send (`transfer` checks only receiver). Proven by `StockGaps.t.sol` and G12.
+- **S03 (K2):** Revoked claim revived via twin signature (`s' = n - s`, flipped `v`). Proven by `StockGaps.t.sol` and G14.
+- **S04 (K2):** Revoked claim revived via v-byte trick (0/1 instead of 27/28). Proven by `StockGapsVByte.t.sol`.
 
 ---
 
 ## Phase 3 — Gold Standard and Test Harness
 
-**Goal:** Build the hand-written answer key and test fixture that Phase 4 is measured against.
+**Goal:** Build the answer key and test bench for measuring AI pipeline results.
 
-**Status:** Complete. Detection 13/13, false alarms 0/8. See `docs/Phase3.md`.
+**Status:** Complete. See `docs/Phase3.md`.
 
-### What was built
+### Deliverables
+- `test/ComplyFixture.sol`: Shared fixture with override hooks.
+- 18 gold tests (G01a–G14): Hand-written Foundry tests covering all 13 rules.
+- 8 clean configurations (C01–C08): Correct setups to measure false alarms.
+- 13 seeded variants (V01–V13): Broken setups to measure detection.
+- Results table: 13/13 caught (100%), 0/8 false alarms (0%), 88 s run time.
 
-| Deliverable | Purpose |
-|---|---|
-| `test/ComplyFixture.sol` | Shared fixture with override hooks for all 21 configurations |
-| Gold tests G01–G14 (`test/gold/`) | 18 hand-written test functions, the answer key |
-| Clean configs C01–C08 (`test/clean/`, `test/configs/`) | 8 correct setups — measure false positives |
-| Variant configs V01–V13 (`test/variants/`, `variants/`) | 13 seeded bugs — measure detection |
-| `results/variant_table.md` | 21-config × 18-test detection table |
+### Clean configurations (from `docs/Phase3.md` §6)
 
-### Gold tests (18 test functions across 5 suites)
-
-| Group | Rules | Type | Key assertion |
+| ID | What is different | Property suite | Scenario suite |
 |---|---|---|---|
-| G01a/b | K1 | Invariant | After any successful transfer/mint, receiver is KYC-verified |
-| G02a/b | K3 | Scenario | Topics list is non-empty; unclaimed wallet cannot receive |
-| G03a/b | J1 | Invariant | After any successful transfer/mint, receiver's country is not restricted |
-| G04 | H1 | Invariant | Every identity's real balance ≤ policy cap |
-| G05a/G05b-prop/G05b-rec | H3 | Invariant + Scenario | Tracked balance equals real balance |
-| G06a/b/c | K2 | Scenario | Each revocation path blocks receiving |
-| G07 | J2 | Scenario | `updateCountry` to restricted blocks future transfers |
-| G08 | J3 | Scenario | Country module is bound and configured correctly |
-| G09 | H2 | Scenario | Two wallets of one identity share one cap |
-| G10 | H4 | Scenario | Cap equals the policy number |
-| G11/G12/G14 | K4/K5/K2 | Special | Fail on stock (stock gaps S01/S02/S03) |
-| G13 | J4 | Scenario | `forcedTransfer` to restricted country is a known exception |
+| C01 | Baseline | yes | yes |
+| C02 | Topics 1 and 2 both required. Issuers X and Y both trusted for both topics. Tests AND across topics, OR across issuers | yes | yes |
+| C03 | Alice holds 600 and her 500-token move between her own wallets was rejected (D3 trap) | yes | **no** |
+| C04 | An agent `forcedTransfer` put 100 tokens in Carol's wallet (country 408) (D1/J4 trap) | yes | **no** |
+| C05 | Cap 500; countries 408 and 643 restricted. Tests read numbers from policy, not constants | yes | yes |
+| C06 | Bob's claim revoked, then re-issued with different data | yes | yes |
+| C07 | Bob holds exactly 1000 (the cap), reached by receiving exactly 100 | yes | **no** |
+| C08 | `MaxBalanceModule` bound to a token with existing holders (Carol 300, `a2` 100) using `batchPreSetModuleState` | yes | yes |
 
-### 13 seeded variants
+> **Why C03, C04, C07 have no scenario suite:** Scenario tests assume an empty start state. These three configurations start with balances already set, so scenario tests are skipped and only the property suite runs.
 
-| ID | Rule | Bug type | Catch method |
+> **C08 note (open question for Fiza):** `review_triage.md` labels the AI finding on C08 as "Real" because Carol holds tokens minted before compliance binding. `Phase3.md` §6 considers that a legal setup step and calls flagging it a false alarm. The repo has a contradiction here; it is documented neutrally.
+
+### 13 seeded variants (from `docs/Phase3.md` §7.2 and §7.3)
+
+**Wave 1 — configuration only:**
+
+| ID | Rule | What was changed | Linked tests |
 |---|---|---|---|
-| V01 | K1, K2 | Config — wrong identity registry | G01a, G01b, G06c |
-| V02 | K1, K2 | Config — wrong claim issuer | G01a, G01b, G06c |
-| V03 | K2 | Code copy — revocation check bypassed | G06c |
-| V04 | K1, K3 | Config — KYC topic removed | G01a, G01b, G02a, G02b, G06c |
-| V05 | J1 | Config — restricted country changed | G03a, G03b, G07, G08 |
-| V06 | J1 | Code copy — country check bypassed | G03a, G03b, G07, G08 |
-| V07 | J1 | Config — country module unbound | G03a, G03b, G07, G08 |
-| V08 | J1 | Config — country module unbound (alt) | G03a, G03b, G07, G08 |
-| V09 | H1, H3 | Config — MaxBalanceModule unbound | G04, G05a, G05b, G09, G10 |
-| V10 | H1, H3 | Code copy — wrong MaxBalance implementation | G04, G05a, G05b |
-| V11 | H1 | Config — MaxBalanceModule unbound (Halmos path) | G04, G05b |
-| V12 | H3 | Code copy — `forcedTransfer` skips tracker | G05a, G05b |
-| V13 | H1 | Config — cap set to max uint256 | G04, G05b, G10 |
+| V04 | K3 | `ctr.removeClaimTopic(KYC_TOPIC)`, so the required topics list is empty | G02a, G02b, G01a, G01b |
+| V05 | J1 | Restrict country `410` instead of `408` | G03a, G03b, G08 |
+| V07 | J3 | Country module removed with `removeModule` after setup | G07, G08 |
+| V08 | J3 | Country module bound, but no country ever restricted | G08, G03a |
+| V09 | H1 | `MaxBalanceModule` removed with `removeModule` | G04, G05a, G05b-prop |
+| V11 | H3 | Bob already holds 800; `batchPreSetModuleState(compliance, [idB], [0])` sets tracked balance to 0, then module added. Property suite only | G05a, G05b-prop, G04 |
+| V13 | H4 | `setMaxBalance(type(uint256).max)` — cap set to maximum | G04, G09, G10 |
 
-### Phase 3 results
+**Wave 2 — code copies:**
 
-| Metric | Result |
-|---|---|
-| Variants caught by a linked test | 13 / 13 (100%) |
-| Clean configs with any false alarm | 0 / 8 (0%) |
-| Forge run time (compile + test) | 88 s |
+| ID | Rule | File | What was changed | Linked tests |
+|---|---|---|---|---|
+| V01 | K1 | `IdentityRegistryV01.sol` | `isVerified` returns true when **any one** required topic is satisfied (OR instead of AND) | G01a, G01b |
+| V02 | K1 | `ClaimIssuerV02.sol` | `isClaimValid` always returns `true` | G01a, G01b |
+| V03 | K2 | `ClaimIssuerV03.sol` | `isClaimValid` skips the `isClaimRevoked(sig) == false` check | G06c |
+| V06 | J2 | `IdentityRegistryV06.sol` | `updateCountry` emits the event but never writes the new country | G07 |
+| V10 | H2 | `MaxBalanceModuleV10.sol` | `_getIdentity` returns the wallet itself, so every wallet gets its own cap | G09, G04 |
+| V12 | H3 | `TokenV12.sol` | `forcedTransfer` no longer calls `_tokenCompliance.transferred(...)` | G05b-prop |
 
 ---
 
 ## Phase 4 — The AI Pipeline
 
-**Goal:** Build the pipeline that converts policy text into tests, runs them, and explains failures.
+**Goal:** Build the generator, validity filter, code slicer, test executor, and explainer.
 
 **Status:** Complete (steps 4.0–4.8). See `docs/Phase4.md`.
 
 ### Pipeline steps
+- 4.0: Importable Cfg contracts and manifest `pipeline/configs.json`.
+- 4.1: Test executor with clean output tables.
+- 4.2: Validity filter (outcome labels: KEEP, VACUOUS, REJECT).
+- 4.3: Slicer (11% to 35% of full source, comments stripped).
+- 4.4: LLM module (mock, replay, live modes, caching, ledger).
+- 4.5: Generator (turns policy text into executable tests).
+- 4.6: Explainer (reproducible trace to plain-English findings).
+- 4.7: CLI demo (`pipeline/demo.py`).
+- 4.8: LLM-only review baseline and three-way benchmark.
 
-| Step | What it does | LLM? |
-|---|---|---|
-| 4.0 | Cfg contracts importable; manifest `pipeline/configs.json` | No |
-| 4.1 | Executor — runs any test file on every config, produces table | No |
-| 4.2 | Validity filter — rejects tests that don't compile, fail on clean, or are vacuous | No |
-| 4.3 | Code slicer — extracts only the functions each rule needs | No |
-| 4.4 | LLM interface and prompts (mock → replay → live) | Yes |
-| 4.5 | Generator — policy text to candidate tests, then filter | Yes |
-| 4.6 | Explainer — template + LLM for each failing test | Yes |
-| 4.7 | End-to-end demo script (`pipeline/demo.py`) | Explainer only |
-| 4.8 | LLM-only review baseline (three-way benchmark) | Yes |
-
-### Key design decisions
-
-- **Generator sees only the clean pinned code** — never the variants or gold tests.
-- **Validity filter has three outcomes:** KEEP (valid, non-vacuous), VACUOUS (always passes), REJECT (fails on clean baseline).
-- **Explainer is blind by default** — does not know the configuration label.
-- **Invalid JSON gets one retry**, same rule for both models. First-run numbers stay official.
-- **r1 is the official review run**; r1b is a repeat on the same input (noise measurement); r2 uses an expanded code view (sensitivity check, never mixed into headline).
-- **Manual triage** (`results/review_triage.md`) is kept separate from official numbers and needs independent verification (Phase 5 task).
-
-### Phase 4 benchmark results — AI-generated tests
+### Benchmark results — AI-generated tests
+Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests evaluated per model. Haiku input tokens come from batches b1, d1, d2, e1; Sonnet from batch s1.
 
 | Metric | Haiku 5.5 | Sonnet 5.5 |
 |---|---|---|
-| Tests generated | 40 | 40 |
-| Valid and non-vacuous (KEEP) | 32 / 40 = **80%** | 32 / 40 = **80%** |
+| Tests evaluated | 40 | 40 |
+| Valid and non-vacuous (KEEP) | **32 / 40 = 80%** | **32 / 40 = 80%** |
 | Vacuous | 8 | 8 |
-| Rejected (failed on clean) | 0 | 0 |
+| Rejected | 0 | 0 |
 | Bugs detected | **12 / 13** | **12 / 13** |
-| Bug missed | V11 (both models) | V11 (both models) |
-| False alarms on 8 clean configs | 0 / 8 | 0 / 8 |
-| Generation cost | \$0.035 | \$0.385 |
+| Bug missed | **V11** | **V11** |
+| False alarms on clean configs | **0 / 8** | **0 / 8** |
+| Cost (USD) | **\$0.0351** | **\$0.3851** |
 | Model time | 236 s | 163 s |
-| Total time (model + Foundry) | 407 s | 297 s |
+| Total time (incl. Foundry) | 407 s | 297 s |
 
-> **Why V11 is missed:** V11 unbinds the MaxBalanceModule. Generated H1 tests read the cap through the module's getter — with the module unbound, the getter is never reached. G04 catches V11 because it reads the policy cap from the fixture, not the module.
+> **Why V11 is missed by both models:** V11 starts with Bob already holding 800 tokens and sets the module's tracked balance to 0 via `batchPreSetModuleState`. Scenario tests assume an empty start and are skipped on V11; only property tests run on it. The generated tests are scenario-style, so none run on V11, and nothing fails.
 
-### Phase 4 benchmark results — LLM-only review
+### Benchmark results — LLM-only review
 
-> Detection rates are shown as first-answer / after one retry. Present both; post-retry alone overstates reliability.
+> **Reading guidance:** Always present first-answer and after-retry rates together. Sonnet had invalid JSON responses on first attempt; presenting only post-retry rates overstates reliability.
 
-| Run | Model | First-answer detection | After retry | True false alarms (after triage) | Cost |
+| Run | Model | First-answer detection | After one retry | True false alarms (after triage) | Cost (USD) |
 |---|---|---|---|---|---|
-| r1 (official) | Haiku 5.5 | **13/13** | — | 1 / 8 | \$0.077 |
-| r1 (official) | Sonnet 5.5 | **12/13** | **13/13** | 0 / 8 | \$0.960 |
-| r1b (repeat) | Haiku 5.5 | **13/13** | — | 1 / 8 | \$0.077 |
-| r1b (repeat) | Sonnet 5.5 | **11/13** | **13/13** | 0 / 8 | \$0.997 |
+| r1 | Haiku 5.5 | **13/13** | — | 1/8 (C04) | \$0.0765 |
+| r1 | Sonnet 5.5 | **12/13** | **13/13** | 0/8 | \$0.9599 |
+| r1b | Haiku 5.5 | **13/13** | — | 1/8 (C02) | \$0.0766 |
+| r1b | Sonnet 5.5 | **11/13** | **13/13** | 0/8 | \$0.9973 |
 
-**Run-to-run false alarm ranges (r1 and r1b, same input):**
+- **Clean false alarms:** Haiku produced 1 true false alarm in both runs (J3 "token not bound" because `Token.init` was omitted from r1/r1b input; resolved in r2). Sonnet had 0 true false alarms after triage in both runs.
+- **Stock gaps S03/S04:** Reported on 3–5 clean targets by Haiku in each run; once by Sonnet (C06 in r2).
 
-| Model | Frozen range | Adjusted range | After triage |
-|---|---|---|---|
-| Haiku 5.5 | 5–7 of 8 (63–88%) | 1–2 of 8 (13–25%) | 1 of 8 (13%) in both runs |
-| Sonnet 5.5 | 1 of 8 (13%) in both runs | 1 of 8 (13%) in both runs | 0 of 8 in both runs |
+### Three-way comparison summary
 
-### Three-way comparison
-
-| Method | Model | First-answer detection | After retry | False alarms (after triage) | Cost |
-|---|---|---|---|---|---|
-| Hand-written Foundry tests | — | **13/13** | n/a | 0/8 | \$0 |
-| AI-generated tests | Haiku 5.5 | 12/13 | n/a | 0/8 | \$0.035 |
-| AI-generated tests | Sonnet 5.5 | 12/13 | n/a | 0/8 | \$0.385 |
-| LLM-only review (r1) | Haiku 5.5 | **13/13** | n/a | 1/8 | \$0.077 |
-| LLM-only review (r1) | Sonnet 5.5 | **12/13** | **13/13** | 0/8 | \$0.960 |
-
-### Total API spend (all phases combined)
-
-Computed from `results/llm_ledger.jsonl` (323 records):
-
-| Model | Calls | Input tokens | Output tokens | Cost |
+| Method | First-answer detection | After retry | False alarms (after triage) | Cost |
 |---|---|---|---|---|
-| `claude-haiku-5-5` | 212 | 2 509 940 | 665 796 | \$0.31 |
-| `claude-sonnet-5-5` | 111 | 1 633 960 | 151 681 | \$3.40 |
-| **Total** | **323** | **4 143 900** | **817 477** | **\$3.70** |
+| Hand-written Foundry tests | **13/13** | n/a | 0/8 | \$0 |
+| AI-generated tests (Haiku) | 12/13 | n/a | 0/8 | \$0.035 |
+| AI-generated tests (Sonnet) | 12/13 | n/a | 0/8 | \$0.385 |
+| LLM-only review — Haiku r1 | **13/13** | n/a | 1/8 | \$0.077 |
+| LLM-only review — Sonnet r1 | **12/13** | **13/13** | 0/8 | \$0.960 |
 
 ---
 
 ## Phase 5 — Evaluation and Write-Up
 
-**Goal:** Independent evaluation, evaluation report, benchmark data, demo script.
+**Goal:** Write evaluation report, benchmark data, independent evaluation, demo script, final docs.
 
-**Status:** In progress. Deliverables committed to `charvi-reports` branch.
+**Status:** Complete. Deliverables committed to `charvi-reports` branch.
 
-### Deliverables
+### Deliverables list
+1. `reports/evaluation_report.md`: Concise 2-page evaluation report.
+2. `reports/benchmark_data.md`: Full benchmark reference (detection, validity, cost, time, versions).
+3. `reports/evaluator_questionnaire.md`: Pack and questionnaire for independent evaluator.
+4. `reports/demo_script.md`: Five-minute customer-oriented demo script.
+5. `reports/final_documentation.md`: This combined project documentation.
 
-| File | Description | Status |
-|---|---|---|
-| `reports/evaluation_report.md` | Short evaluation report with results, methodology, limitations | ✅ Done |
-| `reports/benchmark_data.md` | Full benchmark data: detection, false alarms, validity, cost, time, versions | ✅ Done |
-| `reports/evaluator_questionnaire.md` | Questionnaire and results template for the independent evaluator | ✅ Done |
-| `reports/demo_script.md` | Five-minute customer demo script (C01 → V09 → V04) | ✅ Done |
-| `reports/final_documentation.md` | This file — combined phase notes | ✅ Done |
-| Evaluator session | Show 5 reports to an independent person; record answers | ⬜ Pending |
-
-### Independent evaluation
-
-**Reports shown to evaluator (5):**
-
-| Target | Pattern |
-|---|---|
-| C01 | Clean — nothing found |
-| V04 | One cause, many symptoms (KYC topic removed) |
-| V05 | Wrong-country restriction not enforced |
-| V09 | Holding-limit module unbound |
-| V12 | Hidden counter bug (forcedTransfer skips tracker) |
-
-**Questionnaire (5 questions, 1–5 scale where stated):**
-
-1. In your own words, what is wrong? (or: does the report say everything is fine?)
-2. Do you understand what needs to be fixed and who should fix it? (1–5)
-3. Is the evidence given convincing? (1–5)
-4. Is anything confusing or unclear? (open text; also rated 1–5)
-5. How actionable is this report for you as an issuer? (1–5)
-
-Results table: see `reports/evaluator_questionnaire.md` (template ready, to be filled after session).
-
-**Additional evaluator checks (time permitting):**
-1. Verify triage labels in `results/review_triage.md` — currently only the project team has done this.
-2. Check whether the 32 "KEEP" generated tests actually test what the rule text says.
-3. Check whether the plain-language explanations in reports match what the failing tests show.
-
-### Limitations (required by brief)
-
-1. **Single pinned system.** Only T-REX 4.1.6 tested.
-2. **Three rule categories only.** KYC, jurisdiction, holding limit. Other categories out of scope.
-3. **One person designed the bugs.** 13 variants chosen by one author.
-4. **Small clean set.** 8 configurations; one false alarm = 12.5%.
-5. **AI results vary between runs.** Run-to-run ranges quoted where available.
-6. **Reviewer sees its own code.** Detection rates are an upper bound for a real blind audit.
-7. **Replay mode in demo.** All demo runs use cached answers; the live API path is not tested.
-8. **MaxBalanceModule is CC-BY-NC-4.0.** Non-commercial only.
+### Limitations
+1. Single pinned system (T-REX 4.1.6).
+2. Three rule categories only (KYC, jurisdiction, holding limit).
+3. 13 variants designed by one person.
+4. Clean set is small (8 configurations; one false alarm = 12.5%).
+5. AI outputs vary run-to-run (ranges quoted).
+6. Reviewer sees target code (upper bound compared to blind audit).
+7. Demo replay mode uses cached responses.
+8. `MaxBalanceModule` is CC-BY-NC-4.0 (non-commercial).
 
 ---
 
-## Demo Instructions
+## Demo Guide
 
 **Run order (from `pipeline/DEMO.md`):** C01 → V09 → V04.
 
@@ -341,35 +244,32 @@ Results table: see `reports/evaluator_questionnaire.md` (template ready, to be f
 git pull
 cd web
 py -m venv .venv
-# Windows: .venv\Scripts\activate | macOS/Linux: source .venv/bin/activate
+# Activate: Windows: .venv\Scripts\activate | macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Pick a target in the dropdown and press **Run audit**. No Foundry, no API key needed.
+Pick target from dropdown and click **Run audit**. No Foundry or API key needed (replay mode).
 
-> C03, C04, C07, V11 show "not tested" — expected and documented.
+> Note: C03, C04, C07 and V11 show a "not tested" warning because they start with balances, so scenario tests skip them.
 
 ### Command line
 
 ```bash
 python pipeline/demo.py --target C01 --mode replay
-# Then open results/demo_C01/report.md
+# Then inspect results/demo_C01/report.md
 ```
 
-After any run: `git checkout -- results` to discard ledger changes. Do not commit `results/`.
+After running, discard modified ledger entries with `git checkout -- results`.
 
 ### Demo talking points
-
-| Step | Target | Key point |
-|---|---|---|
-| 1 | C01 | "Nothing is wrong here, and the audit finds nothing." Show policy table and all-pass result. |
-| 2 | V09 | "The holding-limit module was removed. The cap is gone." Show H1 and H3 findings, suggested fix. |
-| 3 | V04 | "One KYC setting broken → three rules fail. The report groups K1 and K3 as the cause, H3 as a side effect." Show the side-effect flag. |
+- **C01 (Clean):** Show policy table and all-passed status. Point out INFO line for agent forcedTransfer known exception.
+- **V09 (Holding limit removed):** Show H1 and H3 failures. Point to reproduction steps and suggested fix. Note that generation cost was under 4 cents for the full 10-rule benchmark.
+- **V04 (One cause, many symptoms):** Show failures across K1, K3 and H3. Highlight the H3 note: *"All failing H3 tests are side effects of the KYC failure above. No separate holding-limit problem is shown."* Report groups findings by rule category rather than claiming proven root cause.
 
 ---
 
-## Repository Layout (Phase 5 state)
+## Repository Layout
 
 ```
 ComplyRWA/
@@ -380,7 +280,7 @@ ComplyRWA/
     Phase4.md           AI pipeline (steps 4.0–4.8)
     environment.md      Tool versions, fuzz settings, reproducibility
   pipeline/
-    demo.py             End-to-end demo (--mode replay for zero cost)
+    demo.py             End-to-end demo (--mode replay)
     DEMO.md             Demo run order
     llm_config.json     Model aliases and prices
     configs.json        Manifest of all 21 configurations
@@ -392,8 +292,8 @@ ComplyRWA/
     review_triage.md    Manual triage of false alarms (do not modify)
     llm_ledger.jsonl    API spend record (do not commit changes)
     llm_cache/          Cached LLM responses for replay (do not modify)
-    demo_*/report.md    Audit reports for the five demo targets
-  reports/              ← Member 3 deliverables (charvi-reports branch)
+    demo_*/report.md    Audit reports for demo targets
+  reports/              ← Phase 5 deliverables (charvi-reports branch)
     evaluation_report.md
     benchmark_data.md
     evaluator_questionnaire.md
@@ -406,4 +306,4 @@ ComplyRWA/
 
 ---
 
-*This document was assembled by Member 3 from `docs/Phase1.md`, `docs/Phase2.md`, `docs/Phase3.md`, `docs/Phase4.md`, and `docs/environment.md`. It does not replace those files — refer to them for the full record of decisions, problems, and intermediate results.*
+*This document was assembled by Member 3 from `docs/Phase1.md` through `docs/Phase4.md` and `docs/environment.md`.*
