@@ -3,3 +3,5 @@ T-REX/
 cache/
 out/
 __pycache__/
+
+web/.venv/
