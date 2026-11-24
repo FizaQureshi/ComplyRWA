@@ -130,7 +130,7 @@ def status_text(s):
     if s == "FAIL":
         return ":red[**FAIL**]"
     if s in ("NOT_RUN", "NOT RUN"):
-        return ":gray[NOT RUN]"
+        return ":gray[NOT\u00a0RUN]"
     return s or "-"
 
 
@@ -180,7 +180,9 @@ def show(result):
     st.caption(f"Target: {data.get('target', 'unknown')}  |  Model: {data.get('model', '?')}  |  Mode: {data.get('mode', '?')}")
     st.caption("This audit shows saved evidence. It does not run Foundry live.")
     if report:
-        st.download_button("Download report.md", report, file_name="report.md", mime="text/markdown")
+        st.download_button(
+            "Download report.md", report, file_name=f"report_{data.get('target', 'audit')}.md", mime="text/markdown"
+        )
 
     tab_status, tab_find, tab_report = st.tabs(["Rule status", "Findings", "Full report"])
 
@@ -194,7 +196,7 @@ def show(result):
         notes = {rid: rule_note(rid, v, findings) for rid, v in rules.items()}
         has_notes = any(notes.values())
         lines = [
-            "| Rule | Policy | Tests run | Tests failed | Status | Severity |" + (" Note |" if has_notes else ""),
+            "| Rule | Policy | Tests | Failed | Status | Severity |" + (" Note |" if has_notes else ""),
             "|---|---|---|---|---|---|" + ("---|" if has_notes else ""),
         ]
         for rid, v in rules.items():
@@ -261,10 +263,18 @@ st.caption(
 )
 
 with st.sidebar:
-    st.markdown("**Settings**")
-    engine_python = st.text_input("Python for the engine", sys.executable)
-    test_error = st.checkbox("Test the error screen (sends an unknown target)")
+    st.markdown("**ComplyRWA**")
+    st.caption("Checks whether a tokenized asset follows the rules its issuer wrote.")
+    st.markdown("**How it works**")
+    st.markdown(
+        "1. Pick a target configuration\n"
+        "2. Press Run audit\n"
+        "3. Read the rule status, the findings and the full report"
+    )
     st.caption("Replay mode: the audit shows saved evidence. No Foundry and no API key are needed.")
+    with st.expander("Advanced"):
+        engine_python = st.text_input("Python for the engine", sys.executable)
+        test_error = st.checkbox("Test the error screen (sends an unknown target)")
 
 config = st.selectbox("Target configuration", CONFIGS, format_func=config_label)
 
