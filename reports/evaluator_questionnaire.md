@@ -50,9 +50,9 @@ Please fill in one section per report. Use the 1–5 scale where stated.
 
 > *Score:* &nbsp;&nbsp; *Note:*
 
-**Q4. Is anything in this report confusing or unclear? Note exactly what.**
+**Q4. How clear is this report? Is anything confusing or unclear?** (1–5 rating + note what was unclear)
 
-> *Your answer:*
+> *Score:* &nbsp;&nbsp; *Note:*
 
 **Q5. How actionable is this report for you as the person responsible for this token?** (1–5)
 
@@ -74,9 +74,9 @@ Please fill in one section per report. Use the 1–5 scale where stated.
 
 > *Score:* &nbsp;&nbsp; *Note:*
 
-**Q4. Is anything in this report confusing or unclear? Note exactly what.**
+**Q4. How clear is this report? Is anything confusing or unclear?** (1–5 rating + note what was unclear)
 
-> *Your answer:*
+> *Score:* &nbsp;&nbsp; *Note:*
 
 **Q5. How actionable is this report for you as the person responsible for this token?** (1–5)
 
@@ -98,9 +98,9 @@ Please fill in one section per report. Use the 1–5 scale where stated.
 
 > *Score:* &nbsp;&nbsp; *Note:*
 
-**Q4. Is anything in this report confusing or unclear? Note exactly what.**
+**Q4. How clear is this report? Is anything confusing or unclear?** (1–5 rating + note what was unclear)
 
-> *Your answer:*
+> *Score:* &nbsp;&nbsp; *Note:*
 
 **Q5. How actionable is this report for you as the person responsible for this token?** (1–5)
 
@@ -122,9 +122,9 @@ Please fill in one section per report. Use the 1–5 scale where stated.
 
 > *Score:* &nbsp;&nbsp; *Note:*
 
-**Q4. Is anything in this report confusing or unclear? Note exactly what.**
+**Q4. How clear is this report? Is anything confusing or unclear?** (1–5 rating + note what was unclear)
 
-> *Your answer:*
+> *Score:* &nbsp;&nbsp; *Note:*
 
 **Q5. How actionable is this report for you as the person responsible for this token?** (1–5)
 
@@ -146,9 +146,9 @@ Please fill in one section per report. Use the 1–5 scale where stated.
 
 > *Score:* &nbsp;&nbsp; *Note:*
 
-**Q4. Is anything in this report confusing or unclear? Note exactly what.**
+**Q4. How clear is this report? Is anything confusing or unclear?** (1–5 rating + note what was unclear)
 
-> *Your answer:*
+> *Score:* &nbsp;&nbsp; *Note:*
 
 **Q5. How actionable is this report for you as the person responsible for this token?** (1–5)
 
