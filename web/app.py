@@ -25,7 +25,30 @@ FIXED_RULES = {
     "H1": "No investor may hold more than the maximum allowed tokens.",
     "H3": "The holding-limit module's balance records must match the real token balances.",
 }
-CONFIGS = [f"C{i:02d}" for i in range(1, 9)] + [f"V{i:02d}" for i in range(1, 14)]
+CONFIG_INFO = {
+    "C01": ("Clean: Standard setup", "Correct baseline. KYC topic 1, country 408 blocked, 1000-token cap."),
+    "C02": ("Clean: Multiple KYC topics and issuers", "Two required KYC topics and two trusted issuers. All investors hold valid claims."),
+    "C03": ("Clean: Same-investor transfer rejected", "Alice holds 600 and her 500-token move between her own wallets is blocked. This is expected."),
+    "C04": ("Clean: Admin forced transfer", "An agent forced 100 tokens to a restricted-country wallet. This is an allowed admin exception."),
+    "C05": ("Clean: Different limits (cap 500)", "Cap 500 with countries 408 and 643 blocked. Valid, just different numbers."),
+    "C06": ("Clean: KYC revoked then re-issued", "Bob's claim was revoked and properly re-issued, so he can receive again."),
+    "C07": ("Clean: Balance exactly at the cap", "Bob holds exactly 1000, which is allowed."),
+    "C08": ("Clean: Limit added to existing holders", "Holding-limit module added to a token that already has holders, with a correct starting record."),
+    "V01": ("Bug: Only one KYC topic needed", "The identity check passes if any one required claim is held, instead of all."),
+    "V02": ("Bug: Fake KYC claims accepted", "The claim issuer says every claim is valid, even a forged one."),
+    "V03": ("Bug: Revoked KYC still accepted", "The claim issuer ignores revocations."),
+    "V04": ("Bug: No KYC topics required", "The required-claims list is empty, so any registered wallet passes."),
+    "V05": ("Bug: Wrong country blocked", "Country 410 is restricted instead of 408."),
+    "V06": ("Bug: Country change not saved", "updateCountry does nothing, so a wallet moved to a restricted country still receives."),
+    "V07": ("Bug: Country rule removed", "The country restriction module was removed after setup."),
+    "V08": ("Bug: Country list empty", "The country module is bound but no country is restricted."),
+    "V09": ("Bug: Holding-limit rule removed", "The holding-limit module was removed, so the cap is not enforced."),
+    "V10": ("Bug: Cap counted per wallet", "The cap is applied per wallet instead of per investor, so two wallets can double it."),
+    "V11": ("Bug: Wrong starting balance record", "The limit module records 0 for a holder who really has 800."),
+    "V12": ("Bug: Forced transfer skips balance record", "A forced transfer moves tokens without updating the limit module's counter."),
+    "V13": ("Bug: Holding limit switched off", "The cap is set to the maximum number, so it never blocks anything."),
+}
+CONFIGS = list(CONFIG_INFO)
 NOT_TESTED = {"C03", "C04", "C07", "V11"}
 
 st.set_page_config(
@@ -54,8 +77,8 @@ st.markdown(
 
 
 def config_label(c):
-    kind = "clean setup" if c.startswith("C") else "seeded variant"
-    return f"{c} ({kind}{', not tested' if c in NOT_TESTED else ''})"
+    name = f"Configuration {c}" if hide_names else CONFIG_INFO[c][0]
+    return f"{c} – {name}" + (" (not tested)" if c in NOT_TESTED else "")
 
 
 def error_result(stage, message):
@@ -275,8 +298,11 @@ with st.sidebar:
     with st.expander("Advanced"):
         engine_python = st.text_input("Python for the engine", sys.executable)
         test_error = st.checkbox("Test the error screen (sends an unknown target)")
+        hide_names = st.checkbox("Hide what each configuration changes (blind audit)")
 
 config = st.selectbox("Target configuration", CONFIGS, format_func=config_label)
+if not hide_names:
+    st.caption(CONFIG_INFO[config][1])
 
 st.subheader("Policy rules")
 st.caption("This version audits these 5 rules. They are fixed because the saved tests were made for exactly these texts.")
