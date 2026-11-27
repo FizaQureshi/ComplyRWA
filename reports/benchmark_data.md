@@ -1,6 +1,5 @@
 # ComplyRWA — Benchmark Data Record
 
-**Author:** Member 3 (Charvi) · **Branch:** `charvi-reports` · **Date:** 2026-11-24  
 **Purpose:** Single reference for all detection, false-alarm, validity, cost, time, model and tool version numbers used in the Phase 5 evaluation report. All numbers come from saved results files; no pipeline runs were made.
 
 ---
@@ -146,7 +145,7 @@ python pipeline/demo.py --target V04 --mode replay
 | Forge suites | 38 (21 invariant + 17 scenario) |
 | Total test cases | 208 (63 clean gold + 145 variant) |
 
-Full pass/fail table: `results/variant_table.md`. Summarised in `reports/evaluation_report.md` §2.
+Full pass/fail table: `results/variant_table.md`. Reproduced in `reports/evaluation_report.md` §2.
 
 ---
 
@@ -309,7 +308,7 @@ Costs and times copied directly from `results/review_compare.md`.
 
 ### 7.1 By Model — all records (incl. mock and replay, $0)
 
-| Model | Calls (all records) | Input tokens | Output tokens | Cost (USD) |
+| Model | Live calls | Input tokens | Output tokens | Cost (USD) |
 |---|---|---|---|---|
 | `claude-haiku-5-5` | 212 | 2,509,940 | 665,796 | \$0.3082 |
 | `claude-sonnet-5-5` | 111 | 1,633,960 | 151,681 | \$3.3958 |
@@ -359,6 +358,4 @@ Costs and times copied directly from `results/review_compare.md`.
 5. **Model pinning.** Anthropic does not expose a version-pinned endpoint. Reproducibility beyond cached results is not guaranteed if model weights change.
 6. **`environment.md`** is the authoritative version record. Update it first if any tool version changes, then update Section 1 of this file.
 
----
 
-*All source data is in `results/`. Do not modify `results/`, `results/llm_cache`, `pipeline/`, or `test/` without coordinating with the project lead.*
