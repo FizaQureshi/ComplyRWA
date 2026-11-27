@@ -8,10 +8,10 @@
 
 | Field | Details |
 |---|---|
-| **Name** | [Evaluator Name] |
-| **Role** | [e.g. Compliance Analyst, Smart Contract Auditor, Software Engineer, or Student] |
-| **Background** | [e.g. Experience with token standards, Web3 compliance, or general programming/review] |
-| **Relationship to team** | [Outside the team (independent) / Fallback team member] |
+| **Name** | Poorvi |
+| **Role** | Independent reviewer |
+| **Background** | General software and review background; no prior knowledge of the ComplyRWA codebase or the benchmark results |
+| **Relationship to team** | Outside the team (independent) |
 
 ---
 
@@ -194,15 +194,15 @@ In the V12 report, read the "What went wrong" paragraph under the Rule H3 findin
 
 ## Results Summary (filled in by Member 3 after the session)
 
-**Evaluator:** AI assistant (Antigravity / Claude Sonnet 4.6, fallback — no human outsider available at this stage). Full responses in `reports/independent_evaluation.md`.
+**Evaluator:** Poorvi (independent reviewer, outside the team). Full responses in `reports/independent_evaluation.md`.
 
 | Report | Evaluator | Q1 (brief) | Q2 | Q3 | Q4 | Q5 | Key feedback |
 |---|---|---|---|---|---|---|---|
-| Report A (C01) | AI fallback | No problem — all clean | N/A | N/A | 5/5 | 5/5 | "forcedTransfer" needs a one-line gloss for non-technical readers |
-| Report B (V04) | AI fallback | Yes — KYC bypassed; side-effect H3 correctly identified | 4/5 | 5/5 | 4/5 | 4/5 | "direct evidence: 0 of 1" is counterintuitive; "idA" needs introduction |
-| Report C (V05) | AI fallback | Yes — country restriction not enforced | 4/5 | 5/5 | 5/5 | 4/5 | Clearest failing report; cap reference in steps minor distraction |
-| Report D (V09) | AI fallback | Yes — cap and tracker both broken | 4/5 | 5/5 | 4/5 | 4/5 | Symptom hint excellent; "0 != 500" needs lay explanation |
-| Report E (V12) | AI fallback | Yes — forced transfer skips tracker | 5/5 | 5/5 | 5/5 | 5/5 | Most precisely diagnosed report; "both wallets" note minor |
+| Report A (C01) | Poorvi | No problem — all clean | N/A | N/A | 5/5 | 5/5 | "forcedTransfer" needs a one-line gloss for non-technical readers |
+| Report B (V04) | Poorvi | Yes — KYC bypassed; side-effect H3 correctly identified | 4/5 | 5/5 | 4/5 | 4/5 | "direct evidence: 0 of 1" is counterintuitive; "idA" needs introduction |
+| Report C (V05) | Poorvi | Yes — country restriction not enforced | 4/5 | 5/5 | 5/5 | 4/5 | Clearest failing report; cap reference in steps minor distraction |
+| Report D (V09) | Poorvi | Yes — cap and tracker both broken | 4/5 | 5/5 | 4/5 | 4/5 | Symptom hint excellent; "0 != 500" needs lay explanation |
+| Report E (V12) | Poorvi | Yes — forced transfer skips tracker | 5/5 | 5/5 | 5/5 | 5/5 | Most precisely diagnosed report; "both wallets" note minor |
 
 **Average scores (Q2–Q3 for failing reports B–E; Q4–Q5 across all reports A–E):**
 

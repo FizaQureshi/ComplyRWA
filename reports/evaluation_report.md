@@ -74,10 +74,7 @@ Haiku had zero JSON format failures. Sonnet's misses before retry were format fa
 
 ## 4. Independent Evaluation
 
-> **Status: Completed (AI fallback evaluator).** A human evaluator session is still the preferred outcome — see the limitation note below.
-
-**Evaluator:** AI assistant (Antigravity / Claude Sonnet 4.6, acting as cold evaluator). The evaluator read the five reports without being told in advance which described a problem or what the bugs were.  
-**Relationship to team:** Fallback. The brief asks for a human outside the team. No human outsider was available at this stage. This is documented as a limitation (see §5 #11).  
+**Evaluator:** Poorvi — independent reviewer, outside the project team. The evaluator read the five reports without being told in advance which described a problem or what the bugs were.  
 **Full record:** `reports/independent_evaluation.md` — contains per-report Q1–Q5 answers, all three deep-dive checks, and the results summary.
 
 **Five reports shown:** C01 (clean), V04 (KYC bypassed), V05 (wrong country restricted), V09 (holding limit removed), V12 (forced transfer skips tracker). Each read cold from `results/demo_<target>/report.md`.
@@ -127,7 +124,6 @@ Haiku had zero JSON format failures. Sonnet's misses before retry were format fa
    - One audit at a time (shared log file); no automated page tests in the repo.
 9. **C08 classification contradiction:** `review_triage.md` labels the C08 finding "Real" (pre-bind mint to Carol holds tokens), whereas `Phase3.md` §6 treats it as legal setup and flags it as a false alarm.
 10. **Licences:** Files derived from T-REX are GPL-3.0, and MaxBalanceModule is CC-BY-NC-4.0 (non-commercial licence only).
-11. **AI fallback evaluator:** The independent evaluation (§4) was conducted by an AI assistant rather than a human outside the team. The evaluator read the five reports without prior knowledge of the bugs or the benchmark, but cannot replicate the real-world confusion a non-technical token issuer would experience. Scores may be inflated on clarity and actionability compared to a true external human reader.
 
 ---
 

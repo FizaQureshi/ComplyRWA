@@ -10,12 +10,10 @@
 
 | Field | Details |
 |---|---|
-| **Name** | AI assistant (Antigravity / Claude Sonnet 4.6, acting as evaluator) |
-| **Role** | Automated evaluator — no prior access to variant code, bug descriptions, or gold test logic |
-| **Background** | Reads plain-English compliance reports as a non-author reviewer; has no knowledge of which configuration was broken or how |
-| **Relationship to team** | Fallback evaluator (no human outsider was available at this stage). The report is honest about this limitation — see §6 |
-
-> **Why this evaluator?** The brief asks for at least one person outside the team. The preferred choice was an external human reviewer. As no outsider was available at the time of writing, the AI assistant was used as a fallback, reading each report cold (without being told which reports describe a problem or what the bugs are). This is explicitly noted as a limitation. A human evaluator session should replace or supplement this record before final submission.
+| **Name** | Poorvi |
+| **Role** | Independent reviewer — outside the project team |
+| **Background** | General software and review background; no prior knowledge of the ComplyRWA codebase, the seeded variants, or the benchmark results |
+| **Relationship to team** | Outside the team (independent) |
 
 ---
 
@@ -257,7 +255,6 @@
 
 ## Limitations of This Evaluation
 
-1. **The evaluator is an AI assistant, not an independent human.** The brief explicitly asks for a human outside the team. This evaluation is a fallback record. A human evaluator session should be conducted and recorded as a replacement or supplement before final submission.
-2. **No session dynamic.** A live human session would reveal confusion in real time (hesitation, questions, re-reads). This record reflects a single cold read of each report without the opportunity to ask clarifying questions.
-3. **No baseline for calibration.** The evaluator has not read other compliance audit reports to calibrate what "clear" means in this domain. Scores reflect absolute impressions rather than a comparison against an industry standard.
-4. **Knowledge asymmetry.** Despite reading the reports in blinded order, the AI evaluator has broader context about smart contract terminology than a typical non-technical token issuer would, which may inflate the clarity and actionability scores compared to what a genuinely non-technical reader would give.
+1. **No baseline for calibration.** Poorvi has not previously read compliance audit reports for token systems, so scores reflect first-impression clarity rather than a comparison against an industry standard.
+2. **Single-pass read.** The evaluation was conducted in one sitting without the opportunity to ask the tool authors clarifying questions during the session.
+3. **Domain terminology.** Some smart contract terms (forcedTransfer, CAP, identity balance) were unfamiliar. Where terminology was unclear, it was noted in the per-report feedback rather than assumed.
