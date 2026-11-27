@@ -1,6 +1,5 @@
 # ComplyRWA Phase 5 — Evaluation Report (DRAFT)
 
-**Author:** Member 3 (Charvi) · **Branch:** `charvi-reports` · **Date:** 2026-11-24  
 **Pinned system:** T-REX 4.1.6 (`a09cfd3`), Solidity 0.8.17, Foundry 1.8.7, Halmos 0.3.3
 
 ---

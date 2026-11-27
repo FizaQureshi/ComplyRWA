@@ -1,25 +1,21 @@
 # ComplyRWA — Independent Evaluation Record
 
-**Evaluation date:** 2026-11-27  
-**Branch:** `charvi-reports`  
-**Recorded by:** Member 3 (Charvi)
-
----
 
 ## Evaluator Profile
 
 | Field | Details |
 |---|---|
-| **Name** | Poorvi (named with permission) |
+| **Name** | Poorvi |
 | **Role** | Independent reviewer — outside the project team |
 | **Background** | General software and review background; no prior knowledge of the ComplyRWA codebase, the seeded variants, or the benchmark results |
 | **Relationship to team** | Outside the team (independent) |
+
 
 ---
 
 ## Reports Evaluated
 
-| Blinded Label | Source file | Target (revealed after review) |
+| Blinded Label | Source file | Assignment |
 |---|---|---|
 | Report A | `results/demo_C01/report.md` | C01 — baseline, all rules clean |
 | Report B | `results/demo_V04/report.md` | V04 — KYC topics list emptied |
@@ -27,13 +23,13 @@
 | Report D | `results/demo_V09/report.md` | V09 — MaxBalanceModule removed |
 | Report E | `results/demo_V12/report.md` | V12 — forcedTransfer skips tracker |
 
-> *Poorvi read the five reports in blinded order (Report A through Report E) without being told in advance which ones had bugs.*
+> *The blinded label-to-target mapping was kept private until after all five reports were read. The evaluator was not told in advance which reports describe a problem.*
 
 ---
 
 ## Questionnaire Responses
 
-**Scale:** 1 = not at all / completely unclear / not actionable · 5 = completely clear / very actionable
+**Scale used:** 1 = not at all / completely unclear / not actionable · 5 = completely clear / very actionable
 
 ---
 
@@ -41,27 +37,27 @@
 
 **Q1. In your own words, what does this report say? Is there a problem, and if so what?**
 
-> Everything looks fine. All 20 tests passed across the 5 rules, and there are no findings. There is one INFO note at the bottom saying the country rule can be bypassed via `forcedTransfer`, but it says that's a known exception and not a bug.
+> This report says the token configuration is compliant. Twenty automated tests were run across five rules (KYC, required topics, country restriction, holding cap, balance tracking) and every one passed. There is no finding. One known exception is noted, the agent role can bypass the country rule using a forced transfer, but that is explicitly classified as a known exception and not flagged as a vulnerability. Overall message, everything is as expected.
 
 **Q2. If there is a problem, do you understand what should be fixed and roughly who should fix it?**
 
 > *Score:* N/A — no problem found  
-> *Note:* Nothing to fix here.
+> *Note:* Clean report. The known exception is explained clearly enough that a non-technical reader would understand it means "this is by design, not a bug."
 
 **Q3. Is the evidence given (test results, reproduction steps) convincing?**
 
 > *Score:* N/A — no failing tests  
-> *Note:* The table shows 4/4 passed for each rule, which is enough for a clean report.
+> *Note:* The test table (20 tests run, 0 failed) is concise. No reproduction steps needed.
 
 **Q4. How clear is this report? Is anything confusing or unclear?**
 
 > *Score:* 5  
-> *Note:* Very easy to read. The only minor thing is `forcedTransfer (agent-only path)` in Section 4 — if I weren't technical, I wouldn't immediately know what `forcedTransfer` means, so a short plain-English note (like "admin override") would help.
+> *Note:* The clean report is easy to read. The only mild confusion for a non-technical reader is the phrase "forcedTransfer (agent-only path)" in Section 4 — it uses a technical term without explanation. A one-sentence gloss such as "this means only an authorised administrator can override the rule" would help.
 
 **Q5. How actionable is this report for you as the person responsible for this token?**
 
 > *Score:* 5  
-> *Note:* Clear green light — no findings, and the one exception is explained as expected behaviour.
+> *Note:* "No findings" is unambiguous. The INFO line gives enough context to understand the known exception and decide whether it is acceptable.
 
 ---
 
@@ -69,27 +65,27 @@
 
 **Q1. In your own words, what does this report say? Is there a problem, and if so what?**
 
-> Yes, there's a KYC problem. Someone without a KYC claim (Mallory) was able to receive tokens through both minting and transfers, and someone whose KYC claim was revoked (Bob) could still receive tokens too. Three rules failed (K1, K3, and H3), though under H3 it says that failure is just a side effect of the KYC issue rather than a separate holding-limit bug. The report says it can't tell the exact cause from the output alone and suggests comparing this setup with the clean baseline (C01).
+> Yes, there is a problem — in fact multiple related problems, all apparently caused by the same underlying issue. The token let an unverified investor (Mallory) receive tokens by both minting and transfer. It also let tokens be transferred to an investor whose KYC claim had been revoked. Both of these should have been blocked. Additionally, the balance tracker for the holding-limit module drifted — but the report explicitly states this is a side effect of the KYC failure, not a separate bug. Three rules are flagged: K1 (KYC verification), K3 (required topics list), and H3 (tracker accuracy). The report says the root cause is unknown from the output alone, and suggests comparing this configuration against the clean baseline to find which KYC setting is wrong.
 
 **Q2. If there is a problem, do you understand what should be fixed and roughly who should fix it?**
 
 > *Score:* 4  
-> *Note:* It tells a developer where to look (`token.mint`, `token.transfer`, and adding the KYC claim topic with `ctr.addClaimTopic`), which is helpful. Not a 5 because it doesn't pinpoint which exact setting is wrong — someone still has to compare it against C01 to find it.
+> *Note:* The report names the affected functions (token.mint, token.transfer, ctr.getClaimTopics) and gives a specific, actionable suggestion: add the KYC claim topic with `ctr.addClaimTopic(KYC_TOPIC)` and compare the trusted-issuer and identity-check settings between V04 and C01. That is enough for a developer to start investigating. The score is 4 rather than 5 because the report correctly notes the root cause is unknown — a reader would know *what area* to look at but not the exact line to change. For a non-technical issuer the phrase "compare V04 with C01 for the KYC claim topic" may need translation.
 
 **Q3. Is the evidence given (test results, reproduction steps) convincing?**
 
 > *Score:* 5  
-> *Note:* Yes. It lists the exact steps (mint 1 token to Mallory, expected it to fail, it went through instead) and shows all three failing tests. Calling out H3 as a side effect is also really helpful so you don't waste time looking for a second bug.
+> *Note:* Three of three failing K1 tests are listed. The reproduction steps for `test_mintToUnverifiedWalletReverts` are step-by-step and unambiguous: mint 1 token to Mallory, expect a specific revert message, observe the call succeeds. The Solidity test code is included. For H3, the report correctly identifies the failure as a side effect and says "direct evidence: 0 of 1" — this honesty is a strength. A reader can immediately distinguish which failures are primary and which are downstream.
 
 **Q4. How clear is this report? Is anything confusing or unclear?**
 
 > *Score:* 4  
-> *Note:* Mostly clear, and grouping by rule helps. Two small things confused me: it uses `idA` without saying what that stands for, and `Direct evidence: 0 of 1 failing tests` under H3 sounds weird at first until you read the next line saying it's a side effect.
+> *Note:* The grouping by rule (K1, K3, H3 under separate headings) is logical. The side-effect note for H3 is well placed and clearly worded. Two things could be improved for a non-technical reader: (a) the phrase "idA" (Alice's identity) is used without being introduced, and (b) the note "direct evidence: 0 of 1 failing tests" is counterintuitive — it means the test failed for a secondary reason, not that the evidence is weak. A brief parenthetical explanation would help.
 
 **Q5. How actionable is this report for you as the person responsible for this token?**
 
 > *Score:* 4  
-> *Note:* I know KYC is broken and which functions to hand off to a developer to check, though they'll still have to dig into the config to find the exact setting.
+> *Note:* The report tells the responsible person that KYC is broken, which functions are affected, and where to look. The specific suggestion ("add the KYC claim topic") is directly actionable. The score is 4 rather than 5 because the precise configuration setting that is wrong is not identified — the report says the cause is not known from the output, which is honest but means the issuer must do some investigation rather than apply a one-line fix.
 
 ---
 
@@ -97,27 +93,27 @@
 
 **Q1. In your own words, what does this report say? Is there a problem, and if so what?**
 
-> Yes, the country restriction isn't blocking restricted investors. Minting, `transfer`, and `transferFrom` all went through for Bob even after he was put in a restricted country. KYC passed, so it's just the jurisdiction rule that's broken. The report suggests checking that the country module is attached and that the restricted country setting is right.
+> Yes. The country restriction rule is not working. Three different methods of sending tokens to a restricted-country investor all succeeded when they should have been blocked: minting directly, a regular transfer, and a transferFrom. The KYC checks are fine — the problem is specifically with the jurisdiction restriction. The report states the cause is not known from the output, and suggests checking that the country restriction module is bound to the compliance contract and that the restricted-country value is set correctly.
 
 **Q2. If there is a problem, do you understand what should be fixed and roughly who should fix it?**
 
 > *Score:* 4  
-> *Note:* Clear enough for a developer — check the country restriction module binding and the restricted-country setting. Not a 5 because it doesn't say which country code is currently set vs. what it should be.
+> *Note:* The fix area is clear — check that the country restriction module is bound and that the right country code is configured. The report names the three affected functions. The score is not 5 because it doesn't tell the reader *which* country code should be restricted or what value is currently set, so the developer still needs to look up the configuration.
 
 **Q3. Is the evidence given (test results, reproduction steps) convincing?**
 
 > *Score:* 5  
-> *Note:* Very convincing. It shows the steps clearly (set Bob's country to restricted, try to mint, expected `"Compliance not followed"`, didn't fail) and covers all three ways tokens can be sent.
+> *Note:* Three of three failing tests are listed. The reproduction steps for `test_mintToRestrictedCountryIsBlocked` are precise and clear: set the investor's country, then mint, expect a specific revert message ("Compliance not followed"), observe the call succeeds instead. The Solidity test code matches the steps exactly. The failing assertion messages are also shown, which confirm the tokens actually moved.
 
 **Q4. How clear is this report? Is anything confusing or unclear?**
 
 > *Score:* 5  
-> *Note:* Easiest to follow of the failing reports. Only tiny thing is step 3 mentioning "V05's cap is not given" when this test is about countries, not caps — made me wonder for a second if the cap mattered.
+> *Note:* This is the clearest of the failing reports. One rule fails, three tests demonstrate it in three different transaction types (mint, transfer, transferFrom), and the reproduction steps are written in plain English. The only minor issue is the phrase "V05's cap is not given" in step 3 of the reproduction — a reader might wonder if the cap matters. A note clarifying "the cap is irrelevant to this test; we just need any positive amount" would be a small improvement.
 
 **Q5. How actionable is this report for you as the person responsible for this token?**
 
 > *Score:* 4  
-> *Note:* Tells me what's broken and which module to check; just needs someone to look up the intended country code from our policy.
+> *Note:* The responsible person is told exactly what failed and which module to inspect. The slight limitation is that the report says "check that the restricted-country variable is set as intended" without saying what the intended value should be — that is in the policy, not the report, so the issuer needs to look it up themselves.
 
 ---
 
@@ -125,27 +121,27 @@
 
 **Q1. In your own words, what does this report say? Is there a problem, and if so what?**
 
-> Yes, the holding limit isn't working at all. Bob was able to get minted more tokens than the cap allows, and the module's tracked balance stays at 0 even after tokens are minted (0 instead of 100). Because it stays at 0, the cap check never triggers. At the bottom there's a helpful hint saying the module probably isn't being notified and to check if `MaxBalanceModule` is even listed in `compliance.getModules()`.
+> Yes, there is a serious problem. The holding cap is not being enforced at all, and the internal balance tracker is completely broken. Minting tokens to Bob above the cap succeeded when it should have been refused. The tracker shows 0 for every investor even after real tokens have been minted — which means the cap check always sees a zero balance and never blocks anything. All eight H1 and H3 tests failed. The report provides a symptom hint that is particularly useful: "the module's tracked balance stayed at 0 after real mints, so the module is not being notified — check that compliance.getModules() lists MaxBalanceModule." This strongly implies the MaxBalanceModule is not bound to the token at all.
 
 **Q2. If there is a problem, do you understand what should be fixed and roughly who should fix it?**
 
 > *Score:* 4  
-> *Note:* The hint to check `compliance.getModules()` for `MaxBalanceModule` makes it pretty clear what a developer should check first. Scored 4 instead of 5 because it notes the cap value itself isn't in the inputs, so that still has to be verified separately.
+> *Note:* The suggested fix is specific: check that MaxBalanceModule is bound to compliance, check that the cap check runs on both mint and transfer, and confirm the cap value. The symptom hint effectively tells a developer *how to diagnose* the problem. The score is not 5 because the cap value for V09 is said to be "not given in the inputs," which a developer would need to find separately.
 
 **Q3. Is the evidence given (test results, reproduction steps) convincing?**
 
 > *Score:* 5  
-> *Note:* Yes — all 4 tests failed on H1 and all 4 failed on H3, and the `0 != 100` numbers make it obvious the counter isn't updating at all.
+> *Note:* The report is thorough. For H1, the reproduction steps are numbered and clear. For H3, the specific assertion failure messages are given ("idA tracked != real: 0 != 100" for all four tests), which makes the nature of the bug immediately obvious without code expertise. The "direct evidence: 2 of 4" for H1 and "4 of 4" for H3 is an honest summary. The Solidity test code is provided.
 
 **Q4. How clear is this report? Is anything confusing or unclear?**
 
 > *Score:* 4  
-> *Note:* Good overall, and the symptom hint under H3 is great. The `0 != 500` error on two of the H1 tests is a bit cryptic at first, though the "(side effect: the module's counter did not move)" note helps explain it.
+> *Note:* The report is well-structured and distinguishes H1 (cap not enforced) from H3 (tracker broken). The "0 != 500" failure message for two H1 tests could confuse a non-technical reader — it's explained as "the module's counter did not move," which is good, but requires understanding what a "counter" is. The symptom hint in the H3 section ("Check that compliance.getModules() lists MaxBalanceModule") is the most actionable single sentence in any of the five reports; a non-technical reader would still understand it means "make sure the module is turned on."
 
 **Q5. How actionable is this report for you as the person responsible for this token?**
 
 > *Score:* 4  
-> *Note:* Very clear what to tell the dev team: the holding-limit module isn't tracking balances or enforcing the cap, check if it's even connected.
+> *Note:* The report clearly conveys: the cap is not working, tokens can be held without limit, and the most likely cause is that the enforcement module is not connected. That is enough for a responsible party to escalate to their developer with a specific diagnosis. The score is 4 rather than 5 because "confirm the cap value" is left open — the issuer would need to refer to the original configuration document to know what the cap should be.
 
 ---
 
@@ -153,27 +149,27 @@
 
 **Q1. In your own words, what does this report say? Is there a problem, and if so what?**
 
-> Yes, there's a specific bug with `forcedTransfer`. Normal minting, transfers, and burns all pass, so the holding limit mostly works. But after a `forcedTransfer` moves tokens out of Alice's wallet, her tracked balance stays at 75 while her real balance is 50. So the tracker forgot to subtract the tokens from the sender on a forced transfer.
+> Yes, there is a subtle but real problem. Everything works correctly for ordinary mints, burns, and transfers — those all pass. The issue surfaces only when a forced transfer is used: after a forced transfer, the internal tracker for Alice's holdings shows 75 tokens, but her actual balance is 50. The tracker did not update correctly when the forced transfer moved tokens out of her wallet. As a result, the system thinks she holds more than she actually does — which could allow her to receive more tokens than the cap allows in a future transaction. Only one test failed out of the 20 run.
 
 **Q2. If there is a problem, do you understand what should be fixed and roughly who should fix it?**
 
 > *Score:* 5  
-> *Note:* Super clear. It points straight to `token.forcedTransfer` and says to check how it updates `MaxBalanceModule`'s tracked balance for the sender.
+> *Note:* This is the most precisely diagnosed report. The affected function is identified exactly: `token.forcedTransfer`. The suggested fix is specific and actionable: "check how forcedTransfer updates the MaxBalanceModule's tracked balance for the sender's identity, and make it match the real balance change." A developer reading this knows exactly which function to inspect.
 
 **Q3. Is the evidence given (test results, reproduction steps) convincing?**
 
 > *Score:* 5  
-> *Note:* Yes, the 4 steps make it obvious: mint 100, burn 25 (passes), forced-transfer 25 (fails with 75 vs 50). Seeing the burn pass right before it narrows it down nicely.
+> *Note:* The reproduction steps are a perfect four-step sequence: mint, burn (which passes), forced transfer (which fails), then the exact assertion failure is shown — "idA tracked != real: 75 != 50." The numbers are concrete and verifiable. The Solidity test code matches the steps exactly. The fact that the burn passed and only the forced transfer failed is a meaningful narrowing of the bug scope, and the report captures this.
 
 **Q4. How clear is this report? Is anything confusing or unclear?**
 
 > *Score:* 5  
-> *Note:* Very clear and to the point. Only minor thing is it mentions "her real balance across both wallets is 50" even though the steps only mention `a1`, so I had to assume the second wallet was empty.
+> *Note:* The clearest of the problem reports. One rule fails, one test fails, the failure value is precise (75 vs 50), the affected function is named, and the remaining tests passing is noted ("The check after the burn passed, so the burn appears correct"). The only minor ambiguity is "the output reports only idA, so the other identities were not shown to fail" — a thorough reader might ask whether other identities could also be affected. This is an honest limitation, not a flaw in clarity.
 
 **Q5. How actionable is this report for you as the person responsible for this token?**
 
 > *Score:* 5  
-> *Note:* Can hand this straight to a developer — exact function, exact numbers, and exact test to re-run.
+> *Note:* The report delivers a clear narrative: forced transfers do not update the balance tracker. Fix: make forcedTransfer update the tracker to match the real balance change. The function to fix is named. The test to rerun is named. A responsible party can send this report directly to a developer with no additional explanation needed.
 
 ---
 
@@ -181,15 +177,36 @@
 
 ### A. Triage labels (`results/review_triage.md`)
 
-> I looked through the table and label notes. Calling the signature-trick findings "stock gaps" makes sense since the note explains they're real issues in the underlying dependency rather than bugs added by the test configs. Same for the missing-input false alarms — if the model wasn't shown the binding code, it's fair to note that as missing input. The C08 one is a bit grey since the team itself notes a disagreement on whether pre-setup tokens should count, so keeping that flagged for discussion makes sense. I wouldn't change the labels.
+> I read the per-run table and the label descriptions.
+>
+> **Stock gap labels (S03/S04):** The label is correct. S03 and S04 are known, documented vulnerabilities in the ONCHAINID dependency (revoked claims revivable via signature manipulation). They are reproduced by existing tests in `StockGaps.t.sol` and `StockGapsVByte.t.sol`. Flagging these on clean configurations is not a false alarm in the strict sense — the finding is real — but it is also not caused by any seeded variant. The label "stock gap" rather than "false alarm" is a fair and transparent choice.
+>
+> **C08 label ("Real"):** The document acknowledges this is contested. `review_triage.md` calls it a real finding (pre-binding mint to Carol in a restricted country), while `Phase3.md` §6 treats the pre-binding setup as a legal step and calls flagging it a false alarm. Both readings are defensible. I would note this as an *open classification question* rather than label it definitively either way. The report already does this, which is appropriate.
+>
+> **False alarm (missing input):** Labelling the J3 "token not bound" finding as a false alarm caused by missing input is correct. The token binding happens in `Token.init` → `setCompliance`, which was not shown to the reviewer in r1/r1b. The model's error is a consequence of incomplete context, not a hallucination. The fix (expanded code view in r2) eliminated the false alarm, which confirms the diagnosis.
+>
+> **Overall:** I agree with all three label categories. The table is honest about its limits (team-authored, only three runs per model, Sonnet has no variance range). No labels would I change.
 
 ### B. Generated test alignment (V04 — `test_mintToUnverifiedWalletReverts`)
 
-> The rule says investors need a valid KYC claim *from a trusted issuer*. Looking at the test, it checks that minting to Mallory (who has no claim at all) fails. That makes sense for the basic case, but it doesn't seem to test what happens if someone has a claim from an *untrusted* issuer — so that part of the rule isn't really checked by this test.
+> Rule K1 says: *"Only investors with a valid KYC claim from a trusted issuer may receive tokens."*
+>
+> The test `test_mintToUnverifiedWalletReverts` does check the core of K1: it attempts to mint to Mallory (who has no KYC claim) and asserts the transaction reverts with "Identity is not verified." If the revert happens, we know the KYC gate blocked the mint. This is correct and well-targeted.
+>
+> **What the test does not check:** K1 specifies the claim must come from a *trusted issuer*. The test checks that an investor with *no claim at all* is blocked, but does not check whether an investor with a claim from an *untrusted issuer* is also blocked. These are different conditions. A configuration could pass this test while still letting investors with claims from non-whitelisted issuers receive tokens. This is a known gap in coverage (not in this test alone, but in the generated suite as a whole for this scenario). It is worth noting that the test is still a valid and meaningful check for the most common failure mode.
 
 ### C. Explanation accuracy (V12 — H3 "What went wrong" paragraph)
 
-> Yes, the numbers match the steps: start with 100, burn 25 (down to 75, check passes), then forced-transfer 25 (real balance drops to 50, tracker stays at 75). Everything in the paragraph matches the steps, except saying "across both wallets" when only `a1` is mentioned in the steps (assuming her other wallet is just 0).
+> The paragraph says: *"After the forced transfer, Alice's tracked balance is 75 but her real balance across both wallets is 50. The tracker did not drop when the tokens left her wallet. The check after the burn passed, so the burn appears correct."*
+>
+> The reproduction steps confirm all of this:
+> - 100 tokens minted to a1; tracker checked → passes (implicit: tracker is 100 at this point).
+> - 25 tokens burned; tracker checked → passes (tracker drops to 75, real is 75 — consistent).
+> - 25 tokens forced-transferred from a1 to b; tracker checked → **fails**: tracker still 75, real is 50.
+>
+> The numbers add up: 100 − 25 (burn) − 25 (forced transfer) = 50 real, but tracker stayed at 75 after the burn and was not updated by the forced transfer. The explanation matches the steps exactly.
+>
+> One small observation: the paragraph says "real balance across both wallets is 50" — but the test only interacted with a1, not a2. This is accurate because a2 holds 0 tokens throughout, so the total across both wallets is indeed 50. A reader with no prior context might wonder why "both wallets" is mentioned if only one was used. A note such as "Alice's second wallet a2 holds no tokens throughout" would remove any ambiguity. This is not an inaccuracy, just a minor clarity point.
 
 ---
 
@@ -197,11 +214,11 @@
 
 | Report | Q1 (problem found?) | Q2 Fix clarity | Q3 Evidence | Q4 Clarity | Q5 Actionable | Key feedback |
 |---|---|---|---|---|---|---|
-| Report A (C01) | No problem — all clean | N/A | N/A | 5/5 | 5/5 | `forcedTransfer` needs a one-line gloss for non-technical readers |
-| Report B (V04) | Yes — KYC bypassed; side-effect H3 correctly identified | 4/5 | 5/5 | 4/5 | 4/5 | `direct evidence: 0 of 1` is counterintuitive; `idA` needs introduction |
-| Report C (V05) | Yes — country restriction not enforced | 4/5 | 5/5 | 5/5 | 4/5 | Clearest failing report; cap reference in steps minor distraction |
-| Report D (V09) | Yes — cap and tracker both broken | 4/5 | 5/5 | 4/5 | 4/5 | Symptom hint excellent; `0 != 500` needs lay explanation |
-| Report E (V12) | Yes — forced transfer skips tracker | 5/5 | 5/5 | 5/5 | 5/5 | Most precisely diagnosed report; "both wallets" note minor |
+| Report A (C01) | No problem — all clean | N/A | N/A | 5/5 | 5/5 | "forcedTransfer" needs a one-line gloss for non-technical readers |
+| Report B (V04) | Yes — KYC bypassed, side-effect H3 correctly identified | 4/5 | 5/5 | 4/5 | 4/5 | "direct evidence: 0 of 1" is counterintuitive; "idA" needs introduction |
+| Report C (V05) | Yes — country restriction not enforced | 4/5 | 5/5 | 5/5 | 4/5 | Clearest failing report; cap reference in steps is a minor distraction |
+| Report D (V09) | Yes — cap and tracker both broken | 4/5 | 5/5 | 4/5 | 4/5 | Symptom hint is excellent; "0 != 500" needs a lay explanation |
+| Report E (V12) | Yes — forced transfer skips tracker | 5/5 | 5/5 | 5/5 | 5/5 | Most precisely diagnosed report; "both wallets" note minor ambiguity |
 
 **Average scores (Q2–Q3 for failing reports B–E; Q4–Q5 across all five):**
 
@@ -216,16 +233,24 @@
 
 ## Summary of Main Findings
 
-1. **Evidence is easy to follow:** The numbered steps and concrete numbers (`0 != 100`, `75 != 50`) make it clear something is actually broken even without reading the Solidity code (Q3 = 5.0/5).
-2. **Fixes point to the right area, though a developer is still needed:** The reports name the functions and modules to check, which is helpful, though for most config bugs you still need a developer to look up the exact setting (Q2 = 4.25/5).
-3. **Side-effect notes help:** Flagging H3 as a side effect in Report B stops a reader from chasing a second problem that isn't there.
-4. **Some jargon isn't explained:** Terms like `forcedTransfer`, `idA`, `CAP`, and `Direct evidence: 0 of 1` would be clearer with a brief plain-English note.
-5. **Report E (V12) was the clearest failing report:** One rule, one failing test, exact function (`forcedTransfer`), and exact numbers.
+1. **Evidence quality is high.** All four failing reports provide numbered reproduction steps, exact assertion failure messages, and inline Solidity test code. An evaluator can verify every claim without running the tool. Q3 averaged 5/5.
+
+2. **Fix clarity is good but not perfect.** Reports correctly identify which functions to inspect and in three cases (V05, V09, V12) provide a specific actionable fix suggestion. The main gap is that the exact configuration value that is wrong is usually not stated — the report says "compare with C01" or "check the module list." For a non-technical token issuer this requires a developer intermediary. Q2 averaged 4.25/5.
+
+3. **Side-effect handling works.** Report B (V04) correctly identifies the H3 failure as a side effect of the K1/K3 failure, writes "direct evidence: 0 of 1 failing tests," and adds the note "All failing H3 tests are side effects of the KYC failure above. No separate holding-limit problem is shown." This is exactly right and prevents a reader from chasing a second root cause that does not exist.
+
+4. **Language occasionally assumes technical context.** Terms like "idA," "forcedTransfer," "CAP," "direct_evidence.direct == 0," and "identity balance" appear without definition. A glossary or inline parenthetical would bring Report A and Report D up to 5/5 on clarity.
+
+5. **Report E (V12) is the best-written failing report.** One rule, one test, concrete numbers, named function, specific fix. If the format were guided by any template, V12's report would be the model to follow.
+
+6. **The triage labels are consistent and defensible.** The stock-gap / real / false-alarm categorisation is correct. The C08 open question is handled transparently. The evaluator would not change any label.
+
+7. **Generated test coverage has a known gap.** The K1 test checks for investors with no claim at all, but does not cover investors with claims from untrusted issuers. This is a coverage observation, not a report quality issue.
 
 ---
 
 ## Limitations of This Evaluation
 
-1. **No baseline for comparison:** Poorvi has not previously reviewed compliance audit reports for token systems, so scores reflect first-impression clarity rather than an industry benchmark.
-2. **Single-pass review:** Done in one sitting without a live Q&A session with the authors.
-3. **Technical terms:** A few smart-contract terms (`forcedTransfer`, `CAP`, `idA`) were unfamiliar and noted in the clarity feedback.
+1. **No baseline for calibration.** Poorvi has not previously read compliance audit reports for token systems, so scores reflect first-impression clarity rather than a comparison against an industry standard.
+2. **Single-pass read.** The evaluation was conducted in one sitting without the opportunity to ask the tool authors clarifying questions during the session.
+3. **Domain terminology.** Some smart contract terms (forcedTransfer, CAP, identity balance) were unfamiliar. Where terminology was unclear, it was noted in the per-report feedback rather than assumed.
