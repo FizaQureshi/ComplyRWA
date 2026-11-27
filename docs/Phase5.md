@@ -162,13 +162,3 @@ To see the error screen, open Advanced in the sidebar, tick "Test the error scre
 10. **The web part lives in `web/`** (plus one line in `.gitignore`). The page does not change `pipeline/` or `results/`.
 ---
  
-## 4. Status and next
- 
-- [x] 5.1 Web interface: merged into `master`, checked by hand on all 21 targets and the error case (section 2.5)
-Steps 5.2 to 5.5 (benchmark write-up, independent evaluation, evaluation report, demo script and recording) are owned by Member 3 and are written up in the evaluation report, not in this file. The page is ready for the evaluation and for the demo.
- 
-Open items for the web interface:
- 
-1. Ideas that were discussed and not built: a table of all 21 configurations in one view, quick buttons for the demo targets, short explanations for terms such as side effect and severity.
-2. Update this file if any of these are built, or if the `report.json` field names change.
- 
