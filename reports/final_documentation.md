@@ -1,6 +1,5 @@
 # ComplyRWA — Final Project Documentation
 
-**Assembled by:** Member 3 (Charvi) · **Branch:** `charvi-reports` · **Date:** 2026-11-24  
 **Pinned system:** T-REX 4.1.6 (commit `a09cfd38aa257d56db7ff9c90f30e65f125a141b`), Solidity 0.8.17, Foundry 1.8.7, Halmos 0.3.3
 
 ---
@@ -8,7 +7,7 @@
 ## Project Overview
 
 **What ComplyRWA does:**  
-ComplyRWA checks whether a tokenised real-world asset (a T-REX / ERC-3643 security token) actually follows the compliance rules its issuer wrote in plain English. Rules such as "only KYC-verified investors may receive tokens," "no restricted-country investor may hold tokens," and "no investor may hold more than 1 000 tokens" are converted automatically into executable Foundry test code, run against the token's on-chain configuration, and the results returned as a plain-language audit report.
+ComplyRWA checks whether a tokenised real-world asset (a T-REX / ERC-3643 security token) actually follows the compliance rules its issuer wrote in plain English. Rules such as "only KYC-verified investors may receive tokens," "no restricted-country investor may hold tokens," and "no investor may hold more than 1000 tokens" are converted automatically into executable Foundry test code, run against the token's on-chain configuration, and the results returned as a plain-language audit report.
 
 **Rule scope:** 13 rules across three categories:
 - **KYC** (K1–K5): investor identity, claim topics, trusted issuers, claim expiry, revocation
@@ -213,14 +212,62 @@ Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests e
 
 **Goal:** Write evaluation report, benchmark data, independent evaluation, demo script, final docs.
 
-**Status:** Drafted. Evaluator session pending. Not yet pushed.
+### Step 5.1 — Web Interface (MVP)
 
-### Deliverables list
-1. `reports/evaluation_report.md`: Concise 2-page evaluation report.
-2. `reports/benchmark_data.md`: Full benchmark reference (detection, validity, cost, time, versions).
-3. `reports/evaluator_questionnaire.md`: Pack and questionnaire for independent evaluator.
-4. `reports/demo_script.md`: Five-minute customer-oriented demo script.
-5. `reports/final_documentation.md`: This combined project documentation.
+**Status: COMPLETE.** Merged into `master` in two pull requests (merge commits `270d4b1`, 24 Nov 2026 and `f799745`, 25 Nov 2026). Files: `web/app.py`, `web/requirements.txt`, `web/README.md`, and `.gitignore` entry `web/.venv/`. Checked by hand on all 21 targets and the error case (V99) on Windows, Python 3.10.
+
+**What was built:**
+
+| Part | What it does |
+|---|---|
+| Target dropdown | 21 entries shown as ID and name (e.g. `V07 – Bug: Country rule removed`). C03, C04, C07 and V11 carry the suffix `(not tested)` |
+| Policy table | The 5 fixed rules K1, K3, J1, H1 and H3, read-only |
+| Run audit | A progress list with the five step names that `demo.py` prints |
+| Result banner | One of: failed / not tested / problems found / no problems with notes / no findings |
+| Rule status tab | Counts, the rule table (rule, policy, tests, failed, status, severity, note), grouped findings, INFO lines, cost line |
+| Findings tab | The finding text, direct evidence, failing tests, the side-effect flag and the reproducible test |
+| Full report tab and download | `report.md` shown on the page; download button named after the target (e.g. `report_V04.md`) |
+| Error screen | Stage and message when the audit fails |
+| Blind audit option | A checkbox (sidebar → Advanced) that hides what each configuration changes |
+
+**How the page works:**
+
+1. Picks a target from a fixed dropdown — free text is never sent to the command.
+2. Runs `python pipeline/demo.py --target <config> --mode replay` from the repo root (always replay; live mode costs money).
+3. Checks the exit code first. Exit 0 → `report.json` has `"status": "ok"`. Non-zero → error screen shows the stage and message from `report.json`.
+4. Reads only `results/demo_<target>/report.json` and `report.md`.
+
+**Fields read from `report.json`:**
+
+| Field | Used for |
+|---|---|
+| `target`, `model`, `mode` | Caption under the banner |
+| `rules.<ID>` (policy, tests_run, failed, status, severity) | Rule status table |
+| `groups` | Grouped findings list |
+| `info` | INFO boxes |
+| `findings.<ID>` (severity, text, direct_evidence, failing_tests, reproducible_test) | Findings tab and note column |
+| `cost` | Cost line |
+
+> **Side-effect note:** `findings.<ID>.direct_evidence.direct == 0` means every failure of that rule follows from another rule's problem. The page writes "side effect, not a separate problem" in the note column.
+
+> **Not-tested warning:** C03, C04, C07 and V11 have every rule at status `NOT_RUN` and `tests_run` = 0. The page shows a warning that this is not a clean result, keyed to these four names specifically.
+
+> **Field-name dependency:** The page depends on the `report.json` field names. If they change, the page must change. Member 1 has agreed to announce any change.
+
+**Limits of the web interface:**
+1. Only the 5 rules K1, K3, J1, H1 and H3 can be audited. The command takes no rule list.
+2. The page shows saved evidence from replay mode; it does not run Foundry live.
+3. The user cannot choose a local ERC-3643 project — only the pinned T-REX 4.1.6.
+4. C03, C04, C07 and V11 are not tested by the saved results.
+5. Blind mode is partial: it hides configuration names and help texts, but the dropdown still shows `(not tested)` for the four targets above.
+6. One audit at a time (shared log file).
+7. Hand testing only — no automated page tests in the repo.
+
+**Open items (not built, do not affect any result):** a table of all 21 configurations in one view; quick-access buttons for the demo targets; short in-page explanations for terms such as "side effect" and "severity."
+
+**Steps 5.2–5.5** (benchmark write-up, independent evaluation, evaluation report, demo script) are owned by Member 3 and written up in the evaluation report, not in this file.
+
+---
 
 ### Limitations
 1. **Hand-written tests are the answer key:** They were written by the same author as the variants, so their 100% detection rate is not an independent head-to-head evaluation.
@@ -308,5 +355,3 @@ ComplyRWA/
 ```
 
 ---
-
-*This document was assembled by Member 3 from `docs/Phase1.md` through `docs/Phase4.md` and `docs/environment.md`.*

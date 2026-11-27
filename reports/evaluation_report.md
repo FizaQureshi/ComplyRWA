@@ -109,6 +109,9 @@ The evaluation questionnaire and results template are in `reports/evaluator_ques
    - The 5 demo rules are fixed and read-only.
    - The web app displays saved evidence in replay mode and does not run Foundry live.
    - The web app displays a "not tested" warning for C03, C04, C07, and V11 because they start with balances.
+   - Blind mode is partial: it hides configuration names and help texts, but the dropdown still shows "(not tested)" for those four targets.
+   - The page depends on the `report.json` field names; if they change, the page must change (Member 1 has agreed to announce changes).
+   - One audit at a time (shared log file); no automated page tests in the repo.
 9. **C08 classification contradiction:** `review_triage.md` labels the C08 finding "Real" (pre-bind mint to Carol holds tokens), whereas `Phase3.md` §6 treats it as legal setup and flags it as a false alarm.
 10. **Licences:** Files derived from T-REX are GPL-3.0, and MaxBalanceModule is CC-BY-NC-4.0 (non-commercial licence only).
 
@@ -125,6 +128,6 @@ Total API spend from `results/llm_ledger.jsonl` (262 live calls across 323 total
 
 ## 7. Environment
 
-No tool versions changed during Phase 5. Pinned environment: Python 3.11.9, Foundry 1.8.7, Halmos 0.3.3, Node.js 20.20.2. Full record in `docs/environment.md`. Git status confirms that all saved results, `results/llm_cache`, pipeline code, and test files remain unmodified.
+No tool versions changed during Phase 5. Pinned environment: Python 3.11.9, Foundry 1.8.7, Halmos 0.3.3, Node.js 20.20.2. Full record in `docs/environment.md`. Protected files (`results/`, `results/llm_cache/`, `pipeline/`, `test/`) were not intended to be modified during Phase 5 report work.
 
 > *Full technical detail is in `docs/Phase3.md` and `docs/Phase4.md`.*
