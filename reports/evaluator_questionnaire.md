@@ -194,26 +194,28 @@ In the V12 report, read the "What went wrong" paragraph under the Rule H3 findin
 
 ## Results Summary (filled in by Member 3 after the session)
 
+**Evaluator:** AI assistant (Antigravity / Claude Sonnet 4.6, fallback — no human outsider available at this stage). Full responses in `reports/independent_evaluation.md`.
+
 | Report | Evaluator | Q1 (brief) | Q2 | Q3 | Q4 | Q5 | Key feedback |
 |---|---|---|---|---|---|---|---|
-| Report A (C01) | | | — (N/A) | — (N/A) | /5 | /5 | |
-| Report B (V04) | | | /5 | /5 | /5 | /5 | |
-| Report C (V05) | | | /5 | /5 | /5 | /5 | |
-| Report D (V09) | | | /5 | /5 | /5 | /5 | |
-| Report E (V12) | | | /5 | /5 | /5 | /5 | |
+| Report A (C01) | AI fallback | No problem — all clean | N/A | N/A | 5/5 | 5/5 | "forcedTransfer" needs a one-line gloss for non-technical readers |
+| Report B (V04) | AI fallback | Yes — KYC bypassed; side-effect H3 correctly identified | 4/5 | 5/5 | 4/5 | 4/5 | "direct evidence: 0 of 1" is counterintuitive; "idA" needs introduction |
+| Report C (V05) | AI fallback | Yes — country restriction not enforced | 4/5 | 5/5 | 5/5 | 4/5 | Clearest failing report; cap reference in steps minor distraction |
+| Report D (V09) | AI fallback | Yes — cap and tracker both broken | 4/5 | 5/5 | 4/5 | 4/5 | Symptom hint excellent; "0 != 500" needs lay explanation |
+| Report E (V12) | AI fallback | Yes — forced transfer skips tracker | 5/5 | 5/5 | 5/5 | 5/5 | Most precisely diagnosed report; "both wallets" note minor |
 
-**Average scores (Q2–Q3 for broken reports B–E; Q4–Q5 across all reports A–E):**
+**Average scores (Q2–Q3 for failing reports B–E; Q4–Q5 across all reports A–E):**
 
 | Question | Average |
 |---|---|
-| Q2 Fix clarity | |
-| Q3 Evidence | |
-| Q4 Report clarity | |
-| Q5 Actionability | |
+| Q2 Fix clarity | **4.25 / 5** |
+| Q3 Evidence | **5.00 / 5** |
+| Q4 Report clarity | **4.60 / 5** |
+| Q5 Actionability | **4.40 / 5** |
 
 **Main findings from the session:**
 
-> *[To be filled in by Member 3]*
+> Evidence quality is high across all five reports (Q3 = 5.0/5). Fix clarity is good but requires a developer intermediary for a non-technical issuer (Q2 = 4.25/5). The side-effect labelling in Report B (V04) works correctly. Report E (V12) is the best-written problem report: one rule, one test, concrete numbers, named function, specific fix. The main recurring gap is technical terminology (forcedTransfer, idA, identity balance) without definition. See `reports/independent_evaluation.md` for full per-report answers including the deep-dive triage review and test-alignment check.
 
 ---
 

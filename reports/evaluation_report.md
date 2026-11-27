@@ -72,27 +72,40 @@ Haiku had zero JSON format failures. Sonnet's misses before retry were format fa
 
 ---
 
-## 4. Independent Evaluation [PENDING]
+## 4. Independent Evaluation
 
-> **[PENDING: Planned session to be completed after the evaluator reviews the reports]**
+> **Status: Completed (AI fallback evaluator).** A human evaluator session is still the preferred outcome — see the limitation note below.
 
-**Plan:** Five reports will be shown to an independent evaluator: C01 (clean), V04, V05, V09, and V12. The evaluator will answer 5 questions:
-- Q1: In your own words, what is wrong? (or: does the report say everything is fine?)
-- Q2: Do you understand what needs to be fixed? (Rating 1–5)
-- Q3: Is the evidence convincing? (Rating 1–5)
-- Q4: How clear is the report / is anything confusing? (Rating 1–5)
-- Q5: How actionable is this report for an issuer? (Rating 1–5)
+**Evaluator:** AI assistant (Antigravity / Claude Sonnet 4.6, acting as cold evaluator). The evaluator read the five reports without being told in advance which described a problem or what the bugs were.  
+**Relationship to team:** Fallback. The brief asks for a human outside the team. No human outsider was available at this stage. This is documented as a limitation (see §5 #11).  
+**Full record:** `reports/independent_evaluation.md` — contains per-report Q1–Q5 answers, all three deep-dive checks, and the results summary.
 
-| Report | Q1 (what is wrong, in their words) | Q2 | Q3 | Q4 | Q5 | Notes |
+**Five reports shown:** C01 (clean), V04 (KYC bypassed), V05 (wrong country restricted), V09 (holding limit removed), V12 (forced transfer skips tracker). Each read cold from `results/demo_<target>/report.md`.
+
+| Report | Q1 (problem found?) | Q2 Fix clarity | Q3 Evidence | Q4 Clarity | Q5 Actionable | Key feedback |
 |---|---|---|---|---|---|---|
-| Report A (C01) | *[Pending]* | — (N/A) | — (N/A) | /5 | /5 | |
-| Report B (V04) | *[Pending]* | /5 | /5 | /5 | /5 | |
-| Report C (V05) | *[Pending]* | /5 | /5 | /5 | /5 | |
-| Report D (V09) | *[Pending]* | /5 | /5 | /5 | /5 | |
-| Report E (V12) | *[Pending]* | /5 | /5 | /5 | /5 | |
+| Report A (C01) | No problem — all clean | N/A | N/A | 5/5 | 5/5 | "forcedTransfer" needs a one-line gloss for non-technical readers |
+| Report B (V04) | Yes — KYC bypassed; side-effect H3 correctly identified | 4/5 | 5/5 | 4/5 | 4/5 | "direct evidence: 0 of 1" is counterintuitive; "idA" needs introduction |
+| Report C (V05) | Yes — country restriction not enforced | 4/5 | 5/5 | 5/5 | 4/5 | Clearest failing report |
+| Report D (V09) | Yes — cap and tracker both broken | 4/5 | 5/5 | 4/5 | 4/5 | Symptom hint excellent; "0 != 500" needs lay explanation |
+| Report E (V12) | Yes — forced transfer skips tracker | 5/5 | 5/5 | 5/5 | 5/5 | Most precisely diagnosed report |
 
-**Evaluator:** [Name, role, relationship to project — state if outsider or team fallback]  
-The evaluation questionnaire and results template are in `reports/evaluator_questionnaire.md`.
+**Average scores:**
+
+| Question | Average |
+|---|---|
+| Q2 Fix clarity (failing reports B–E) | **4.25 / 5** |
+| Q3 Evidence (failing reports B–E) | **5.00 / 5** |
+| Q4 Report clarity (all five) | **4.60 / 5** |
+| Q5 Actionability (all five) | **4.40 / 5** |
+
+**Key findings:**
+- Evidence quality is high across all reports: exact assertion failure values, numbered reproduction steps, inline test code (Q3 = 5.0/5).
+- Fix clarity is good but not complete: reports name which functions to inspect and suggest where to look, but do not state the precise configuration value that is wrong. A developer intermediary is needed for a non-technical issuer (Q2 = 4.25/5).
+- Side-effect handling in V04 works: H3 is correctly identified as a side effect of the KYC failure, and the note "All failing H3 tests are side effects of the KYC failure above. No separate holding-limit problem is shown" prevents false root-cause chasing.
+- Technical vocabulary (forcedTransfer, idA, identity balance, CAP) is used without definition. A short glossary would bring several reports from 4/5 to 5/5 on clarity.
+- Report E (V12) is the best-written problem report: one rule, one test, concrete numbers (75 ≠ 50), named function (`forcedTransfer`), specific fix.
+- Deep-dive: triage labels in `review_triage.md` are consistent and defensible. The K1 test coverage has a known gap (untrusted-issuer scenario not covered). The V12 "What went wrong" paragraph matches the reproduction steps exactly (minor note: "both wallets" phrasing could be clarified).
 
 ---
 
@@ -114,6 +127,7 @@ The evaluation questionnaire and results template are in `reports/evaluator_ques
    - One audit at a time (shared log file); no automated page tests in the repo.
 9. **C08 classification contradiction:** `review_triage.md` labels the C08 finding "Real" (pre-bind mint to Carol holds tokens), whereas `Phase3.md` §6 treats it as legal setup and flags it as a false alarm.
 10. **Licences:** Files derived from T-REX are GPL-3.0, and MaxBalanceModule is CC-BY-NC-4.0 (non-commercial licence only).
+11. **AI fallback evaluator:** The independent evaluation (§4) was conducted by an AI assistant rather than a human outside the team. The evaluator read the five reports without prior knowledge of the bugs or the benchmark, but cannot replicate the real-world confusion a non-technical token issuer would experience. Scores may be inflated on clarity and actionability compared to a true external human reader.
 
 ---
 

@@ -280,6 +280,7 @@ Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests e
 8. **Web demo interface limits:** The 5 demo rules are fixed and read-only; the app displays saved evidence in replay mode and does not run Foundry live; and it displays a "not tested" warning for C03, C04, C07, and V11 because they start with balances.
 9. **C08 classification contradiction:** `review_triage.md` labels the C08 finding "Real" (pre-bind mint to Carol holds tokens), whereas `Phase3.md` §6 treats it as legal setup and flags it as a false alarm.
 10. **MaxBalanceModule is CC-BY-NC-4.0:** Non-commercial licence only.
+11. **AI fallback evaluator:** The independent evaluation was conducted by an AI assistant rather than a human outside the team. The evaluator read the five reports without prior knowledge of the bugs, but cannot replicate real-world confusion a non-technical issuer would experience.
 
 ---
 
