@@ -10,7 +10,7 @@
 
 | Field | Details |
 |---|---|
-| **Name** | Poorvi |
+| **Name** | Poorvi (named with permission) |
 | **Role** | Independent reviewer — outside the project team |
 | **Background** | General software and review background; no prior knowledge of the ComplyRWA codebase, the seeded variants, or the benchmark results |
 | **Relationship to team** | Outside the team (independent) |

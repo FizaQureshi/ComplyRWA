@@ -56,12 +56,12 @@ ComplyRWA checks whether a tokenised real-world asset (a T-REX / ERC-3643 securi
 3. **Notify**: `ModularCompliance.transferred(...)` → `IModule.moduleTransferAction(...)` updates module counters.
 
 ### Two enforcement paths
-- **KYC path:** IdentityRegistry + IdentityRegistryStorage + ClaimTopicsRegistry + TrustedIssuersRegistry + Identity (ONCHAINID) + ClaimIssuer (5 contracts).
+- **KYC path:** IdentityRegistry + 4 contracts behind it (`IdentityRegistryStorage`, `ClaimTopicsRegistry`, `TrustedIssuersRegistry`, `Identity` / ONCHAINID), plus `ClaimIssuer`.
 - **Rule path:** ModularCompliance + compliance modules (CountryRestrictModule, MaxBalanceModule).
 
 > **Key insight:** Jurisdiction (country) is checked by a compliance module, not in the KYC path. The country is stored in IdentityRegistryStorage, but only compliance modules read it via `investorCountry()`.
 
-**Licence note:** `MaxBalanceModule` is released under CC-BY-NC-4.0 (non-commercial). Any commercial use requires a separate licence.
+**Licence note:** T-REX is GPL-3.0; `MaxBalanceModule` is also under CC-BY-NC-4.0 (non-commercial). Any commercial use requires a separate licence.
 
 ---
 
@@ -214,6 +214,8 @@ Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests e
 
 ### Step 5.1 — Web Interface (MVP)
 
+*Written by Member 2, summarised from `docs/Phase5.md`.*
+
 **Status: COMPLETE.** Merged into `master` in two pull requests (merge commits `270d4b1`, 24 Nov 2026 and `f799745`, 25 Nov 2026). Files: `web/app.py`, `web/requirements.txt`, `web/README.md`, and `.gitignore` entry `web/.venv/`. Checked by hand on all 21 targets and the error case (V99) on Windows, Python 3.10.
 
 **What was built:**
@@ -265,7 +267,18 @@ Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests e
 
 **Open items (not built, do not affect any result):** a table of all 21 configurations in one view; quick-access buttons for the demo targets; short in-page explanations for terms such as "side effect" and "severity."
 
-**Steps 5.2–5.5** (benchmark write-up, independent evaluation, evaluation report, demo script) are owned by Member 3 and written up in the evaluation report, not in this file.
+**Steps 5.2–5.5** (benchmark write-up, independent evaluation, evaluation report, demo script) are owned by Member 3 and documented in `reports/evaluation_report.md`, `reports/benchmark_data.md`, `reports/evaluator_questionnaire.md`, `reports/independent_evaluation.md`, and `reports/demo_script.md` (with this combined record in `reports/final_documentation.md`).
+
+### Phase 5 Deliverables (Member 3)
+
+| Deliverable | Purpose | Status |
+|---|---|---|
+| `reports/evaluation_report.md` | Evaluation write-up, three-way summary, independent evaluation, honest limits | Drafted (evaluator session done; not yet pushed) |
+| `reports/benchmark_data.md` | Reproducible benchmark figures, variant tables, ledger spend | Drafted (not yet pushed) |
+| `reports/evaluator_questionnaire.md` | Independent evaluator pack and results summary | Drafted (evaluator session done; not yet pushed) |
+| `reports/independent_evaluation.md` | Full independent evaluation responses from Poorvi | Drafted (evaluator session done; not yet pushed) |
+| `reports/demo_script.md` | Five-minute customer demo script (C01 → V09 → V04) | Drafted (not yet pushed) |
+| `reports/final_documentation.md` | Combined Phases 0–5 project documentation | Drafted (not yet pushed) |
 
 ---
 
@@ -280,7 +293,7 @@ Given 10 policy rules (H1–H4, J1–J3, K1–K3), 4 tests per rule = 40 tests e
 8. **Web demo interface limits:** The 5 demo rules are fixed and read-only; the app displays saved evidence in replay mode and does not run Foundry live; and it displays a "not tested" warning for C03, C04, C07, and V11 because they start with balances.
 9. **C08 classification contradiction:** `review_triage.md` labels the C08 finding "Real" (pre-bind mint to Carol holds tokens), whereas `Phase3.md` §6 treats it as legal setup and flags it as a false alarm.
 10. **MaxBalanceModule is CC-BY-NC-4.0:** Non-commercial licence only.
-11. **Single-session evaluation:** The independent evaluation was conducted by one external reviewer (Poorvi) in a single session. Scores reflect first-impression clarity and cannot substitute for a panel evaluation or repeated sessions.
+11. **Single-session evaluation:** The independent evaluation was conducted by one external reviewer (Poorvi, named with permission) in a single session. Scores reflect first-impression clarity and cannot substitute for a panel evaluation or repeated sessions.
 
 ---
 
@@ -329,6 +342,7 @@ ComplyRWA/
     Phase2.md           Policy catalogue (13 rules, decisions D1–D4)
     Phase3.md           Gold standard and test harness
     Phase4.md           AI pipeline (steps 4.0–4.8)
+    Phase5.md           Web interface MVP (step 5.1)
     environment.md      Tool versions, fuzz settings, reproducibility
   pipeline/
     demo.py             End-to-end demo (--mode replay)
@@ -348,6 +362,7 @@ ComplyRWA/
     evaluation_report.md
     benchmark_data.md
     evaluator_questionnaire.md
+    independent_evaluation.md
     demo_script.md
     final_documentation.md
   test/                 Hand-written Foundry tests (do not modify)

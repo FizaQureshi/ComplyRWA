@@ -74,7 +74,7 @@ Haiku had zero JSON format failures. Sonnet's misses before retry were format fa
 
 ## 4. Independent Evaluation
 
-**Evaluator:** Poorvi — independent reviewer, outside the project team. The evaluator read the five reports without being told in advance which described a problem or what the bugs were.  
+**Evaluator:** Poorvi (named with permission) — independent reviewer, outside the project team. The evaluator read the five reports without being told in advance which described a problem or what the bugs were.  
 **Full record:** `reports/independent_evaluation.md` — contains per-report Q1–Q5 answers, all three deep-dive checks, and the results summary.
 
 **Five reports shown:** C01 (clean), V04 (KYC bypassed), V05 (wrong country restricted), V09 (holding limit removed), V12 (forced transfer skips tracker). Each read cold from `results/demo_<target>/report.md`.

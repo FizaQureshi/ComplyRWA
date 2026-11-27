@@ -8,7 +8,7 @@
 
 | Field | Details |
 |---|---|
-| **Name** | Poorvi |
+| **Name** | Poorvi (named with permission) |
 | **Role** | Independent reviewer |
 | **Background** | General software and review background; no prior knowledge of the ComplyRWA codebase or the benchmark results |
 | **Relationship to team** | Outside the team (independent) |
@@ -194,7 +194,7 @@ In the V12 report, read the "What went wrong" paragraph under the Rule H3 findin
 
 ## Results Summary (filled in by Member 3 after the session)
 
-**Evaluator:** Poorvi (independent reviewer, outside the team). Full responses in `reports/independent_evaluation.md`.
+**Evaluator:** Poorvi (named with permission; independent reviewer, outside the team). Full responses in `reports/independent_evaluation.md`.
 
 | Report | Evaluator | Q1 (brief) | Q2 | Q3 | Q4 | Q5 | Key feedback |
 |---|---|---|---|---|---|---|---|
@@ -219,4 +219,4 @@ In the V12 report, read the "What went wrong" paragraph under the Rule H3 findin
 
 ---
 
-*The evaluator's responses will be quoted (with permission) in the final report.*
+*The evaluator's responses are quoted with permission.*
