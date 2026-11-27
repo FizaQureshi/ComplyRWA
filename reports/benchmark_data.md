@@ -146,7 +146,7 @@ python pipeline/demo.py --target V04 --mode replay
 | Forge suites | 38 (21 invariant + 17 scenario) |
 | Total test cases | 208 (63 clean gold + 145 variant) |
 
-Full pass/fail table: `results/variant_table.md`. Reproduced in `reports/evaluation_report.md` §2.
+Full pass/fail table: `results/variant_table.md`. Summarised in `reports/evaluation_report.md` §2.
 
 ---
 
@@ -309,7 +309,7 @@ Costs and times copied directly from `results/review_compare.md`.
 
 ### 7.1 By Model — all records (incl. mock and replay, $0)
 
-| Model | Live calls | Input tokens | Output tokens | Cost (USD) |
+| Model | Calls (all records) | Input tokens | Output tokens | Cost (USD) |
 |---|---|---|---|---|
 | `claude-haiku-5-5` | 212 | 2,509,940 | 665,796 | \$0.3082 |
 | `claude-sonnet-5-5` | 111 | 1,633,960 | 151,681 | \$3.3958 |
