@@ -56,7 +56,7 @@ ComplyRWA checks whether a tokenised real-world asset (a T-REX / ERC-3643 securi
 3. **Notify**: `ModularCompliance.transferred(...)` → `IModule.moduleTransferAction(...)` updates module counters.
 
 ### Two enforcement paths
-- **KYC path:** IdentityRegistry + 4 contracts behind it (`IdentityRegistryStorage`, `ClaimTopicsRegistry`, `TrustedIssuersRegistry`, `Identity` / ONCHAINID), plus `ClaimIssuer`.
+- **KYC path:** `IdentityRegistry` and the four contracts behind it (`IdentityRegistryStorage`, `ClaimTopicsRegistry`, `TrustedIssuersRegistry`, and the investor's ONCHAINID) — 5 contracts. `ClaimIssuer` signs each claim.
 - **Rule path:** ModularCompliance + compliance modules (CountryRestrictModule, MaxBalanceModule).
 
 > **Key insight:** Jurisdiction (country) is checked by a compliance module, not in the KYC path. The country is stored in IdentityRegistryStorage, but only compliance modules read it via `investorCountry()`.
